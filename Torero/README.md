@@ -1,21 +1,21 @@
 
-#1 Getting started
+# 1 Getting started
 
-##1.1 Installing Boost
+## 1.1 Installing Boost
 
 Boost libraries must be installed. To install them use the following commands in ubuntu terminal:
 
 	```
-		sudo apt-get install libboost-all-dev
-		sudo apt-get install aptitude
-		aptitude search boost
+	sudo apt-get install libboost-all-dev
+	sudo apt-get install aptitude
+	aptitude search boost
 	```
 
-##1.2 Installing Eigen
+## 1.2 Installing Eigen
 
 It is necessa to install Eigen 3 version 3.3.4 or change the version at CMakeLists.txt in the main folder of "Torero":
 
-###1.2.1 Changing the Eigen version
+### 1.2.1 Changing the Eigen version
 
 	1.Open the file CMakeLists.txt located in the "Torero" main folder
 	2.Go to the line
@@ -38,7 +38,7 @@ It is necessa to install Eigen 3 version 3.3.4 or change the version at CMakeLis
 		#include "Eigen/Geometry"
 		```
 
-###1.2.2 Downloading and installation of Eigen
+### 1.2.2 Downloading and installation of Eigen
 
 	1.Download eigen from [http://eigen.tuxfamily.org](http://eigen.tuxfamily.org)
 	2.Unzip the file
@@ -71,7 +71,7 @@ It is necessa to install Eigen 3 version 3.3.4 or change the version at CMakeLis
 		```
 	8.You can delete the unzipped folder
 
-##1.3 Installing DevIl for image loading
+## 1.3 Installing DevIl for image loading
 
 For load images it is necessary to install DevIl (Developer's Image Library)
 
