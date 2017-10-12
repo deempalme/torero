@@ -13,27 +13,27 @@ aptitude search boost
 
 ## 1.2 Installing Eigen
 
-It is necessa to install Eigen 3 version 3.3.4 or change the version at CMakeLists.txt in the main folder of "Torero":
+It is necessary to install Eigen 3 version 3.3.4 or change the version at CMakeLists.txt in the main folder of "Torero":
 
 ### 1.2.1 Changing the Eigen version
 
 1. Open the file CMakeLists.txt located in the "Torero" main folder
 2. Go to the line
-   ```
+   ```CMake
    find_package(Eigen3 3.3.4 COMPONENTS Core Geometry REQUIRED)
    ```
 3. Change the version of Eigen, example:
-   ```
+   ```CMake
    find_package(Eigen2 2.1.1 COMPONENTS Core Geometry REQUIRED)
    ```
 4. Don't forget to change also the lines:
-   ```
+   ```CMake
    include_directories(${EIGEN3_INCLUDE_DIR})
    ...
    Eigen3::Eigen
    ```
 5. Change all the Eigen3 #includes if is necessary
-   ```
+   ```C++
    #include "Eigen/Core"
    #include "Eigen/Geometry"
    ```
@@ -45,7 +45,7 @@ It is necessa to install Eigen 3 version 3.3.4 or change the version at CMakeLis
 3. Open that folder and create another folder called "build"
    - Ubuntu terminal:
      ```
-     cd eigen_folder
+     cd <eigen_folder>
      mkdir buiild
      ```
 4. Open the "build" folder
@@ -80,7 +80,7 @@ For load images it is necessary to install DevIl (Developer's Image Library)
 3. Open that folder and its child folder called "DevIL" and create inside a folder called "build"
    - Ubuntu terminal:
      ```
-     cd devil_folder
+     cd <devil_folder>
      cd DevIL
      mkdir buiild
      ```
