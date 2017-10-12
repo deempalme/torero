@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="i_pem">../Images/icon.png</file>
+        <file alias="c_dn">../cubemap/dn.png</file>
+        <file alias="c_up">../cubemap/up.png</file>
+        <file alias="c_rt">../cubemap/rt.png</file>
+        <file alias="c_lf">../cubemap/lf.png</file>
+        <file alias="c_ft">../cubemap/ft.png</file>
+        <file alias="c_bk">../cubemap/bk.png</file>
+    </qresource>
+</RCC>
