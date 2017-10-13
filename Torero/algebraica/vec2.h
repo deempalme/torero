@@ -148,8 +148,19 @@ public:
     }
     return Length;
   }
+  // normalize this vector
+  vec2<T>& normalize(){
+    if(!isNormalized){
+      isNormalized = true;
+      T d(length());
+      if(d > 0) d = 1 / d;
+      x_n = values[0] *= d;
+      y_n = values[1] *= d;
+    }
+    return *this;
+  }
   // normalized vector
-  const vec2<T> normalize(){
+  const vec2<T> normalized(){
     if(!isNormalized){
       isNormalized = true;
       T d(length());

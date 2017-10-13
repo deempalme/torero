@@ -164,8 +164,21 @@ public:
     }
     return Length;
   }
+  // normalize this vector vector
+  vec4<T>& normalize(){
+    if(!isNormalized){
+      isNormalized = true;
+      T d(length());
+      if(d > 0) d = 1 / d;
+      x_n = values[0] *= d;
+      y_n = values[1] *= d;
+      z_n = values[2] *= d;
+      w_n = values[3] *= d;
+    }
+    return *this;
+  }
   // normalized vector
-  const vec4<T> normalize(){
+  const vec4<T> normalized(){
     if(!isNormalized){
       isNormalized = true;
       T d(length());

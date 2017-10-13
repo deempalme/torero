@@ -3,5 +3,5 @@
 
 int main(int argc, char *argv[]){
   Console GUI(argc, argv);
-  return GUI.execute();
+  return GUI.execute(1350, 600, "Torero", false);
 }

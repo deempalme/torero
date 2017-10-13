@@ -14,12 +14,15 @@
 #include "Eigen/Geometry"
 //#include "Algebraica.h"
 // timer
-#include <boost/timer.hpp>
+#include <chrono>
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 // Image loader
 #include <IL/il.h>
+// multithreading
+#include <thread>
+#include <mutex>
 // standard
 #include <iostream>
 
@@ -34,9 +37,17 @@ class Console
 public:
   explicit Console(int _argc, char **_argv);
   ~Console();
+  // This is the Main function; it will open a new window.
+  // Width and height represent the window resolution, if full_screen is true then, your screen
+  // resolution will change, to have the native resolution of your system, set width and height to
+  // zero, also, if width and height is equal to zero and full_screen is false then, width and
+  // height will change to initial values: 1350 and 600 respectively.
+  int execute(const int width = 1350, const int height = 600, const char *title = "Torero",
+              const bool full_screen = true, const bool maximized = false);
 
-  int execute();
-
+  // ------------------------------------------------------------------------------------ //
+  // ------------------------------------- SIGNALS -------------------------------------- //
+  // ------------------------------------------------------------------------------------ //
   static signals2::signal<void (int, int)> resize_signal;
 
 protected:
@@ -48,9 +59,10 @@ private:
   int argc_;
   char **argv_;
   GLFWwindow *window_;
+  int width_, height_;
+  bool is_main_open_;
   GUI *gui_;
 
-  int width_, height_;
   unsigned int VBO, VAO;
   int shaderProgram;
 };

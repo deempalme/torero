@@ -1,5 +1,5 @@
 #cmake version
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
 
 #project name
 project(Torero)
@@ -29,10 +29,7 @@ if(DEFINED ROS_DATA)
   generate_messages(DEPENDENCIES std_msgs)
 
   catkin_package(
-  #  INCLUDE_DIRS include
-  #  LIBRARIES anavs
     CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
-  #  DEPENDS system_lib
   )
 endif(DEFINED ROS_DATA)
 # // ------------------------------------------------------------------------------------ //
@@ -42,9 +39,13 @@ endif(DEFINED ROS_DATA)
 # As moc files are generated in the binary dir, tell CMake
 # to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-#compatibility with C++11
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#start debug mode
+# compatibility with c++14
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+# compatibility with C++11
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# start debug mode
 set(CMAKE_BUILD_TYPE Debug)
 
 # Widgets finds its own dependencies
@@ -62,7 +63,6 @@ if(DEFINED ROS_DATA)
 #  set(DATA_H extras/headers/rosdata.h)
 #  set(DATA_S extras/sources/rosdata.cpp)
 
-  #include_directories(${catkin_INCLUDE_DIRS} $ENV{${Qt5_INCLUDE_DIRS}})
   include_directories(${catkin_INCLUDE_DIRS})
 
   set(ros_LIBRARIES ${catkin_LIBRARIES})
@@ -76,6 +76,7 @@ set(CPP_FILES
   sources/console.cpp
   sources/gui.cpp
   sources/main.cpp
+  sources/three_dimensional_model_loader.cpp
 #  ${DATA_S}
 )
 
@@ -83,9 +84,11 @@ set(CPP_FILES
 set(HPP_FILES
   headers/console.h
   headers/definitions.h
-  headers/types.h
   headers/gui.h
+  headers/three_dimensional_model_loader.h
+  headers/types.h
 #  ${DATA_H}
+  README.md
 )
 
 #including the resource files
@@ -95,7 +98,7 @@ set(PROJECT_RESOURCES
   resources/shaders.qrc
 )
 
-# ++++++++++++++++++++++++++++++++++++++ GLEW ++++++++++++++++++++++++++++++++++++++
+# ++++++++++++++++++++++++++++++++++++++ GLFW ++++++++++++++++++++++++++++++++++++++
 # disable build the GLFW tests, examples and documentation
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -121,6 +124,7 @@ set(ALGEBRAICA_FILES
   algebraica/vec2.h
   algebraica/vec3.h
   algebraica/vec4.h
+  algebraica/mat4.h
 )
 
 # +++++++++++++++++++++++++++++++++++++ EIGEN ++++++++++++++++++++++++++++++++++++++

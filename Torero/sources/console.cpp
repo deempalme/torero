@@ -4,9 +4,10 @@ Console::Console(int _argc, char **_argv) :
   argc_(_argc),
   argv_(_argv),
   window_(nullptr),
-  gui_(nullptr),
   width_(0),
-  height_(0)
+  height_(0),
+  is_main_open_(false),
+  gui_(nullptr)
 {
 }
 
@@ -17,81 +18,95 @@ Console::~Console(){
   }
 }
 
-int Console::execute(){
-  if(!glfwInit()){
-    cout << "GLFW initialization failed" << endl;
-    return GLFW_NOT_LOADED;
-  }
+int Console::execute(const int width, const int height, const char* title,
+                     const bool full_screen, const bool maximized){
+  if(!is_main_open_){
+    if(!glfwInit()){
+      cout << "GLFW initialization failed" << endl;
+      return GLFW_NOT_LOADED;
+    }
 
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-  glfwWindowHint(GLFW_SAMPLES, 4);
-  glfwWindowHint(GLFW_DEPTH_BITS, 24);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-  glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-  glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    glfwWindowHint(GLFW_MAXIMIZED, (maximized)? GLFW_TRUE : GLFW_FALSE);
 
-  // intializing DevIL image loader
-  ilInit();
+    // intializing DevIL image loader
+    ilInit();
 
-//   window_ = glfwCreateWindow(1350, 600, "Torero", glfwGetPrimaryMonitor(), NULL);
-  // non full screen
-  window_ = glfwCreateWindow(600, 600, "Torero", NULL, NULL);
-//  window_ = glfwCreateWindow(1350, 600, "Torero", NULL, NULL);
-  if(!window_){
-    glfwTerminate();
-    cout << "GLFW failed creating a window" << endl;
-    return WINDOW_NOT_LOADED;
-  }
+    const GLFWvidmode* screen = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-  // ------------------------------------------------------------------------------------ //
-  // ------------------------------- Loading window's icon ------------------------------ //
-  // ------------------------------------------------------------------------------------ //
+    width_ = (width <= 0)? screen->width : width;
+    height_ = (height <= 0)? screen->height : height;
 
-  ILuint icon_id{ilGenImage()};
-  ilBindImage(icon_id);
+    if(full_screen)
+      window_ = glfwCreateWindow(width_, height_, title, glfwGetPrimaryMonitor(), NULL);
+    else
+      window_ = glfwCreateWindow(width_, height_, title, NULL, NULL);
 
-  ilLoadImage("images/icon.png");
+    if(!window_){
+      glfwTerminate();
+      cout << "GLFW failed creating a window" << endl;
+      return WINDOW_NOT_LOADED;
+    }
 
-  GLFWimage icon = {ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetData()};
-  glfwSetWindowIcon(window_, 1, &icon);
+    // ------------------------------------------------------------------------------------ //
+    // ------------------------------- Loading window's icon ------------------------------ //
+    // ------------------------------------------------------------------------------------ //
 
-  ilDeleteImage(icon_id);
+    ILuint icon_id{ilGenImage()};
+    ilBindImage(icon_id);
 
-  // ------------------------------------------------------------------------------------ //
-  // ---------------------------- Ending loading window's icon -------------------------- //
-  // ------------------------------------------------------------------------------------ //
+    ilLoadImage("images/icon.png");
 
-  glfwMakeContextCurrent(window_);
-  if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
-    glfwTerminate();
-    cout << "Failed to initialize GLAD : " << endl;
-    return GLAD_NOT_LOADED;
-  }
-  glfwSwapInterval(1);
+    GLFWimage icon = {ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetData()};
+    glfwSetWindowIcon(window_, 1, &icon);
 
-  resize_signal.connect(bind(&Console::resizeGL, this, _1, _2));
+    ilDeleteImage(icon_id);
 
-  initializeGL();
-  glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
+    // ------------------------------------------------------------------------------------ //
+    // ---------------------------- Ending loading window's icon -------------------------- //
+    // ------------------------------------------------------------------------------------ //
 
-  while(!glfwWindowShouldClose(window_)){
-    paintGL();
+    glfwMakeContextCurrent(window_);
+    if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
+      glfwTerminate();
+      cout << "Failed to initialize GLAD : " << endl;
+      return GLAD_NOT_LOADED;
+    }
+    glfwSwapInterval(1);
+
+    resize_signal.connect(bind(&Console::resizeGL, this, _1, _2));
+
+    initializeGL();
+    glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
+
+    while(!glfwWindowShouldClose(window_)){
+      paintGL();
 
 //    if(glfwGetWindowAttrib(window_, GLFW_VISIBLE)){
 //      // window is visible
 //    }
 
-    glfwSwapBuffers(window_);
-    glfwPollEvents();
+      glfwSwapBuffers(window_);
+      glfwPollEvents();
+    }
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+
+    glfwDestroyWindow(window_);
+    glfwTerminate();
+
+    is_main_open_ = true;
+
+    return EXIT_SUCCESS;
+  }else{
+    return EXISTING_WINDOW;
   }
-
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-
-  glfwDestroyWindow(window_);
-  glfwTerminate();
-  return EXIT_SUCCESS;
 }
 
 signals2::signal<void (int, int)> Console::resize_signal;
