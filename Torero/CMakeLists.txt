@@ -50,7 +50,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 # Widgets finds its own dependencies
 find_package(OpenGL REQUIRED)
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 find_package(DevIL REQUIRED)
 find_package(Eigen3 3.3.4 COMPONENTS Core Geometry REQUIRED)
 
@@ -61,7 +61,7 @@ find_package(Eigen3 3.3.4 COMPONENTS Core Geometry REQUIRED)
 if(DEFINED ROS_DATA)
   add_definitions(-DROS_DATA)
 #  set(DATA_H extras/headers/rosdata.h)
-#  set(DATA_S extras/sources/rosdata.cpp)
+#  set(DATA_S extras/src/rosdata.cpp)
 
   include_directories(${catkin_INCLUDE_DIRS})
 
@@ -73,29 +73,27 @@ endif(DEFINED ROS_DATA)
 
 #source files
 set(CPP_FILES
-  sources/console.cpp
-  sources/gui.cpp
-  sources/main.cpp
-  sources/three_dimensional_model_loader.cpp
+  src/console.cpp
+  src/gui.cpp
+  src/main.cpp
+  src/three_dimensional_model_loader.cpp
 #  ${DATA_S}
 )
 
 #header files
 set(HPP_FILES
-  headers/console.h
-  headers/definitions.h
-  headers/gui.h
-  headers/three_dimensional_model_loader.h
-  headers/types.h
+  includes/console.h
+  includes/definitions.h
+  includes/gui.h
+  includes/three_dimensional_model_loader.h
+  includes/types.h
 #  ${DATA_H}
   README.md
 )
 
-#including the resource files
-set(PROJECT_RESOURCES
-  resources/fonts.qrc
-  resources/images.qrc
-  resources/shaders.qrc
+set(SHADER_FILES
+  resources/shaders/PBR.vert
+  resources/shaders/PBR.frag
 )
 
 # ++++++++++++++++++++++++++++++++++++++ GLFW ++++++++++++++++++++++++++++++++++++++
@@ -105,26 +103,27 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # adding the root directory of the GLFW source tree to your project
-add_subdirectory(GLFW)
-include_directories(GLFW/include)
+add_subdirectory(libs/GLFW)
+include_directories(libs/GLFW/include)
 
 # ++++++++++++++++++++++++++++++++++++++ GLAD ++++++++++++++++++++++++++++++++++++++
 # adding the root directory of the GLAD source tree to your project
-include_directories(GLAD/include)
+include_directories(libs/GLAD/include)
 set(GLAD_FILES
-  GLAD/include/glad/glad.h
-  GLAD/src/glad.c
+  libs/GLAD/include/glad/glad.h
+  libs/GLAD/src/glad.c
 )
 
 # +++++++++++++++++++++++++++++++++++ ALGEBRAICA +++++++++++++++++++++++++++++++++++
 # adding the root directory of algebraica source tree to your project
-include_directories(algebraica)
+include_directories(libs/algebraica)
 set(ALGEBRAICA_FILES
-  algebraica/Algebraica.h
-  algebraica/vec2.h
-  algebraica/vec3.h
-  algebraica/vec4.h
-  algebraica/mat4.h
+  libs/algebraica/Algebraica.h
+  libs/algebraica/vec2.h
+  libs/algebraica/vec3.h
+  libs/algebraica/vec4.h
+  libs/algebraica/mat3.h
+  libs/algebraica/mat4.h
 )
 
 # +++++++++++++++++++++++++++++++++++++ EIGEN ++++++++++++++++++++++++++++++++++++++
@@ -144,7 +143,7 @@ add_executable(${PROJECT_BINARY_NAME}
   ${ALGEBRAICA_FILES}
   ${HPP_FILES}
   ${CPP_FILES}
-  ${PROJECT_RESOURCES}
+  ${SHADER_FILES}
 )
 
 # // ------------------------------------------------------------------------------------ //
@@ -162,8 +161,10 @@ target_link_libraries(${PROJECT_BINARY_NAME}
   glfw
   ${glfw_LIBRARIES}
   ${OPENGL_LIBRARIES}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
+#  ${Boost_FILESYSTEM_LIBRARY}
+#  ${Boost_SYSTEM_LIBRARY}
+#  ${Boost_THREAD_LIBRARY}
+  ${Boost_LIBRARIES}
   Eigen3::Eigen
   ${IL_LIBRARIES}
   ${ros_LIBRARIES}

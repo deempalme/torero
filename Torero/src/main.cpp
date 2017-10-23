@@ -1,5 +1,5 @@
 
-#include "headers/console.h"
+#include "includes/console.h"
 
 int main(int argc, char *argv[]){
   Console GUI(argc, argv);

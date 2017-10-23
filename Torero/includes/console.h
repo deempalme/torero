@@ -5,14 +5,15 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "headers/definitions.h"
-#include "headers/types.h"
-#include "headers/gui.h"
+#include "includes/definitions.h"
+#include "includes/types.h"
+#include "includes/gui.h"
+#include "includes/three_dimensional_model_loader.h"
 
 // linear mathematical functions
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-//#include "Algebraica.h"
+#include "Algebraica.h"
 // timer
 #include <chrono>
 // signals and slots
@@ -25,12 +26,15 @@
 #include <mutex>
 // standard
 #include <iostream>
+#include <string>
 
 using namespace std;
 using namespace boost;
 using namespace Eigen;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+class ThreeDimensionalModelLoader;
 
 class Console
 {
@@ -50,12 +54,29 @@ public:
   // ------------------------------------------------------------------------------------ //
   static signals2::signal<void (int, int)> resize_signal;
 
+  // ------------------------------------------------------------------------------------ //
+  // --------------------------------------- SLOTS -------------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+  void error_handler(const char *text, const int error_type);
+  void message_handler(const char *text, const int message_type);
+  void model_ready(ThreeDimensionalModelLoader *model);
+
 protected:
   virtual void initializeGL();
   virtual void paintGL();
   virtual void resizeGL(const int width, const int height);
 
 private:
+  // shader programs
+  bool create_shader_programs();
+  bool load_shader_file(const char *file_address);
+
+  // texture loading
+  bool load_textures();
+  int load_texture(const char *file_address, const GLuint shader, const bool alpha = false);
+  int load_cubemap(const string folder_address, const GLuint shader, const bool alpha = false);
+  void load_icon();
+
   int argc_;
   char **argv_;
   GLFWwindow *window_;
@@ -63,8 +84,11 @@ private:
   bool is_main_open_;
   GUI *gui_;
 
+  float max_filtering_;
   unsigned int VBO, VAO;
-  int shaderProgram;
+  GLuint shaderProgram;
+  vector<GLuint> textures_id_;
+  vector<Model3D> models_;
 };
 
 #endif // CONSOLE_H

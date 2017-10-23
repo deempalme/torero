@@ -1,6 +1,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "Algebraica.h"
+
+class ThreeDimensionalModelLoader;
+
 struct ComplexShaderData{
   // vertex position
   float x  = 0;
@@ -13,7 +17,6 @@ struct ComplexShaderData{
   // vertex texture coordinates
   float ux = 0;
   float uy = 0;
-  float uz = 0;
   // vertex tangential normals
   float tx = 0;
   float ty = 0;
@@ -26,17 +29,18 @@ struct ComplexShaderData{
 
 struct SimpleShaderData{
   // vertex position
-  float x  = 0;
-  float y  = 0;
-  float z  = 0;
-  // vertex normals
-  float nx = 0;
-  float ny = 0;
-  float nz = 0;
+  vec3f position;
   // vertex texture coordinates
-  float ux = 0;
-  float uy = 0;
-  float uz = 0;
+  vec2f texture;
+  // vertex normals
+  vec3f normal;
 };
+
+struct Model3D{
+  ThreeDimensionalModelLoader *model;
+  mat4f transformation_matrix;
+};
+
+//#include "includes/three_dimensional_model_loader.h"
 
 #endif // TYPES_H
