@@ -8,6 +8,7 @@
 #include "includes/definitions.h"
 #include "includes/types.h"
 #include "includes/gui.h"
+#include "includes/skybox.h"
 #include "includes/three_dimensional_model_loader.h"
 
 // linear mathematical functions
@@ -57,8 +58,8 @@ public:
   // ------------------------------------------------------------------------------------ //
   // --------------------------------------- SLOTS -------------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  void error_handler(const char *text, const int error_type);
-  void message_handler(const char *text, const int message_type);
+  void error_handler(const string text, const int error_type);
+  void message_handler(const string text, const int message_type);
   void model_ready(ThreeDimensionalModelLoader *model);
 
 protected:

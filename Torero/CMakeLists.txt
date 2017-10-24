@@ -76,6 +76,7 @@ set(CPP_FILES
   src/console.cpp
   src/gui.cpp
   src/main.cpp
+  src/skybox.cpp
   src/three_dimensional_model_loader.cpp
 #  ${DATA_S}
 )
@@ -85,6 +86,7 @@ set(HPP_FILES
   includes/console.h
   includes/definitions.h
   includes/gui.h
+  includes/skybox.h
   includes/three_dimensional_model_loader.h
   includes/types.h
 #  ${DATA_H}
@@ -94,6 +96,10 @@ set(HPP_FILES
 set(SHADER_FILES
   resources/shaders/PBR.vert
   resources/shaders/PBR.frag
+  resources/shaders/irradiance_convolution.frag
+  resources/shaders/skybox.vert
+  resources/shaders/skybox.frag
+  resources/shaders/cubemap.vert
 )
 
 # ++++++++++++++++++++++++++++++++++++++ GLFW ++++++++++++++++++++++++++++++++++++++
@@ -133,6 +139,13 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 # ++++++++++++++++++++++++++++++++++++++ DevIL +++++++++++++++++++++++++++++++++++++
 INCLUDE_DIRECTORIES(${IL_INCLUDE_DIR})
 
+# ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
+# adding the root directory of the stb library source tree to your project
+include_directories(libs/stb)
+set(STB_FILES
+  libs/stb/stb_image.h
+)
+
 # ++++++++++++++++++++++++++++++++++++++ BOOST +++++++++++++++++++++++++++++++++++++
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 # ------------------------------------ END BOOST -----------------------------------
@@ -140,6 +153,7 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 #add every file to the executable
 add_executable(${PROJECT_BINARY_NAME}
   ${GLAD_FILES}
+  ${STB_FILES}
   ${ALGEBRAICA_FILES}
   ${HPP_FILES}
   ${CPP_FILES}

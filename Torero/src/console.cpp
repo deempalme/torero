@@ -107,11 +107,11 @@ int Console::execute(const int width, const int height, const char* title,
   }
 }
 
-void Console::error_handler(const char *text, const int error_type){
+void Console::error_handler(const string text, const int error_type){
   cout << "Error:" << error_type << " - " << text << endl;
 }
 
-void Console::message_handler(const char *text, const int message_type){
+void Console::message_handler(const string text, const int message_type){
   cout << "Message received:" << message_type << " - " << text << endl;
 }
 

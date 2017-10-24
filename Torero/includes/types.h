@@ -41,6 +41,13 @@ struct Model3D{
   mat4f transformation_matrix;
 };
 
+struct ImageFile{
+  int width = 0;
+  int height = 0;
+  int components_size = 0;
+  float *data = nullptr;
+};
+
 //#include "includes/three_dimensional_model_loader.h"
 
 #endif // TYPES_H

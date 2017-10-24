@@ -109,4 +109,29 @@ For load images it is necessary to install DevIL (Developer's Image Library)
      ```
 8. You can delete the unzipped folder
 
+## 1.4 Install OpenGL
+
+If is the first time using OpenGL it is necessary to install mesa and other libraries.
+
+1. Open ubuntu terminal and introduce:
+   ```
+   sudo apt-get install mesa-common-dev mesa-utils mesa-utils-extra libgl1-mesa-dev libglapi-mesa xorg-dev libglu1-mesa-dev
+
+   ```
+### 1.4.1 Installation of the latest Graphics' card drivers
+
+This visualization version works only with OpenGL 4.2 or supperior, most of new processors support it. **To increase performance** always use the graphics' card if you have one.
+
+#### 1.4.1.1 Steps to install latest drivers
+
+1. Go to ubuntu terminal and introduce the next command:
+   ```
+   sudo add-apt-repository ppa:graphics-drivers/ppa
+   ```
+2. Go to System __settings > Software & Updates > Additional Drivers__
+3. Choose the newest available version
+4. Click in the button __Apply changes__
+5. Restart the computer
+
+
 

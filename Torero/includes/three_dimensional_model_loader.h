@@ -42,8 +42,8 @@ public:
   // ------------------------------------------------------------------------------------ //
   // ------------------------------------- SIGNALS -------------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  signals2::signal<void (const char*, const int)> error_signal;
-  signals2::signal<void (const char*, const int)> message_signal;
+  signals2::signal<void (const string, const int)> error_signal;
+  signals2::signal<void (const string, const int)> message_signal;
   signals2::signal<void ()> ready;
 
 private:
@@ -58,8 +58,8 @@ private:
   static GLuint shader_program_;
   GLuint vertex_array_, vertex_buffer_;
   GLint i_position_, i_texture_, i_normal_;
-  GLint u_colored_, u_color_, u_metallized_, u_metallic_;
-  GLint u_roughed_, u_roughness_, u_is_interior_;
+  GLint u_colored_, u_color_, u_metallized_, u_metallic_, u_metallic_value_;
+  GLint u_roughed_, u_roughness_, u_roughness_value_;
 
   GLsizei data_size_;
   vector<SimpleShaderData> buffer_data_;

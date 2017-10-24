@@ -3,25 +3,33 @@
 
 in vec4 o_position;
 in vec2 o_texture;
-in vec4 o_color;
 in vec3 o_world_position;
 in vec3 o_normal;
-in bool o_colored;
-in bool o_is_interior;
+//in bool o_is_interior;
 // precalculated values for light reflections
 in vec3 o_V;
-in vec3 o_L[4];
-in vec3 o_H[4];
-in vec3 o_radiance[4];
+in vec3 o_L[5];
+in vec3 o_H[5];
+in vec3 o_radiance[5];
 
 uniform bool u_pbr;
 uniform bool u_fog;
 // 2D textures
 uniform sampler2D u_albedo;
-uniform sampler3D u_normal;
-uniform sampler3D u_metallic;
-uniform sampler3D u_roughness;
-uniform sampler3D u_ao;
+uniform sampler2D u_normal;
+// metallic effect
+uniform bool u_metallized;
+uniform sampler2D u_metallic;
+uniform float u_metallic_value;
+// roughness reflectiviness
+uniform bool u_roughed;
+uniform sampler2D u_roughness;
+uniform float u_roughness_value;
+// ambient occlusion texture
+uniform sampler2D u_ao;
+// use color instead of texture
+uniform bool u_colored;
+uniform vec4 u_color;
 // irradiance maps
 uniform samplerCube u_irradiance;
 uniform samplerCube u_prefilter;
@@ -111,10 +119,10 @@ float calcule_fog(){
 
 void main(void){
   // material properties
-  vec4 diffusive = (!o_colored)? texture(u_albedo, o_texture).rgba : o_color.rgba;
+  vec4 diffusive = (u_colored)? u_color : texture(u_albedo, o_texture).rgba;
   vec3 albedo = pow(diffusive.rgb, vec3(2.2));
-  float metallic = texture(u_metallic, o_texture).r;
-  float roughness = texture(u_roughness, o_texture).r;
+  float metallic = (u_metallized)? u_metallic_value : texture(u_metallic, o_texture).r;
+  float roughness = (u_roughed)? u_roughness_value : texture(u_roughness, o_texture).r;
   float ao = texture(u_ao, o_texture).r;
 
   // input lighting data
@@ -129,10 +137,11 @@ void main(void){
   // reflectance equation
   vec3 Lo = vec3(0.0);
 
-  int maximum = (o_is_interior)? 4 : 3;
-  int minimum = (o_is_interior)? 3 : 0;
+//  int maximum = (o_is_interior)? 4 : 3;
+//  int minimum = (o_is_interior)? 3 : 0;
 
-  for(int i = minimum; i < maximum; ++i){
+//  for(int i = minimum; i < maximum; ++i){
+  for(int i = 0; i < 5; ++i){
     // Cook-Torrance BRDF
     float NDF = distribution_GGX(N, o_H[i], roughness);
     float G = geometry_smith(N, o_V, o_L[i], roughness);
@@ -184,7 +193,7 @@ void main(void){
   // gamma correct
   color = pow(color, vec3(1.0/2.2));
 
-  diffusive.a = (o_colored)? calcule_fog() : diffusive.a;
+  diffusive.a = (u_colored)? calcule_fog() : diffusive.a;
 
   frag_color = vec4(color, diffusive.a);
 }

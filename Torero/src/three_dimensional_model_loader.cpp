@@ -95,7 +95,6 @@ void ThreeDimensionalModelLoader::set_window(GLFWwindow *window){
 }
 
 void ThreeDimensionalModelLoader::initialize(){
-//  protector_.lock();
   vector<vec3f> position, normal;
   vector<vec2f> texture;
   vec3f tvector;
@@ -107,6 +106,7 @@ void ThreeDimensionalModelLoader::initialize(){
   protector_.lock();
   ifstream file;
   file.open(string(folder_address_) + "/model.obj", ios::in);
+  protector_.unlock();
 
   if(file.is_open()){
     while(getline(file, line)){
@@ -139,6 +139,7 @@ void ThreeDimensionalModelLoader::initialize(){
     }
     file.close();
 
+    protector_.lock();
     buffer_data_.resize(vertex_indices.size());
     // For each vertex of each triangle
     for(int i = 0; i < vertex_indices.size(); i++){
@@ -155,15 +156,12 @@ void ThreeDimensionalModelLoader::initialize(){
 
     cout << "data size:" << vertex_indices.size() << endl;
 
-//    protector_.lock();
     is_ready_ = true;
     ready();
     protector_.unlock();
-
-    cout << "ready called" << endl;
   }else{
     protector_.lock();
-    error_signal(string("file not fount:" + string(folder_address_)).c_str(), FILE_NOT_FOUND);
+    error_signal("file not found:" + string(folder_address_), ERROR_MESSAGE);
     is_ready_ = false;
     protector_.unlock();
   }
@@ -176,13 +174,15 @@ void ThreeDimensionalModelLoader::model_ready(){
   i_texture_  = glGetAttribLocation(shader_program_, "i_texture");
   i_normal_   = glGetAttribLocation(shader_program_, "i_normal");
 
-  u_colored_      = glGetUniformLocation(shader_program_, "u_colored");
-  u_color_        = glGetUniformLocation(shader_program_, "u_color");
-  u_metallized_   = glGetUniformLocation(shader_program_, "u_metallized");
-  u_metallic_     = glGetUniformLocation(shader_program_, "u_metallic");
-  u_roughed_      = glGetUniformLocation(shader_program_, "u_roughed");
-  u_roughness_    = glGetUniformLocation(shader_program_, "u_roughness");
-  u_is_interior_  = glGetUniformLocation(shader_program_, "u_is_interior");
+  u_colored_          = glGetUniformLocation(shader_program_, "u_colored");
+  u_color_            = glGetUniformLocation(shader_program_, "u_color");
+  u_metallized_       = glGetUniformLocation(shader_program_, "u_metallized");
+  u_metallic_         = glGetUniformLocation(shader_program_, "u_metallic");
+  u_metallic_value_   = glGetUniformLocation(shader_program_, "u_metallic_value");
+  u_roughed_          = glGetUniformLocation(shader_program_, "u_roughed");
+  u_roughness_        = glGetUniformLocation(shader_program_, "u_roughness");
+  u_roughness_value_  = glGetUniformLocation(shader_program_, "u_roughness_value");
+//  u_is_interior_  = glGetUniformLocation(shader_program_, "u_is_interior");
 
   glGenVertexArrays(1, &vertex_array_);
   glGenBuffers(1, &vertex_buffer_);
