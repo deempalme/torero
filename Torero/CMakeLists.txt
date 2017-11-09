@@ -51,7 +51,6 @@ set(CMAKE_BUILD_TYPE Debug)
 # Widgets finds its own dependencies
 find_package(OpenGL REQUIRED)
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
-find_package(DevIL REQUIRED)
 find_package(Eigen3 3.3.4 COMPONENTS Core Geometry REQUIRED)
 
 # // ------------------------------------------------------------------------------------ //
@@ -73,9 +72,14 @@ endif(DEFINED ROS_DATA)
 
 #source files
 set(CPP_FILES
+  src/buffer.cpp
+  src/camera.cpp
   src/console.cpp
   src/gui.cpp
+  src/point_cloud.cpp
+  src/point_cloud_manager.cpp
   src/main.cpp
+  src/shader.cpp
   src/skybox.cpp
   src/three_dimensional_model_loader.cpp
 #  ${DATA_S}
@@ -83,9 +87,14 @@ set(CPP_FILES
 
 #header files
 set(HPP_FILES
+  includes/buffer.h
+  includes/camera.h
   includes/console.h
   includes/definitions.h
   includes/gui.h
+  includes/point_cloud.h
+  includes/point_cloud_manager.h
+  includes/shader.h
   includes/skybox.h
   includes/three_dimensional_model_loader.h
   includes/types.h
@@ -94,12 +103,14 @@ set(HPP_FILES
 )
 
 set(SHADER_FILES
+  resources/shaders/cubemap.vert
+  resources/shaders/irradiance_convolution.frag
   resources/shaders/PBR.vert
   resources/shaders/PBR.frag
-  resources/shaders/irradiance_convolution.frag
+  resources/shaders/point_cloud.vert
+  resources/shaders/point_cloud.frag
   resources/shaders/skybox.vert
   resources/shaders/skybox.frag
-  resources/shaders/cubemap.vert
 )
 
 # ++++++++++++++++++++++++++++++++++++++ GLFW ++++++++++++++++++++++++++++++++++++++
@@ -136,10 +147,10 @@ set(ALGEBRAICA_FILES
 # adding the root directory of algebraica source tree to your project
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-# ++++++++++++++++++++++++++++++++++++++ DevIL +++++++++++++++++++++++++++++++++++++
-INCLUDE_DIRECTORIES(${IL_INCLUDE_DIR})
-
 # ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
+add_definitions(-DSTB_IMAGE_STATIC)
+add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
+add_definitions(-DSTBI_NO_HDR)
 # adding the root directory of the stb library source tree to your project
 include_directories(libs/stb)
 set(STB_FILES
@@ -148,13 +159,22 @@ set(STB_FILES
 
 # ++++++++++++++++++++++++++++++++++++++ BOOST +++++++++++++++++++++++++++++++++++++
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-# ------------------------------------ END BOOST -----------------------------------
+
+# +++++++++++++++++++++++++++++++++ KITTI LIBRARIES ++++++++++++++++++++++++++++++++
+# adding the root directory of algebraica source tree to your project
+include_directories(libs/kitti)
+set(KITTI_FILES
+  libs/kitti/includes/kitti_point_cloud_reader.h
+  libs/kitti/src/kitti_point_cloud_reader.cpp
+)
+# ------------------------------- END KITTI LIBRARIES ------------------------------
 
 #add every file to the executable
 add_executable(${PROJECT_BINARY_NAME}
   ${GLAD_FILES}
   ${STB_FILES}
   ${ALGEBRAICA_FILES}
+  ${KITTI_FILES}
   ${HPP_FILES}
   ${CPP_FILES}
   ${SHADER_FILES}
@@ -175,12 +195,8 @@ target_link_libraries(${PROJECT_BINARY_NAME}
   glfw
   ${glfw_LIBRARIES}
   ${OPENGL_LIBRARIES}
-#  ${Boost_FILESYSTEM_LIBRARY}
-#  ${Boost_SYSTEM_LIBRARY}
-#  ${Boost_THREAD_LIBRARY}
   ${Boost_LIBRARIES}
   Eigen3::Eigen
-  ${IL_LIBRARIES}
   ${ros_LIBRARIES}
   ${CMAKE_DL_LIBS}
 )
