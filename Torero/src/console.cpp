@@ -1,132 +1,319 @@
 #include "includes/console.h"
+#include "includes/skybox.h"
+#include "includes/three_dimensional_model_loader.h"
 
 Console::Console(int _argc, char **_argv) :
   argc_(_argc),
   argv_(_argv),
   window_(nullptr),
-  width_(0),
-  height_(0),
-  is_main_open_(false),
+  width_(DEFAULT_WIDTH),
+  height_(DEFAULT_HEIGHT),
+  half_height_(DEFAULT_HEIGHT / 2),
+  position_x_(0),
+  position_y_(0),
+  error_log_(0),
+  error_(false),
+  is_left_click_(false),
+  is_right_click_(false),
+  is_scroll_click_(false),
+  old_x_(0),
+  old_y_(0),
+  is_inversed_(false),
   gui_(nullptr),
+  skybox_(nullptr),
   max_filtering_(0.0f),
-  textures_id_(0)
+  textures_id_(0),
+  fixed_frame_(),
+  vehicle_frame_(),
+  navigation_frame_(),
+  camera_(Algebraica::vec3f(-12.0f, 0.0f, 5.0f), Algebraica::vec3f(),
+          Algebraica::vec3f(0.0f, 0.0f, 1.0f), &vehicle_frame_)
 {
-}
-
-Console::~Console(){
-  if(window_){
-    glfwDestroyWindow(window_);
-    glfwTerminate();
-    for(Model3D model : models_)
-      if(model.model)
-        delete model.model;
-  }
-}
-
-int Console::execute(const int width, const int height, const char* title,
-                     const bool full_screen, const bool maximized){
-  if(!is_main_open_){
-    if(!glfwInit()){
-      cout << "GLFW initialization failed" << endl;
-      return GLFW_NOT_LOADED;
-    }
+  if(!glfwInit()){
+    message_handler("GLFW initialization failed", ERROR_MESSAGE);
+    error_log_ =  GLFW_NOT_LOADED;
+    error_ = true;
+  }else{
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_DEPTH_BITS, 24);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-    glfwWindowHint(GLFW_MAXIMIZED, (maximized)? GLFW_TRUE : GLFW_FALSE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
-    // intializing DevIL image loader
-    ilInit();
+    const GLFWvidmode *screen{glfwGetVideoMode(glfwGetPrimaryMonitor())};
+    glfwWindowHint(GLFW_RED_BITS, screen->redBits);
+    glfwWindowHint(GLFW_GREEN_BITS, screen->greenBits);
+    glfwWindowHint(GLFW_BLUE_BITS, screen->blueBits);
+    glfwWindowHint(GLFW_REFRESH_RATE, screen->refreshRate);
 
-    const GLFWvidmode* screen = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    window_ = glfwCreateWindow(width_, height_, "Toreo", NULL, NULL);
 
+    if(!window_){
+      glfwTerminate();
+      message_handler("GLFW failed creating a window", ERROR_MESSAGE);
+      error_log_ = WINDOW_NOT_LOADED;
+      error_ = true;
+    }else{
+      position_x_ = (screen->width - width_)/2;
+      position_y_ = (screen->height - height_)/2;
+      glfwSetWindowPos(window_, position_x_, position_y_);
+
+      // ------------------------------------------------------------------------------------ //
+      // ------------------------------- Loading window's icon ------------------------------ //
+      // ------------------------------------------------------------------------------------ //
+      load_icon();
+
+      glfwMakeContextCurrent(window_);
+      if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
+        glfwTerminate();
+        message_handler("Failed to initialize GLAD", ERROR_MESSAGE);
+        error_log_ = GLAD_NOT_LOADED;
+        error_ = true;
+      }else{
+        glfwSwapInterval(1);
+
+        resize_signal.connect(boost::bind(&Console::resizeGL, this, _1, _2));
+        mouse_move_signal.connect(boost::bind(&Console::mouse_move_event, this, _1, _2));
+        mouse_click_signal.connect(boost::bind(&Console::mouse_click_event, this, _1, _2));
+        mouse_scroll_signal.connect(boost::bind(&Console::mouse_scroll_event, this, _1));
+
+        initializeGL();
+        glfwSetFramebufferSizeCallback(window_, resize_callback);
+        glfwSetCursorPosCallback(window_, mouse_move_callback);
+        glfwSetMouseButtonCallback(window_, mouse_click_callback);
+        glfwSetScrollCallback(window_, mouse_scroll_callback);
+      }
+    }
+  }
+}
+
+Console::~Console(){
+  if(window_){
+    for(Visualizer::Model3D model : models_)
+      if(model.model)
+        delete model.model;
+
+    if(skybox_)
+      delete skybox_;
+
+    glfwDestroyWindow(window_);
+    glfwTerminate();
+  }
+}
+
+void Console::camera_set_position(const float x, const float y, const float z){
+  camera_.set_position(x, y, z);
+}
+
+void Console::camera_set_target(const float x, const float y, const float z){
+  camera_.set_target(x, y, z);
+}
+
+void Console::camera_set_up(const float x, const float y, const float z){
+  camera_.set_up(x, y, z);
+}
+
+void Console::camera_rotate(const float pitch, const float yaw, const float roll){
+  camera_.rotate_camera(pitch, yaw, roll);
+}
+
+void Console::camera_translate(const float x, const float y, const float z){
+  camera_.translate_camera(x, y, z);
+}
+
+void Console::camera_set_zoom(const float zoom){
+  camera_.set_zoom(zoom);
+}
+
+void Console::camera_top_view(){
+  camera_.top_view();
+}
+
+void Console::camera_isometric_view(){
+  camera_.isometric_view();
+}
+
+const Algebraica::mat4f &Console::view_matrix(){
+  return camera_.view_matrix();
+}
+
+const Algebraica::mat4f &Console::perspective_matrix(){
+  return camera_.perspective_matrix();
+}
+
+const Algebraica::mat4f &Console::pv_matrix(){
+  return camera_.pv_matrix();
+}
+
+const Algebraica::mat4f &Console::static_pv_matrix(){
+  return camera_.static_pv_matrix();
+}
+
+const Algebraica::mat4f *Console::fixed_frame(){
+  return &fixed_frame_;
+}
+
+const Algebraica::mat4f *Console::vehicle_frame(){
+  return &vehicle_frame_;
+}
+
+const Algebraica::mat4f *Console::navigation_frame(){
+  return &navigation_frame_;
+}
+
+void Console::set_window_title(const char *title){
+  glfwSetWindowTitle(window_, title);
+}
+
+void Console::set_window_title(const std::string title){
+  glfwSetWindowTitle(window_, title.c_str());
+}
+
+void Console::set_window_size(const int width, const int height){
+  const GLFWvidmode *screen{glfwGetVideoMode(glfwGetPrimaryMonitor())};
+  width_ = (width <= 0)? screen->width : width;
+  height_ = (height <= 0)? screen->height : height;
+
+  glfwSetWindowSize(window_, width_, height_);
+}
+
+void Console::set_window_position(const int x, const int y){
+  position_x_ = x;
+  position_y_ = y;
+  glfwSetWindowPos(window_, x, y);
+}
+
+void Console::maximize_window(const bool maximized){
+  if(maximized)
+    glfwMaximizeWindow(window_);
+  else
+    glfwRestoreWindow(window_);
+}
+
+void Console::minimize_window(const bool minimized){
+  if(minimized)
+    glfwIconifyWindow(window_);
+  else
+    glfwRestoreWindow(window_);
+}
+
+void Console::full_screen(const bool make_full){
+  if(make_full){
+    const GLFWvidmode *screen{glfwGetVideoMode(glfwGetPrimaryMonitor())};
+    glfwSetWindowMonitor(window_, glfwGetPrimaryMonitor(), 0, 0,
+                         width_, height_, screen->refreshRate);
+  }else
+    glfwSetWindowMonitor(window_, NULL, position_x_, position_y_,
+                         width_, height_, GLFW_DONT_CARE);
+}
+
+void Console::redraw_screen(){
+  paintGL();
+}
+
+void Console::wait_for_events(){
+  glfwWaitEvents();
+}
+
+void Console::wait_for_events(const double timeout){
+  glfwWaitEventsTimeout(timeout);
+}
+
+void Console::process_pending_events(){
+  glfwPollEvents();
+}
+
+int Console::execute(const bool infinite_loop){
+  if(!error_){
+    glfwShowWindow(window_);
+    if(infinite_loop)
+      while(!glfwWindowShouldClose(window_)){
+
+        if(glfwGetWindowAttrib(window_, GLFW_VISIBLE)){
+          paintGL();
+        }
+
+        glfwSwapBuffers(window_);
+        glfwWaitEventsTimeout(0.1);
+        //glfwPollEvents();
+      }
+    return EXIT_SUCCESS;
+  }else{
+    return error_log_;
+  }
+}
+
+int Console::execute(const int width, const int height, const char* title,
+                     const bool full_screen, const bool maximized, const bool infinite_loop){
+  if(!error_){
+    if(maximized)
+      glfwMaximizeWindow(window_);
+
+    glfwSetWindowTitle(window_, title);
+
+    const GLFWvidmode *screen{glfwGetVideoMode(glfwGetPrimaryMonitor())};
     width_ = (width <= 0)? screen->width : width;
     height_ = (height <= 0)? screen->height : height;
 
     if(full_screen)
-      window_ = glfwCreateWindow(width_, height_, title, glfwGetPrimaryMonitor(), NULL);
+      glfwSetWindowMonitor(window_, glfwGetPrimaryMonitor(), 0, 0,
+                           width_, height_, screen->refreshRate);
     else
-      window_ = glfwCreateWindow(width_, height_, title, NULL, NULL);
+      glfwSetWindowSize(window_, width_, height_);
 
-    if(!window_){
-      glfwTerminate();
-      cout << "GLFW failed creating a window" << endl;
-      return WINDOW_NOT_LOADED;
-    }
+    glfwSetWindowPos(window_, (screen->width - width_)/2, (screen->height - height_)/2);
 
-    // ------------------------------------------------------------------------------------ //
-    // ------------------------------- Loading window's icon ------------------------------ //
-    // ------------------------------------------------------------------------------------ //
-    load_icon();
-
-    glfwMakeContextCurrent(window_);
-    if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
-      glfwTerminate();
-      cout << "Failed to initialize GLAD : " << endl;
-      return GLAD_NOT_LOADED;
-    }
-    glfwSwapInterval(1);
-
-    resize_signal.connect(bind(&Console::resizeGL, this, _1, _2));
-
-    initializeGL();
-    glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
-
-//    mat4f testing;
-//    testing.rotate(0, _PI, 0);
-//    cout << testing << endl;
-//    testing.translate(2, 3, 1);
-//    cout << testing << endl;
-
-    while(!glfwWindowShouldClose(window_)){
-      paintGL();
-
-//    if(glfwGetWindowAttrib(window_, GLFW_VISIBLE)){
-//      // window is visible
-//    }
-
-      glfwSwapBuffers(window_);
-      glfwPollEvents();
-    }
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-
-    glfwDestroyWindow(window_);
-    glfwTerminate();
-
-    is_main_open_ = true;
-
-    return EXIT_SUCCESS;
+    execute(infinite_loop);
   }else{
-    return EXISTING_WINDOW;
+    return error_log_;
   }
 }
 
-void Console::error_handler(const string text, const int error_type){
-  cout << "Error:" << error_type << " - " << text << endl;
+boost::signals2::signal<void ()> *Console::updated_camera_signal(){
+  return &updated_camera_signal_;
 }
 
-void Console::message_handler(const string text, const int message_type){
-  cout << "Message received:" << message_type << " - " << text << endl;
+boost::signals2::signal<void ()> *Console::updated_screen_signal(){
+  return &updated_screen_signal_;
+}
+
+void Console::message_handler(const std::string text, const int message_type){
+  switch(message_type){
+  case ERROR_MESSAGE:
+    std::cout << "Error: ";
+    break;
+  case WARNING_MESSAGE:
+    std::cout << "Warning: ";
+    break;
+  case ATTENTION_MESSAGE:
+    std::cout << "Attention: ";
+    break;
+  default:
+    std::cout << "Message received: ";
+    break;
+  }
+  std::cout << text << std::endl;
 }
 
 void Console::model_ready(ThreeDimensionalModelLoader *model){
-  cout << "Model ready... " << model->is_ready() << endl;
+  std::cout << "Model ready... " << model->is_ready() << std::endl;
 }
 
-signals2::signal<void (int, int)> Console::resize_signal;
+boost::signals2::signal<void (int, int)> Console::resize_signal;
+boost::signals2::signal<void (double, double)> Console::mouse_move_signal;
+boost::signals2::signal<void (int, int)> Console::mouse_click_signal;
+boost::signals2::signal<void (double)> Console::mouse_scroll_signal;
 
 void Console::initializeGL(){
   // setting the background color
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   // this line allows anti-aliasing to create fine edges
   glEnable(GL_MULTISAMPLE);
-  // this line allows z-buffer to avoid objects behind others appear in front
+  // this line allows z-buffer to avoid rear objects to appear in front
   glEnable(GL_DEPTH_TEST);
   // this allows textures
   glEnable(GL_TEXTURE_2D);
@@ -137,217 +324,117 @@ void Console::initializeGL(){
   glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_filtering_);
   max_filtering_ = (max_filtering_ > 8)? 8 : max_filtering_;
 
-
-  const char *vertexShaderSource = "#version 420\n"
-                                   "in vec3 aPos;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                   "}\0";
-  const char *fragmentShaderSource = "#version 420\n"
-                                     "out vec4 FragColor;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                                     "}\n\0";
-
-  // build and compile our shader program
-  // ------------------------------------
-  // vertex shader
-  int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-  glCompileShader(vertexShader);
-  // check for shader compile errors
-  int success;
-  char infoLog[512];
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-  if(!success){
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-  }
-  // fragment shader
-  int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  glCompileShader(fragmentShader);
-  // check for shader compile errors
-  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-  if(!success){
-    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-  }
-  // link shaders
-  shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-  // check for linking errors
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if(!success){
-    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-  }
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-
-  // set up vertex data (and buffer(s)) and configure vertex attributes
-  // ------------------------------------------------------------------
-  float vertices[] = {
-    -0.5f, -0.5f, 0.0f, // left
-    0.5f, -0.5f, 0.0f, // right
-    0.0f,  0.5f, 0.0f  // top
-  };
-
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-
-  // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-  // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-  glBindVertexArray(0);
-
-//  load_texture("resources/images/icon.png", shaderProgram, true);
-//  load_cubemap("resources/cubemap/", shaderProgram, true);
-
+  /*
   ThreeDimensionalModelLoader::set_console(this);
   ThreeDimensionalModelLoader::set_window(window_);
   ThreeDimensionalModelLoader::set_shader_program(shaderProgram);
   ThreeDimensionalModelLoader *tire = new ThreeDimensionalModelLoader(TIRE);
   Model3D model{tire, mat4f()};
   models_.push_back(model);
+  */
+
+//  skybox_ = new Skybox("resources/cubemap/", ".png", &matrix_projection_and_static_view_, this, window_);
+
+  int window_width, window_height;
+  glfwGetWindowSize(window_, &window_width, &window_height);
+  camera_.set_resolution(window_width, window_height, width_, height_);
+  camera_.set_function_callback(boost::bind(&Console::updated_camera, this));
 }
 
 void Console::paintGL(){
   //clearing the screen of old information
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // draw our first triangle
-  glUseProgram(shaderProgram);
-  glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-  // glBindVertexArray(0); // no need to unbind it every time
+  if(skybox_){
+    skybox_->draw();
+  }
+
+  updated_screen_signal_();
 }
 
 void Console::resizeGL(const int width, const int height){
   glViewport(0, 0, width, height);
   width_ = width;
   height_ = height;
+  half_height_ = height / 2;
+
+  int window_width, window_height;
+  glfwGetWindowSize(window_, &window_width, &window_height);
+  camera_.set_resolution(window_width, window_height, width_, height_);
 }
 
-bool Console::create_shader_programs(){
-
-}
-
-bool Console::load_textures(){
-
-}
-
-int Console::load_texture(const char *file_address, const GLuint shader, const bool alpha){
-  int id{-1};
-
-  glUseProgram(shader);
-  ILuint image_id{ilGenImage()};
-  ilBindImage(image_id);
-
-  if(ilLoadImage(file_address)){
-    GLuint texture_id;
-    glGenTextures(1, &texture_id);
-    // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // applies anisotropic filtering
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_filtering_);
-    // loads the image data into open gl
-    if(alpha)
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
-                   ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE, ilGetData());
+void Console::mouse_click_event(int button, int action){
+  if(button == GLFW_MOUSE_BUTTON_1)
+    if(action == GLFW_PRESS)
+      is_left_click_ = true;
     else
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ilGetInteger(IL_IMAGE_WIDTH),
-                   ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGB, GL_UNSIGNED_BYTE, ilGetData());
-    glGenerateMipmap(GL_TEXTURE_2D);
+      is_left_click_ = false;
+  if(button == GLFW_MOUSE_BUTTON_2)
+    if(action == GLFW_PRESS)
+      is_right_click_ = true;
+    else
+      is_right_click_ = false;
+  if(button == GLFW_MOUSE_BUTTON_3)
+    if(action == GLFW_PRESS)
+      is_scroll_click_ = true;
+    else
+      is_scroll_click_ = false;
 
-    id = textures_id_.size();
-    textures_id_.push_back(texture_id);
+  double posx, posy;
+  glfwGetCursorPos(window_, &posx, &posy);
+  old_x_ = floor(posx);
+  old_y_ = floor(posy);
 
-    ilDeleteImage(image_id);
-  }else
-    cout << "Error: Failed to load texture:" << file_address << endl;
-  return id;
+  is_inversed_ = (old_y_ < half_height_)? true : false;
 }
 
-int Console::load_cubemap(const string folder_address, const GLuint shader, const bool alpha){
-  int id{-1};
+void Console::mouse_move_event(double xpos, double ypos){
+  if(is_left_click_ || is_right_click_){
+    int dx = (is_inversed_ && is_left_click_)? -xpos + old_x_ : xpos - old_x_;
+    int dy = (is_inversed_ && is_left_click_)? -ypos + old_y_ : ypos - old_y_;
 
-  glUseProgram(shader);
-  ILuint image_id{ilGenImage()};
-  ilBindImage(image_id);
+    camera_.modify_camera(dx, dy, is_left_click_);
 
-  GLuint texture_id;
-  glGenTextures(1, &texture_id);
-  // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-  glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
-  for(GLuint i = 0; i < 6; i++){
-    string file_name;
-    switch(i){
-    case 1: file_name = "up.png"; break;
-    case 2: file_name = "ft.png"; break;
-    case 3: file_name = "rt.png"; break;
-    case 4: file_name = "dn.png"; break;
-    case 5: file_name = "bk.png"; break;
-    default: file_name = "lf.png"; break;
-    }
-
-    file_name = folder_address + file_name;
-
-    if(ilLoadImage(file_name.c_str())){
-      if(alpha)
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
-                     ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGB, GL_UNSIGNED_BYTE, ilGetData());
-      else
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, ilGetInteger(IL_IMAGE_WIDTH),
-                     ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGB, GL_UNSIGNED_BYTE, ilGetData());
-      ilDeleteImage(image_id);
-    }else
-      cout << "Error: Failed to load texture:" << file_name << endl;
+    old_x_ = xpos;
+    old_y_ = ypos;
   }
+}
 
-  id = textures_id_.size();
-  textures_id_.push_back(texture_id);
+void Console::mouse_scroll_event(double yoffset){
+  if(yoffset > 0.0)
+    camera_.zooming();
+  else
+    camera_.zooming(false);
+}
 
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-  return id;
+void Console::updated_camera(){
+  updated_camera_signal_();
 }
 
 void Console::load_icon(){
-  ILuint icon_id{ilGenImage()};
-  ilBindImage(icon_id);
+  GLFWimage icon;
+  int components_size;
 
-  ilLoadImage("resources/images/icon.png");
+  icon.pixels = stbi_load("resources/images/icon.png", &icon.width, &icon.height,
+                          &components_size, 0);
 
-  GLFWimage icon = {ilGetInteger(IL_IMAGE_WIDTH), ilGetInteger(IL_IMAGE_HEIGHT), ilGetData()};
   glfwSetWindowIcon(window_, 1, &icon);
 
-  ilDeleteImage(icon_id);
+  stbi_image_free(icon.pixels);
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height){
+void resize_callback(GLFWwindow *window, int width, int height){
   Console::resize_signal(width, height);
+}
+
+void mouse_click_callback(GLFWwindow *window, int button, int action, int mods){
+  Console::mouse_click_signal(button, action);
+}
+
+void mouse_move_callback(GLFWwindow *window, double xpos, double ypos){
+  Console::mouse_move_signal(xpos, ypos);
+}
+
+void mouse_scroll_callback(GLFWwindow *window, double xoffset, double yoffset){
+  Console::mouse_scroll_signal(yoffset);
 }

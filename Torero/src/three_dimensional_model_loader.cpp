@@ -10,25 +10,23 @@ ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const char *folder_addr
   data_size_(0),
   buffer_data_(0)
 {
-  error_signal.connect(bind(&Console::error_handler, console_, _1, _2));
-  message_signal.connect(bind(&Console::message_handler, console_, _1, _2));
-  ready.connect(bind(&ThreeDimensionalModelLoader::model_ready, this));
+  message_signal.connect(boost::bind(&Console::message_handler, console_, _1, _2));
+  ready.connect(boost::bind(&ThreeDimensionalModelLoader::model_ready, this));
 
-  runner_ = boost::thread(bind(&ThreeDimensionalModelLoader::initialize, this));
+  runner_ = boost::thread(boost::bind(&ThreeDimensionalModelLoader::initialize, this));
   runner_.detach();
 }
 
-ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const string folder_address) :
+ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const std::string folder_address) :
   folder_address_(folder_address.c_str()),
   is_ready_(false),
   data_size_(0),
   buffer_data_(0)
 {
-  error_signal.connect(bind(&Console::error_handler, console_, _1, _2));
-  message_signal.connect(bind(&Console::message_handler, console_, _1, _2));
-  ready.connect(bind(&ThreeDimensionalModelLoader::model_ready, this));
+  message_signal.connect(boost::bind(&Console::message_handler, console_, _1, _2));
+  ready.connect(boost::bind(&ThreeDimensionalModelLoader::model_ready, this));
 
-  runner_ = boost::thread(bind(&ThreeDimensionalModelLoader::initialize, this));
+  runner_ = boost::thread(boost::bind(&ThreeDimensionalModelLoader::initialize, this));
   runner_.detach();
 }
 
@@ -67,15 +65,18 @@ ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const unsigned int mode
     break;
   }
 
-  error_signal.connect(bind(&Console::error_handler, console_, _1, _2));
-  message_signal.connect(bind(&Console::message_handler, console_, _1, _2));
-  ready.connect(bind(&ThreeDimensionalModelLoader::model_ready, this));
+  message_signal.connect(boost::bind(&Console::message_handler, console_, _1, _2));
+  ready.connect(boost::bind(&ThreeDimensionalModelLoader::model_ready, this));
 
-  runner_ = boost::thread(bind(&ThreeDimensionalModelLoader::initialize, this));
+  runner_ = boost::thread(boost::bind(&ThreeDimensionalModelLoader::initialize, this));
   runner_.detach();
 }
 
 ThreeDimensionalModelLoader::~ThreeDimensionalModelLoader(){
+  glfwMakeContextCurrent(window_);
+  glUseProgram(shader_program_);
+  glDeleteVertexArrays(1, &vertex_array_);
+  glDeleteBuffers(1, &vertex_buffer_);
 }
 
 const bool ThreeDimensionalModelLoader::is_ready(){
@@ -95,21 +96,21 @@ void ThreeDimensionalModelLoader::set_window(GLFWwindow *window){
 }
 
 void ThreeDimensionalModelLoader::initialize(){
-  vector<vec3f> position, normal;
-  vector<vec2f> texture;
-  vec3f tvector;
-  vec2f ttexture;
-  vector<unsigned int> vertex_indices, texture_indices, normal_indices;
+  std::vector<Algebraica::vec3f> position, normal;
+  std::vector<Algebraica::vec2f> texture;
+  Algebraica::vec3f tvector;
+  Algebraica::vec2f ttexture;
+  std::vector<unsigned int> vertex_indices, texture_indices, normal_indices;
   unsigned int vertex_index[3], texture_index[3], normal_index[3];
-  string line;
+  std::string line;
 
   protector_.lock();
-  ifstream file;
-  file.open(string(folder_address_) + "/model.obj", ios::in);
+  std::ifstream file;
+  file.open(std::string(folder_address_) + "/model.obj");
   protector_.unlock();
 
   if(file.is_open()){
-    while(getline(file, line)){
+    while(std::getline(file, line)){
 
       if(line == "" || line[0] == '#')
         continue;
@@ -117,17 +118,17 @@ void ThreeDimensionalModelLoader::initialize(){
       const char *line_c = line.c_str();
 
       if(line[0] == 'v' && line[1] == ' '){
-        sscanf(line_c, "%*s %f %f %f", &tvector[0], &tvector[1], &tvector[2]);
+        std::sscanf(line_c, "%*s %f %f %f", &tvector[0], &tvector[1], &tvector[2]);
         position.push_back(tvector);
       }else if(line[0] == 'v' && line[1] == 't'){
-        sscanf(line_c, "%*s %f %f", &ttexture[0], &ttexture[1]);
+        std::sscanf(line_c, "%*s %f %f", &ttexture[0], &ttexture[1]);
         texture.push_back(ttexture);
       }else if(line[0] == 'v' && line[1] == 'n'){
-        sscanf(line_c, "%*s %f %f %f", &tvector[0], &tvector[1], &tvector[2]);
+        std::sscanf(line_c, "%*s %f %f %f", &tvector[0], &tvector[1], &tvector[2]);
         normal.push_back(tvector);
       }else if(line[0] == 'f'){
-        sscanf(line_c, "%*s %u/%u/%u %u/%u/%u %u/%u/%u",
-               &vertex_index[0], &texture_index[0], &normal_index[0],
+        std::sscanf(line_c, "%*s %u/%u/%u %u/%u/%u %u/%u/%u",
+                    &vertex_index[0], &texture_index[0], &normal_index[0],
             &vertex_index[1], &texture_index[1], &normal_index[1],
             &vertex_index[2], &texture_index[2], &normal_index[2]);
         for(int i = 0; i < 3; i++){
@@ -148,20 +149,20 @@ void ThreeDimensionalModelLoader::initialize(){
       if(texture_indices[i] > 0)
         buffer_data_[i].texture = texture[texture_indices[i] - 1];
       else
-        buffer_data_[i].texture = vec2f();
+        buffer_data_[i].texture = Algebraica::vec2f();
     }
 
     // writing the data into openGL buffers
-    data_size_ = static_cast<GLsizei>(vertex_indices.size() * sizeof(SimpleShaderData));
+    data_size_ = static_cast<GLsizei>(vertex_indices.size() * sizeof(Visualizer::SimpleShaderData));
 
-    cout << "data size:" << vertex_indices.size() << endl;
+    std::cout << "data size:" << vertex_indices.size() << std::endl;
 
     is_ready_ = true;
     ready();
     protector_.unlock();
   }else{
     protector_.lock();
-    error_signal("file not found:" + string(folder_address_), ERROR_MESSAGE);
+    message_signal("file not found:" + std::string(folder_address_), ERROR_MESSAGE);
     is_ready_ = false;
     protector_.unlock();
   }

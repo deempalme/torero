@@ -19,16 +19,13 @@
 #include <fstream>
 #include <stdio.h>
 
-using namespace std;
-using namespace boost;
-
 class Console;
 
 class ThreeDimensionalModelLoader
 {
 public:
   explicit ThreeDimensionalModelLoader(const char *folder_address);
-  explicit ThreeDimensionalModelLoader(const string folder_address);
+  explicit ThreeDimensionalModelLoader(const std::string folder_address);
   explicit ThreeDimensionalModelLoader(const unsigned int model);
   ~ThreeDimensionalModelLoader();
 
@@ -42,9 +39,8 @@ public:
   // ------------------------------------------------------------------------------------ //
   // ------------------------------------- SIGNALS -------------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  signals2::signal<void (const string, const int)> error_signal;
-  signals2::signal<void (const string, const int)> message_signal;
-  signals2::signal<void ()> ready;
+  boost::signals2::signal<void (const std::string, const int)> message_signal;
+  boost::signals2::signal<void ()> ready;
 
 private:
   void initialize();
@@ -62,7 +58,7 @@ private:
   GLint u_roughed_, u_roughness_, u_roughness_value_;
 
   GLsizei data_size_;
-  vector<SimpleShaderData> buffer_data_;
+  std::vector<Visualizer::SimpleShaderData> buffer_data_;
 
   boost::mutex protector_;
   boost::thread runner_;

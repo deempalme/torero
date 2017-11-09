@@ -2,28 +2,22 @@
 #define SKYBOX_H
 
 #include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
+#include "includes/buffer.h"
 #include "includes/definitions.h"
+#include "includes/shader.h"
 #include "includes/types.h"
-#include "includes/console.h"
 
 #include "Algebraica.h"
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-
-// image loader
-#define  STB_IMAGE_STATIC
-#define  STB_IMAGE_IMPLEMENTATION
-#define  STBI_NO_HDR
 #include <stb_image.h>
 
 #include <fstream>
 #include <string>
-
-using namespace std;
-using namespace boost;
 
 class Console;
 
@@ -31,8 +25,7 @@ class Skybox
 {
 public:
   explicit Skybox(const char *folder_path, const char *file_extension,
-                  const mat4f *pv_matrix, Console *console);
-  ~Skybox();
+                  Algebraica::mat4f *const pv_matrix, Console *console, GLFWwindow *window);
 
   void change_folder(const char *folder_path);
   void reload_data();
@@ -44,26 +37,29 @@ private:
   void load_images();
   void load_ready();
 
-  const char *load_shader(const char *file_path);
-  void write_data_opengl(const ImageFile &image, const int level);
+  void write_data_opengl(const Visualizer::ImageFile &image, const int level);
 
   // ------------------------------------------------------------------------------------ //
   // ------------------------------------- SIGNALS -------------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  signals2::signal<void (const string, const int)> error_signal;
-  signals2::signal<void (const string, const int)> message_signal;
-  signals2::signal<void ()> ready;
+  boost::signals2::signal<void (const std::string, const int)> message_signal;
+  boost::signals2::signal<void ()> ready;
 
-  string folder_path_;
-  string file_extension_;
-  const mat4f *pv_matrix_;
+  std::string folder_path_;
+  std::string file_extension_;
+  Algebraica::mat4f *const pv_matrix_;
   Console *console_;
+  GLFWwindow *window_;
   bool is_ready_;
 
-  GLuint shader_program_, textures_id_;
+  Shader shader_program_;
+  GLuint texture_id_;
   GLint i_position_, u_pv_, u_skybox_;
+  Buffer vertex_array_;
+  GLsizei stride_size_;
+  const GLvoid *offset_pointer_;
 
-  ImageFile up_, down_, left_, right_, front_, back_;
+  Visualizer::ImageFile up_, down_, left_, right_, front_, back_;
 
   boost::thread runner_;
   boost::mutex protector_;
