@@ -1,6 +1,6 @@
 
 # Torero
-*(spanish: [\[ʈɒˈɾɛɾɔ\]](https://translate.google.com/#es/de/Torero%20torea%20el%20toro%20en%20el%20toreo.). Improved visualization with no Qt's Libraries dependecy*
+*(spanish: [\[ʈɒˈɾɛɾɔ\]](https://translate.google.com/#es/de/Torero%20torea%20al%20toro%20en%20el%20toreo.). Improved visualization with no Qt's Libraries dependecy*
 
 **Torero** is a multi-platform graphical visualizer based in OpenGL, GLSL and GLFW. It was developed performance-wise and it should achieve maximum performance peak if multi-core processors and OpenCL/CUDA are available in your system. This current version only supports configuration through code.
 
