@@ -1,9 +1,6 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "libs/stb"]
-	path = libs/stb
-	url = https://github.com/nothings/stb.git
 [submodule "resources/models3D"]
 	path = resources/models3D
 	url = https://github.com/DroidDrive/models3D.git
