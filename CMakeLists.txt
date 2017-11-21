@@ -108,8 +108,8 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # adding the root directory of the GLFW source tree to your project
-add_subdirectory(libs/GLFW)
-include_directories(libs/GLFW/include)
+add_subdirectory(libs/glfw)
+include_directories(libs/glfw/include)
 
 # ++++++++++++++++++++++++++++++++++++++ GLAD ++++++++++++++++++++++++++++++++++++++
 # adding the root directory of the GLAD source tree to your project
