@@ -303,7 +303,6 @@ namespace Toreo {
 
       buffer_.vertex_release();
     }
-    shader_->detach();
     return no_error;
   }
 

@@ -2,7 +2,7 @@
 #define TORERO_TEXTURE_H
 
 // OpenGL loader and core library
-#include "glad/glad.h"
+#include "libs/GLAD/include/glad/glad.h"
 
 #include "includes/definitions.h"
 #include "includes/types.h"

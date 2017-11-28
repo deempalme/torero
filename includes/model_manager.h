@@ -2,7 +2,7 @@
 #define TORERO_MODEL_MANAGER_H
 
 // OpenGL loader and core library
-#include "glad/glad.h"
+#include "libs/GLAD/include/glad/glad.h"
 
 #include "includes/definitions.h"
 #include "includes/three_dimensional_model_loader.h"
@@ -10,7 +10,7 @@
 #include "includes/skybox.h"
 #include "includes/types.h"
 
-#include "Algebraica.h"
+#include "libs/algebraica/Algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>

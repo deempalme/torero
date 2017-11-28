@@ -1,12 +1,13 @@
 #ifndef TORERO_TYPES_H
 #define TORERO_TYPES_H
 
-#include "Algebraica.h"
+#include "libs/algebraica/Algebraica.h"
 #include <boost/signals2.hpp>
 
 namespace Toreo {
   class ThreeDimensionalModelLoader;
   class PointCloud;
+  class Objects;
 }
 
 namespace Visualizer {
@@ -78,6 +79,24 @@ namespace Visualizer {
     unsigned char *data = nullptr;
   };
 
+#ifndef C_C_S
+#define C_C_S
+  union pointXY{
+    struct{
+      double x;
+      double y;
+    };
+    double data[2];
+  };
+  union pointLL{
+    struct{
+      double latitude;
+      double longitude;
+    };
+    double data[2];
+  };
+#endif
+
   union pointXYZ{
     struct{
       float x;
@@ -126,13 +145,82 @@ namespace Visualizer {
   };
 
   enum ColorMode : unsigned int{
-    GRAYSCALE = 0u,
+    GRAYSCALE  = 0u,
     MONOCHROME = 1u,
-    VARIABLE = 2u,
-    NONE = 3u
+    VARIABLE   = 2u,
+    NONE       = 3u
+  };
+
+  enum Shape : unsigned int{
+    BOX      = 0u,
+    CYLINDER = 1u,
+    CIRCLE   = 2u,
+    SQUARE   = 3u
+  };
+
+  struct Object{
+    // Object position (LOCATED at the object's center)
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // Object direction (in radians)
+    float pitch = 0.0f;
+    float yaw   = 0.0f;
+    float roll  = 0.0f;
+    // Object's size in meters
+    float width  = 1.0f;
+    float length = 1.0f;
+    float height = 1.0f;
+    // Object's color (0 to 255)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // Arrow's properties:
+    // Arrow's direction (in readians)
+    float arrow_pitch = 0.0f;
+    float arrow_yaw   = 0.0f;
+    float arrow_roll  = 0.0f;
+    // Arrow's length in meters
+    float arrow_length = 1.0f;
+    // Displays the arrow
+    bool arrow = true;
+    // Displays the object as a solid (filled faces)
+    bool solid = false;
+    // Line width in meters
+    float line_width = 0.1f;
+  };
+
+  struct ObjectElement{
+    Toreo::Objects *object = nullptr;
+    std::string name;
+    bool visibility;
+    boost::signals2::connection connection;
+  };
+
+  struct ObjectShaderHollow{
+    Algebraica::vec3f position;
+    Algebraica::vec3f rotation;
+    Algebraica::vec4f color;
+    Algebraica::vec3f scale;
+    float line_width;
+  };
+
+  struct ObjectShaderSolid{
+    Algebraica::vec3f position;
+    Algebraica::vec3f rotation;
+    Algebraica::vec4f color;
+    Algebraica::vec3f scale;
+  };
+
+  struct ObjectBuffer{
+    float x, y, z;
+    float n_x, n_y, n_z;
+    float u, v;
+    float w, h, l;
   };
 }
 
-typedef int PCMid, MMid, MMelement;
+typedef int PCMid, MMid, MMelement, OMid;
 
 #endif // TORERO_TYPES_H

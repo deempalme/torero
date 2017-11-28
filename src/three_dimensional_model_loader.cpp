@@ -116,8 +116,7 @@ namespace Toreo{
   }
 
   void ThreeDimensionalModelLoader::pre_drawing(){
-    if(is_ready_){
-      if(!is_loaded_) model_ready();
+    if(is_loaded_){
       // Loading textures
       if(t_albedo_) t_albedo_->use();
       if(t_normal_) t_normal_->use();
@@ -126,16 +125,17 @@ namespace Toreo{
       if(t_ao_) t_ao_->use();
       // Loading data buffer
       buffer_->vertex_bind();
-    }
+    }else
+      model_ready();
   }
 
   void ThreeDimensionalModelLoader::draw(){
-    if(is_ready_ && is_loaded_)
+    if(is_loaded_)
       glDrawArrays(GL_TRIANGLES, 0, data_size_);
   }
 
   void ThreeDimensionalModelLoader::post_drawing(){
-    if(is_ready_ && is_loaded_){
+    if(is_loaded_){
       buffer_->vertex_release();
     }
   }
@@ -225,7 +225,42 @@ namespace Toreo{
           buffer_data_[i].texture = texture[texture_indices[i] - 1];
         else
           buffer_data_[i].texture = Algebraica::vec2f();
+
+//        std::cout << std::setprecision(6) << std::fixed << std::showpos
+//                  << "{ "
+//                  << buffer_data_[i].position.x() << ", "
+//                  << buffer_data_[i].position.y() << ", "
+//                  << buffer_data_[i].position.z() << ", "
+//                  << buffer_data_[i].normal.x() << ", "
+//                  << buffer_data_[i].normal.y() << ", "
+//                  << buffer_data_[i].normal.z() << ", " << std::noshowpos
+//                  << buffer_data_[i].texture.x() << ", "
+//                  << buffer_data_[i].texture.y() << ", ";
+//        int x{0}, y{0}, z{0};
+
+//        // for 3D models
+//        if(vertex_indices[i] > 64){
+//          x = 1;
+//          z = 1;
+//        }
+//        if(buffer_data_[i].position.y() > -0.45f && buffer_data_[i].position.y() < 0.45f)
+//          y = 1;
+
+//        // for squares
+//        if(buffer_data_[i].position.x() > -0.45f && buffer_data_[i].position.x() < 0.45f)
+//          x = 1;
+//        if(buffer_data_[i].position.z() > -0.45f && buffer_data_[i].position.z() < 0.45f)
+//          z = 1;
+
+//        // for circles
+//        if(vertex_indices[i] > 28){
+//          x = 1;
+//          z = 1;
+//        }
+
+//        std::cout<< x << ", " << y << ", " << z << " }," << std::endl;
       }
+//      std::cout << total << std::endl;
       data_size_ = static_cast<GLsizei>(total * sizeof(Visualizer::SimpleShaderData));
 
       // loading albedo image
@@ -260,60 +295,60 @@ namespace Toreo{
   }
 
   void ThreeDimensionalModelLoader::model_ready(){
-    if(!error_ && is_ready_){
-      shader_->use();
+    if(protector_.try_lock()){
+      protector_.unlock();
+      if(!error_ && is_ready_){
+        shader_->use();
 
-//      i_position_ = shader_->attribute_location("i_position");
-//      i_normal_   = shader_->attribute_location("i_normal");
-//      i_uv_       = shader_->attribute_location("i_uv");
-      i_position_ = 0;
-      i_normal_   = 1;
-      i_uv_       = 2;
+        i_position_ = shader_->attribute_location("i_position");
+        i_normal_   = shader_->attribute_location("i_normal");
+        i_uv_       = shader_->attribute_location("i_uv");
 
-      GLsizei stride_size{sizeof(Visualizer::SimpleShaderData)};
+        GLsizei stride_size{sizeof(Visualizer::SimpleShaderData)};
 
-      buffer_->create();
-      buffer_->vertex_bind();
-      buffer_->allocate_array(buffer_data_.data(), data_size_, GL_STATIC_DRAW);
-      buffer_data_.clear();
+        buffer_->create();
+        buffer_->vertex_bind();
+        buffer_->allocate_array(buffer_data_.data(), data_size_, GL_STATIC_DRAW);
+        buffer_data_.clear();
 
-      GLint offset{0};
-      buffer_->enable(i_position_);
-      buffer_->attributte_buffer(i_position_, _3D, offset, stride_size);
+        GLint offset{0};
+        buffer_->enable(i_position_);
+        buffer_->attributte_buffer(i_position_, _3D, offset, stride_size);
 
-      offset += sizeof(Algebraica::vec3f);
-      buffer_->enable(i_normal_);
-      buffer_->attributte_buffer(i_normal_, _3D, offset, stride_size);
+        offset += sizeof(Algebraica::vec3f);
+        buffer_->enable(i_normal_);
+        buffer_->attributte_buffer(i_normal_, _3D, offset, stride_size);
 
-      offset += sizeof(Algebraica::vec3f);
-      buffer_->enable(i_uv_);
-      buffer_->attributte_buffer(i_uv_, _2D, offset, stride_size);
+        offset += sizeof(Algebraica::vec3f);
+        buffer_->enable(i_uv_);
+        buffer_->attributte_buffer(i_uv_, _2D, offset, stride_size);
 
-      buffer_->vertex_release();
+        buffer_->vertex_release();
 
-      if(albedo_.data)
-        t_albedo_ = new Texture(3, core_->max_anisotropic_filtering(), &albedo_);
+        if(albedo_.data)
+          t_albedo_ = new Texture(3, core_->max_anisotropic_filtering(), &albedo_);
 
-      if(normal_.data)
-        t_normal_ = new Texture(4, core_->max_anisotropic_filtering(), &normal_);
+        if(normal_.data)
+          t_normal_ = new Texture(4, core_->max_anisotropic_filtering(), &normal_);
 
-      if(metallic_.data)
-        t_metallic_ = new Texture(5, core_->max_anisotropic_filtering(), &metallic_);
+        if(metallic_.data)
+          t_metallic_ = new Texture(5, core_->max_anisotropic_filtering(), &metallic_);
 
-      if(roughness_.data)
-        t_roughness_ = new Texture(6, core_->max_anisotropic_filtering(), &roughness_);
+        if(roughness_.data)
+          t_roughness_ = new Texture(6, core_->max_anisotropic_filtering(), &roughness_);
 
-      if(ao_.data)
-        t_ao_ = new Texture(7, core_->max_anisotropic_filtering(), &ao_);
+        if(ao_.data)
+          t_ao_ = new Texture(7, core_->max_anisotropic_filtering(), &ao_);
 
-      stbi_image_free(albedo_.data);
-      stbi_image_free(ao_.data);
-      stbi_image_free(normal_.data);
-      stbi_image_free(metallic_.data);
-      stbi_image_free(roughness_.data);
+        stbi_image_free(albedo_.data);
+        stbi_image_free(ao_.data);
+        stbi_image_free(normal_.data);
+        stbi_image_free(metallic_.data);
+        stbi_image_free(roughness_.data);
 
-      is_loaded_ = true;
-    }else
-      core_->message_handler(error_log_, ERROR_MESSAGE);
+        is_loaded_ = true;
+      }else
+        core_->message_handler(error_log_, ERROR_MESSAGE);
+    }
   }
 }

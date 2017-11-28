@@ -93,11 +93,7 @@ namespace Toreo {
   }
 
   void Skybox::draw(){
-    if(is_ready_){
-      if(!is_loaded_)
-        load_ready();
-
-//      glDepthFunc(GL_LEQUAL);
+    if(is_loaded_){
       sky_shader_->use();
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
@@ -105,7 +101,8 @@ namespace Toreo {
       buffer_cube_->vertex_bind();
       glDrawArrays(GL_TRIANGLES, 0, 36);
       buffer_cube_->vertex_release();
-//      glDepthFunc(GL_LESS);
+    }else{
+      load_ready();
     }
   }
 
@@ -152,198 +149,201 @@ namespace Toreo {
   }
 
   void Skybox::load_ready(){
-    if(is_ready_){
-      // pbr: setup framebuffer
-      // ----------------------
-      glGenFramebuffers(1, &frame_buffer_);
-      glGenRenderbuffers(1, &render_buffer_);
+    if(protector_.try_lock()){
+      protector_.unlock();
+      if(is_ready_){
+        // pbr: setup framebuffer
+        // ----------------------
+        glGenFramebuffers(1, &frame_buffer_);
+        glGenRenderbuffers(1, &render_buffer_);
 
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-      glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
-      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                GL_RENDERBUFFER, render_buffer_);
-
-      prepare_cube();
-      prepare_quad();
-
-      // pbr: setup cubemap to render to and attach to framebuffer
-      // ---------------------------------------------------------
-      glActiveTexture(GL_TEXTURE0);
-      glGenTextures(1, &sky_texture_id_);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
-
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-      // enable pre-filter mipmap sampling (combatting visible dots artifact)
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      write_data_opengl(right_, 0);
-      write_data_opengl(left_, 1);
-      write_data_opengl(up_, 2);
-      write_data_opengl(down_, 3);
-      write_data_opengl(back_, 4);
-      write_data_opengl(front_, 5);
-
-      // then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact)
-      glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-      sky_shader_->use();
-      sky_shader_->set_value(sky_u_skybox_, 0);
-
-      // pbr: set up projection and view matrices for capturing data onto the 6 cubemap faces
-      // ------------------------------------------------------------------------------------
-      Algebraica::mat4f capture_projection;
-      capture_projection.perspective(_PI2, 1.0f, 0.1f, 10.0f);
-      Algebraica::mat4f capture_views[] = {
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-                                  Algebraica::vec3f(1.0f,  0.0f,  0.0f),
-                                  Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-                                  Algebraica::vec3f(-1.0f,  0.0f,  0.0f),
-                                  Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-                                  Algebraica::vec3f(0.0f,  1.0f,  0.0f),
-                                  Algebraica::vec3f(0.0f,  0.0f,  1.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f,  0.0f),
-                                  Algebraica::vec3f(0.0f, -1.0f,  0.0f),
-                                  Algebraica::vec3f(0.0f,  0.0f, -1.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-                                  Algebraica::vec3f(0.0f,  0.0f,  1.0f),
-                                  Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-                                  Algebraica::vec3f(0.0f,  0.0f, -1.0f),
-                                  Algebraica::vec3f(0.0f, -1.0f,  0.0f))
-      };
-
-      // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
-      // --------------------------------------------------------------------------------
-      glGenTextures(1, &irr_map_id_);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, irr_map_id_);
-
-      for(unsigned int i = 0; i < 6; ++i)
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0,
-                     GL_RGB, GL_FLOAT, nullptr);
-
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-      glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
-      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
-
-      // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
-      // -----------------------------------------------------------------------------
-      irradiance_shader_->use();
-      irradiance_shader_->set_value(irr_u_skybox_, 0);
-      irradiance_shader_->set_value(irr_u_projection_, capture_projection);
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
-
-      glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-      for(unsigned int i = 0; i < 6; ++i){
-        irradiance_shader_->set_value(irr_u_view_, capture_views[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irr_map_id_, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        render_cube();
-      }
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-      // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
-      // --------------------------------------------------------------------------------
-      glGenTextures(1, &pfr_map_id_);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, pfr_map_id_);
-      for(unsigned int i = 0; i < 6; ++i)
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0,
-                     GL_RGB, GL_FLOAT, nullptr);
-
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-      // be sure to set minifcation filter to mip_linear
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
-      glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-      // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter
-      // -----------------------------------------------------------------------------------------
-      prefilter_shader_->use();
-      prefilter_shader_->set_value(pfr_u_skybox_, 0);
-      prefilter_shader_->set_value(pfr_u_projection_, capture_projection);
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
-
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-      unsigned int maxMipLevels = 5;
-      for(unsigned int mip = 0; mip < maxMipLevels; ++mip){
-        // reisze framebuffer according to mip-level size.
-        unsigned int mipWidth  = 128 * std::pow(0.5, mip);
-        unsigned int mipHeight = 128 * std::pow(0.5, mip);
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
         glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
-        glViewport(0, 0, mipWidth, mipHeight);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                  GL_RENDERBUFFER, render_buffer_);
 
-        float roughness = (float)mip / (float)(maxMipLevels - 1);
-        prefilter_shader_->set_value(pfr_u_roughness_, roughness);
+        prepare_cube();
+        prepare_quad();
+
+        // pbr: setup cubemap to render to and attach to framebuffer
+        // ---------------------------------------------------------
+        glActiveTexture(GL_TEXTURE0);
+        glGenTextures(1, &sky_texture_id_);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        // enable pre-filter mipmap sampling (combatting visible dots artifact)
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        write_data_opengl(right_, 0);
+        write_data_opengl(left_, 1);
+        write_data_opengl(up_, 2);
+        write_data_opengl(down_, 3);
+        write_data_opengl(back_, 4);
+        write_data_opengl(front_, 5);
+
+        // then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact)
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+        sky_shader_->use();
+        sky_shader_->set_value(sky_u_skybox_, 0);
+
+        // pbr: set up projection and view matrices for capturing data onto the 6 cubemap faces
+        // ------------------------------------------------------------------------------------
+        Algebraica::mat4f capture_projection;
+        capture_projection.perspective(_PI2, 1.0f, 0.1f, 10.0f);
+        Algebraica::mat4f capture_views[] = {
+          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          Algebraica::vec3f(1.0f,  0.0f,  0.0f),
+          Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          Algebraica::vec3f(-1.0f,  0.0f,  0.0f),
+          Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          Algebraica::vec3f(0.0f,  1.0f,  0.0f),
+          Algebraica::vec3f(0.0f,  0.0f,  1.0f)),
+          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f,  0.0f),
+          Algebraica::vec3f(0.0f, -1.0f,  0.0f),
+          Algebraica::vec3f(0.0f,  0.0f, -1.0f)),
+          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          Algebraica::vec3f(0.0f,  0.0f,  1.0f),
+          Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          Algebraica::vec3f(0.0f,  0.0f, -1.0f),
+          Algebraica::vec3f(0.0f, -1.0f,  0.0f))
+        };
+
+        // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
+        // --------------------------------------------------------------------------------
+        glGenTextures(1, &irr_map_id_);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, irr_map_id_);
+
+        for(unsigned int i = 0; i < 6; ++i)
+          glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0,
+                       GL_RGB, GL_FLOAT, nullptr);
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
+        glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+
+        // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
+        // -----------------------------------------------------------------------------
+        irradiance_shader_->use();
+        irradiance_shader_->set_value(irr_u_skybox_, 0);
+        irradiance_shader_->set_value(irr_u_projection_, capture_projection);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
+
+        glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
         for(unsigned int i = 0; i < 6; ++i){
-          prefilter_shader_->set_value(pfr_u_view_, capture_views[i]);
+          irradiance_shader_->set_value(irr_u_view_, capture_views[i]);
           glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, pfr_map_id_, mip);
-
+                                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irr_map_id_, 0);
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
           render_cube();
         }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
+        // --------------------------------------------------------------------------------
+        glGenTextures(1, &pfr_map_id_);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, pfr_map_id_);
+        for(unsigned int i = 0; i < 6; ++i)
+          glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0,
+                       GL_RGB, GL_FLOAT, nullptr);
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        // be sure to set minifcation filter to mip_linear
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+        // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter
+        // -----------------------------------------------------------------------------------------
+        prefilter_shader_->use();
+        prefilter_shader_->set_value(pfr_u_skybox_, 0);
+        prefilter_shader_->set_value(pfr_u_projection_, capture_projection);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
+        unsigned int maxMipLevels = 5;
+        for(unsigned int mip = 0; mip < maxMipLevels; ++mip){
+          // reisze framebuffer according to mip-level size.
+          unsigned int mipWidth  = 128 * std::pow(0.5, mip);
+          unsigned int mipHeight = 128 * std::pow(0.5, mip);
+          glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
+          glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+          glViewport(0, 0, mipWidth, mipHeight);
+
+          float roughness = (float)mip / (float)(maxMipLevels - 1);
+          prefilter_shader_->set_value(pfr_u_roughness_, roughness);
+          for(unsigned int i = 0; i < 6; ++i){
+            prefilter_shader_->set_value(pfr_u_view_, capture_views[i]);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                   GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, pfr_map_id_, mip);
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            render_cube();
+          }
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // pbr: generate a 2D LUT from the BRDF equations used.
+        // ----------------------------------------------------
+        glGenTextures(1, &brdf_texture_id_);
+
+        // pre-allocate enough memory for the LUT texture.
+        glBindTexture(GL_TEXTURE_2D, brdf_texture_id_);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+        // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
+        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
+        glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                               brdf_texture_id_, 0);
+
+        glViewport(0, 0, 512, 512);
+        brdf_shader_->use();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        render_quad();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // initialize static shader uniforms before rendering
+        // --------------------------------------------------
+        sky_shader_->use();
+        sky_shader_->set_value(sky_u_pv_, core_->camera_matrix_static_perspective_view());
+
+        // then before rendering, configure the viewport to the original framebuffer's screen dimensions
+        core_->restart_viewport();
+
+        is_loaded_ = true;
+
+      }else{
+        core_->message_handler("Some/all files for the skybox were not found", ERROR_MESSAGE);
       }
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-      // pbr: generate a 2D LUT from the BRDF equations used.
-      // ----------------------------------------------------
-      glGenTextures(1, &brdf_texture_id_);
-
-      // pre-allocate enough memory for the LUT texture.
-      glBindTexture(GL_TEXTURE_2D, brdf_texture_id_);
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
-      // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-      // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-      glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-      glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
-      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                             brdf_texture_id_, 0);
-
-      glViewport(0, 0, 512, 512);
-      brdf_shader_->use();
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      render_quad();
-
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-      // initialize static shader uniforms before rendering
-      // --------------------------------------------------
-      sky_shader_->use();
-      sky_shader_->set_value(sky_u_pv_, core_->camera_matrix_static_perspective_view());
-
-      // then before rendering, configure the viewport to the original framebuffer's screen dimensions
-      core_->restart_viewport();
-
-      is_loaded_ = true;
-
-    }else{
-      core_->message_handler("Some/all files for the skybox were not found", ERROR_MESSAGE);
     }
   }
 

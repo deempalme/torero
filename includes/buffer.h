@@ -1,7 +1,7 @@
 #ifndef TORERO_BUFFER_H
 #define TORERO_BUFFER_H
 
-#include "glad/glad.h"
+#include "libs/GLAD/include/glad/glad.h"
 
 namespace Toreo {
   class Buffer
@@ -62,6 +62,9 @@ namespace Toreo {
       if(has_element_buffer_)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
+    void divisor(const GLuint attribute_id, const GLuint divisor){
+      glVertexAttribDivisor(attribute_id, divisor);
+    }
     // creates a new GL_VERTEX_ARRAY if is not yet created
     // also creates a new GL_ARRAY_BUFFER if has not been created yet
     // and allocates its buffered data
@@ -99,6 +102,24 @@ namespace Toreo {
     // Disables the vertex array's attribute with id = attribute_id
     void disable(const GLuint attribute_id){
       glDisableVertexAttribArray(attribute_id);
+    }
+    // Returns the size in bytes of the array buffer
+    GLint size_array(){
+      GLint size{0};
+      if(has_array_buffer_){
+        glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+      }
+      return size;
+    }
+    // Returns the size in bytes of the element array buffer
+    GLint size_element(){
+      GLint size{0};
+      if(has_array_buffer_){
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_);
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+      }
+      return size;
     }
 
   private:

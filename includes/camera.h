@@ -2,7 +2,7 @@
 #define TORERO_CAMERA_H
 
 #include "definitions.h"
-#include "Algebraica.h"
+#include "libs/algebraica/Algebraica.h"
 
 #include <boost/function.hpp>
 
