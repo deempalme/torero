@@ -6,11 +6,13 @@
 
 There is a [wiki](https://github.com/DroidDrive/torero/wiki)!
 
-You should read the [installation guide](https://github.com/DroidDrive/torero/wiki/1-Installation-guide) to setup all the necessary libraries and get your Visualizer ready to run.
+You should read the [installation guide](https://github.com/DroidDrive/torero/wiki/Installation-guide) to setup all the necessary libraries and get your Visualizer ready to run.
 
 Don't forget to observe which [coordinate systems](https://github.com/DroidDrive/torero/wiki/Coordinate-systems) the visualizer uses.
 
 There are guides for each section of the API:
 
-  * [Core](https://github.com/DroidDrive/torero/wiki/3-Core) – Main window.
-  * Point cloud – Point cloud handler displays point clouds, it could accept different data structure inputs compatible with ROS, PCL and onwer defined data structure.
+  * [Core](https://github.com/DroidDrive/torero/wiki/3-Core) – Main window handler, controls the program's screen where everything is displayed.
+  * Point cloud manager – Handles **point clouds**, it could accept different data structure inputs compatible with ROS, PCL and onwer defined data structure.
+  * Object manager – Handles objects suchlike **boxes**, **cylinders**, **squares** and **circles**.
+  * 3D Models manager – Handles **three-dimensional models** created with design software, suchlike, *blender*, *SolidWorks*, etc.
