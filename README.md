@@ -8,7 +8,7 @@ There is a [wiki](https://github.com/DroidDrive/torero/wiki)!
 
 You should read the [installation guide](https://github.com/DroidDrive/torero/wiki/1-Installation-guide) to setup all the necessary libraries and get your Visualizer ready to run.
 
-Don't forget to observe which [coordinate systems](https://github.com/DroidDrive/torero/wiki/2-Coordinate-systems) the visualizer uses.
+Don't forget to observe which [coordinate systems](https://github.com/DroidDrive/torero/wiki/Coordinate-systems) the visualizer uses.
 
 There are guides for each section of the API:
 
