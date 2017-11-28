@@ -96,6 +96,12 @@ namespace Toreo {
       Algebraica::vec3f(300.0f, 300.0f, 300.0f),
       Algebraica::vec3f(300.0f, 300.0f, 300.0f)
     };
+//    Algebraica::vec3f lightColors[4] = {
+//      Algebraica::vec3f(511.0f, 511.0f, 0.0f),
+//      Algebraica::vec3f(511.0f, 0.0f, 0.0f),
+//      Algebraica::vec3f(0.0f, 511.0f, 0.0f),
+//      Algebraica::vec3f(0.0f, 0.0f, 511.0f)
+//    };
 
     model_shader_->set_values(m_u_light_, &lightPositions[0], 4);
     model_shader_->set_values(m_u_light_color_, &lightColors[0], 4);

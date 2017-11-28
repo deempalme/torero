@@ -1,21 +1,21 @@
 #ifndef TORERO_SKYBOX_H
 #define TORERO_SKYBOX_H
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
+#include "libs/GLAD/include/glad/glad.h"
+#include "libs/glfw/include/GLFW/glfw3.h"
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
 #include "includes/shader.h"
 #include "includes/types.h"
 
-#include "Algebraica.h"
+#include "libs/algebraica/Algebraica.h"
+#include "libs/stb/stb_image.h"
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/signals2.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-#include <stb_image.h>
 
 #include <fstream>
 #include <string>

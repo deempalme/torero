@@ -4,16 +4,16 @@
 namespace Toreo {
   PointCloudManager::PointCloudManager(Core *core) :
     core_(core),
-    point_cloud_shader_(new Shader("resources/shaders/point_cloud.vert",
-                                   "resources/shaders/point_cloud.frag")),
-    pc_u_pv_(point_cloud_shader_->uniform_location("u_pv")),
+    shader_(new Shader("resources/shaders/point_cloud.vert",
+                       "resources/shaders/point_cloud.frag")),
+    u_pv_(shader_->uniform_location("u_pv")),
     point_clouds_(0),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&PointCloudManager::updated_camera, this))),
     signal_updated_screen_(core->signal_updated_screen()->
                            connect(boost::bind(&PointCloudManager::draw_all, this)))
   {
-    point_cloud_shader_->set_value(pc_u_pv_, core->camera_matrix_perspective_view());
+    shader_->set_value(u_pv_, core->camera_matrix_perspective_view());
   }
 
   PointCloudManager::~PointCloudManager(){
@@ -30,8 +30,11 @@ namespace Toreo {
     if(signal_updated_screen_.connected())
       signal_updated_screen_.disconnect();
 
-    if(point_cloud_shader_)
-      delete point_cloud_shader_;
+    if(signal_updated_all_.connected())
+      signal_updated_all_.disconnect();
+
+    if(shader_)
+      delete shader_;
   }
 
 
@@ -41,7 +44,7 @@ namespace Toreo {
                                const float color_red, const float color_green,
                                const float color_blue, const bool visible,
                                const float point_size, const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(point_cloud_shader_, point_cloud,
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
                                             Algebraica::vec3f(color_red, color_green, color_blue),
                                             point_size, maximum_intensity_value), name, visible };
     if(transformation_matrix != nullptr)
@@ -57,7 +60,7 @@ namespace Toreo {
                                const Visualizer::ColorMode color_mode,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(point_cloud_shader_, point_cloud,
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
                                             color_mode, point_size, maximum_intensity_value),
                                             name, visible };
     if(transformation_matrix != nullptr)
@@ -72,7 +75,7 @@ namespace Toreo {
                                const Algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(point_cloud_shader_, point_cloud,
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
                                             point_size, maximum_intensity_value), name, visible };
     if(transformation_matrix != nullptr)
       cloud.point_cloud->set_transformation_matrix(transformation_matrix);
@@ -86,7 +89,7 @@ namespace Toreo {
                                const Algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(point_cloud_shader_, point_cloud,
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
                                             point_size, maximum_intensity_value), name, visible };
     if(transformation_matrix != nullptr)
       cloud.point_cloud->set_transformation_matrix(transformation_matrix);
@@ -208,10 +211,10 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::rotate_in_x(PCMid id, const float x){
+  bool PointCloudManager::rotate_in_x(PCMid id, const float angle){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate_in_x(x);
+        point_clouds_[id].point_cloud->rotate_in_x(angle);
         return true;
       }else
         return false;
@@ -219,10 +222,10 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::rotate_in_y(PCMid id, const float y){
+  bool PointCloudManager::rotate_in_y(PCMid id, const float angle){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate_in_y(y);
+        point_clouds_[id].point_cloud->rotate_in_y(angle);
         return true;
       }else
         return false;
@@ -230,10 +233,10 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::rotate_in_z(PCMid id, const float z){
+  bool PointCloudManager::rotate_in_z(PCMid id, const float angle){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate_in_z(z);
+        point_clouds_[id].point_cloud->rotate_in_z(angle);
         return true;
       }else
         return false;
@@ -313,8 +316,14 @@ namespace Toreo {
       return false;
   }
 
+  void PointCloudManager::connect_all(boost::signals2::signal<void ()> *signal){
+    if(signal_updated_all_.connected())
+      signal_updated_all_.disconnect();
+    signal_updated_all_ = signal->connect(boost::bind(&PointCloudManager::update_all, this));
+  }
+
   void PointCloudManager::updated_camera(){
-    point_cloud_shader_->use();
-    point_cloud_shader_->set_value(pc_u_pv_, core_->camera_matrix_perspective_view());
+    shader_->use();
+    shader_->set_value(u_pv_, core_->camera_matrix_perspective_view());
   }
 }

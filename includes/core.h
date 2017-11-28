@@ -2,17 +2,17 @@
 #define TORERO_CORE_H
 
 // OpenGL loader and core library
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-// Image loader
-#include <stb_image.h>
+#include "libs/GLAD/include/glad/glad.h"
+#include "libs/glfw/include/GLFW/glfw3.h"
 
 #include "includes/camera.h"
 #include "includes/definitions.h"
 #include "includes/types.h"
 
 // linear mathematical functions
-#include "Algebraica.h"
+#include "libs/algebraica/Algebraica.h"
+// Image loader
+#include "libs/stb/stb_image.h"
 // standard
 #include <iostream>
 #include <string>
@@ -70,12 +70,12 @@ namespace Toreo {
     // ----------------------------- SCENE's FRAME MATRICES ------------------------------- //
     // ------------------------------------------------------------------------------------ //
     // Returns the fixed frame matrix, its origins is the Latitude and Longitude 0°.
-    const Algebraica::mat4f *fixed_frame();
+    const Algebraica::mat4f *fixed_frame() const;
     // Returns the vehicle frame matrix, its origins is the vehicle origin.
-    const Algebraica::mat4f *vehicle_frame();
+    const Algebraica::mat4f *vehicle_frame() const;
     // Returns the navigation frame matrix, its origins is the vehicle origin
     // and always is pointing east.
-    const Algebraica::mat4f *navigation_frame();
+    const Algebraica::mat4f *navigation_frame() const;
 
     // ------------------------------------------------------------------------------------ //
     // -------------------------------- WINDOW MANAGEMENT --------------------------------- //
@@ -190,7 +190,8 @@ namespace Toreo {
     bool is_inversed_, has_changed_;
 
     GLfloat max_filtering_;
-    Algebraica::mat4f fixed_frame_, vehicle_frame_, navigation_frame_;
+    Algebraica::mat4f identity_matrix_;
+    Algebraica::mat4f *fixed_frame_, *vehicle_frame_, *navigation_frame_;
     Camera camera_;
 
     // signals

@@ -1,14 +1,14 @@
 #ifndef TORERO_POINTCLOUD_H
 #define TORERO_POINTCLOUD_H
 
-#include "glad/glad.h"
+#include "libs/GLAD/include/glad/glad.h"
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
 #include "includes/shader.h"
 #include "includes/types.h"
 
-#include "Algebraica.h"
+#include "libs/algebraica/Algebraica.h"
 
 #include <vector>
 

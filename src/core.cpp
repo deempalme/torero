@@ -20,11 +20,12 @@ namespace Toreo {
     is_inversed_(false),
     has_changed_(true),
     max_filtering_(0.0f),
-    fixed_frame_(),
-    vehicle_frame_(),
-    navigation_frame_(),
+    identity_matrix_(),
+    fixed_frame_(&identity_matrix_),
+    vehicle_frame_(&identity_matrix_),
+    navigation_frame_(&identity_matrix_),
     camera_(Algebraica::vec3f(-12.0f, 0.0f, 5.0f), Algebraica::vec3f(),
-            Algebraica::vec3f(0.0f, 0.0f, 1.0f), &vehicle_frame_)
+            Algebraica::vec3f(0.0f, 0.0f, 1.0f), vehicle_frame_)
   {
     // glfw: initialize and configure
     // ------------------------------
@@ -159,16 +160,16 @@ namespace Toreo {
     return camera_.camera_position();
   }
 
-  const Algebraica::mat4f *Core::fixed_frame(){
-    return &fixed_frame_;
+  const Algebraica::mat4f *Core::fixed_frame() const{
+    return fixed_frame_;
   }
 
-  const Algebraica::mat4f *Core::vehicle_frame(){
-    return &vehicle_frame_;
+  const Algebraica::mat4f *Core::vehicle_frame() const{
+    return vehicle_frame_;
   }
 
-  const Algebraica::mat4f *Core::navigation_frame(){
-    return &navigation_frame_;
+  const Algebraica::mat4f *Core::navigation_frame() const{
+    return navigation_frame_;
   }
 
   void Core::set_window_title(const char *title){
@@ -335,9 +336,10 @@ namespace Toreo {
     glDepthFunc(GL_LEQUAL);
     // enable seamless cubemap sampling for lower mip levels in the pre-filter map.
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     // these allow alpha transparency in the rendering
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // detects the maximum anisotropic filtering samples
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_filtering_);
     max_filtering_ = (max_filtering_ > 8.0f)? 8.0f : max_filtering_;
