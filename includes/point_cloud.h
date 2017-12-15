@@ -1,14 +1,14 @@
 #ifndef TORERO_POINTCLOUD_H
 #define TORERO_POINTCLOUD_H
 
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
 #include "includes/shader.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
+#include "Algebraica.h"
 
 #include <vector>
 
@@ -52,9 +52,9 @@ namespace Toreo {
     void translate(const Algebraica::vec3f translation);
     void rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
     void rotate(const Algebraica::vec3f rotation);
-    void rotate_in_x(const float x);
-    void rotate_in_y(const float y);
-    void rotate_in_z(const float z);
+    void rotate_in_x(const float angle);
+    void rotate_in_y(const float angle);
+    void rotate_in_z(const float angle);
 
     // copies the point cloud's information into an openGL buffer
     // returns false if the GL_SHADER_PROGRAM was not created or compiled properly

@@ -1,8 +1,8 @@
 #ifndef TORERO_THREE_DIMENSIONAL_MODEL_LOADER_H
 #define TORERO_THREE_DIMENSIONAL_MODEL_LOADER_H
 
-#include "libs/GLAD/include/glad/glad.h"
-#include "libs/glfw/include/GLFW/glfw3.h"
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
@@ -10,8 +10,7 @@
 #include "includes/texture.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
-#include "libs/stb/stb_image.h"
+#include "Algebraica.h"
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/signals2.hpp>
@@ -53,10 +52,10 @@ namespace Toreo {
     Core *core_;
     Shader *shader_;
     Buffer *buffer_;
-    GLint i_position_, i_uv_, i_normal_;
+    GLint i_position_, i_uv_, i_normal_, i_tangent_, i_bitangent_;
 
     GLsizei data_size_, triangle_count_;
-    std::vector<Visualizer::SimpleShaderData> buffer_data_;
+    std::vector<Visualizer::ComplexShaderData> buffer_data_;
     Visualizer::ImageFile albedo_, normal_, metallic_, roughness_, ao_;
     Texture *t_albedo_, *t_normal_, *t_metallic_, *t_roughness_, *t_ao_;
 

@@ -17,12 +17,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(OpenGL REQUIRED)
 find_package(Boost COMPONENTS system filesystem thread REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
+include_directories(${GLFW_INCLUDE_DIRS})
+
 #header files
 set(HPP_FILES
   includes/buffer.h
   includes/camera.h
   includes/core.h
   includes/definitions.h
+  includes/ground.h
+  includes/ground_manager.h
   includes/model_manager.h
   includes/objects.h
   includes/object_manager.h
@@ -32,6 +38,8 @@ set(HPP_FILES
   includes/skybox.h
   includes/texture.h
   includes/three_dimensional_model_loader.h
+  includes/trajectory.h
+  includes/trajectory_manager.h
   includes/types.h
 )
 
@@ -39,6 +47,8 @@ set(HPP_FILES
 set(CPP_FILES
   src/camera.cpp
   src/core.cpp
+  src/ground.cpp
+  src/ground_manager.cpp
   src/model_manager.cpp
   src/objects.cpp
   src/object_manager.cpp
@@ -46,6 +56,8 @@ set(CPP_FILES
   src/point_cloud.cpp
   src/skybox.cpp
   src/three_dimensional_model_loader.cpp
+  src/trajectory_manager.cpp
+  src/trajectory.cpp
 )
 
 #resource files
@@ -54,6 +66,11 @@ set(RESOURCE_FILES
   resources/shaders/brdf.vert
   resources/shaders/irradiance.frag
   resources/shaders/cubemap.vert
+  resources/shaders/ground.frag
+  resources/shaders/ground.geom
+  resources/shaders/ground.vert
+  resources/shaders/lines.frag
+  resources/shaders/lines.vert
   resources/shaders/objects.frag
   resources/shaders/objects.vert
   resources/shaders/PBR.frag
@@ -63,66 +80,70 @@ set(RESOURCE_FILES
   resources/shaders/prefilter.frag
   resources/shaders/skybox.frag
   resources/shaders/skybox.vert
+  resources/shaders/trajectory.frag
+  resources/shaders/trajectory.geom
+  resources/shaders/trajectory.vert
 )
-
-# ++++++++++++++++++++++++++++++++++++++ GLFW ++++++++++++++++++++++++++++++++++++++
-# disable build the GLFW tests, examples and documentation
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-# adding the root directory of the GLFW source tree to your project
-add_subdirectory(libs/glfw)
 
 # ++++++++++++++++++++++++++++++++++++++ GLAD ++++++++++++++++++++++++++++++++++++++
 # adding the root directory of the GLAD source tree to your project
 set(GLAD_FILES
-  libs/GLAD/include/glad/glad.h
-  libs/GLAD/include/KHR/khrplatform.h
-  libs/GLAD/src/glad.c
+  lib/GLAD/include/glad/glad.h
+  lib/GLAD/include/KHR/khrplatform.h
+  lib/GLAD/src/glad.c
 )
 
 # +++++++++++++++++++++++++++++++++++ ALGEBRAICA +++++++++++++++++++++++++++++++++++
 # adding the root directory of algebraica source tree to your project
-add_subdirectory(libs/algebraica)
+add_subdirectory(lib/algebraica)
 
 # ++++++++++++++++++++++++++++++ COORDINATE CONVERSOR ++++++++++++++++++++++++++++++
 # adding the root directory of coordinate_conversor source tree to your project
-add_subdirectory(libs/coordinate_conversor)
+add_subdirectory(lib/coordinate_conversor)
 
 # ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
 add_definitions(-DSTB_IMAGE_STATIC)
 add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
+add_definitions(-DSTB_IMAGE_WRITE_IMPLEMENTATION)
 add_definitions(-DSTBI_NO_HDR)
 # adding the root directory of the stb library source tree to your project
 set(STB_FILES
-  libs/stb/stb_image.h
+  lib/stb/stb_image.h
+  lib/stb/stb_image_write.h
 )
 
 set(TORERO_DIRS_LOCAL
-  libs/glfw/include
-  libs/GLAD/include
+  lib/GLAD/include
   ${ALGEBRAICA_DIRS}
   ${COORDINATE_DIRS}
-  libs/stb
+  lib/stb
   ${Boost_INCLUDE_DIR}
 )
 
 include_directories(${TORERO_DIRS_LOCAL})
 
 set(TORERO_DIRS
-  libs/glfw/include
-  libs/GLAD/include
+  ${PROJECT_SOURCE_DIR}
+  ${PROJECT_SOURCE_DIR}/includes
+  ${PROJECT_SOURCE_DIR}/lib/GLAD/include
   ${ALGEBRAICA_DIRS}
   ${COORDINATE_DIRS}
-  libs/stb
-  libs/torero
-  libs/torero/includes
+  ${PROJECT_SOURCE_DIR}/lib/stb
 
-  PARENT_SCOPE
+  CACHE INTERNAL ""
 )
 
-set(TORERO_LIB ${TORERO_NAME} PARENT_SCOPE)
+set(TORERO_LIB ${TORERO_NAME} CACHE INTERNAL "")
+
+file(GLOB_RECURSE RESOURCES
+  LIST_DIRECTORIES true
+  ${PROJECT_SOURCE_DIR}/resources/*
+)
+foreach(RESOURCE ${RESOURCES})
+  if(IS_DIRECTORY ${RESOURCE})
+    file(COPY ${RESOURCE} DESTINATION ${CMAKE_BINARY_DIR}/resources)
+  endif(IS_DIRECTORY ${RESOURCE})
+endforeach(RESOURCE)
 
 #add every file to the executable
 add_library(${TORERO_NAME}
@@ -135,8 +156,7 @@ add_library(${TORERO_NAME}
 
 #indicates which libraries to use in the executable
 target_link_libraries(${TORERO_NAME}
-  glfw
-  ${glfw_LIBRARIES}
+  ${GLFW_LIBRARIES}
   ${ALGEBRAICA_LIB}
   ${COORDINATE_LIB}
   ${OPENGL_LIBRARIES}

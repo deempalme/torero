@@ -2,17 +2,15 @@
 #define TORERO_CORE_H
 
 // OpenGL loader and core library
-#include "libs/GLAD/include/glad/glad.h"
-#include "libs/glfw/include/GLFW/glfw3.h"
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
 
 #include "includes/camera.h"
 #include "includes/definitions.h"
 #include "includes/types.h"
 
 // linear mathematical functions
-#include "libs/algebraica/Algebraica.h"
-// Image loader
-#include "libs/stb/stb_image.h"
+#include "Algebraica.h"
 // standard
 #include <iostream>
 #include <string>
@@ -30,7 +28,7 @@ namespace Toreo {
   {
   public:
     explicit Core(int _argc, char **_argv);
-    ~Core();
+    virtual ~Core();
 
     // ------------------------------------------------------------------------------------ //
     // -------------------------------- CAMERA MANAGEMENT --------------------------------- //
@@ -109,6 +107,7 @@ namespace Toreo {
     // the screen, if you are using a infinite loop to execute your program then, you will
     // need to call one of these functions at least once every cycle:
 
+    void swap_buffers();
     // Waits until an event is triggered (mouse, keyboard, etc)
     void wait_for_events();
     // Waits until an event is triggered (mouse, keyboard, etc) or
@@ -144,6 +143,7 @@ namespace Toreo {
     // ------------------------------------------------------------------------------------ //
     // ------------------------------------- SIGNALS -------------------------------------- //
     // ------------------------------------------------------------------------------------ //
+    boost::signals2::signal<void ()> *syncronize(Visualizer::Order object);
     // This is the handler to realize a connection to a signal that is activated after the
     // camera has been modified.
     boost::signals2::signal<void ()> *signal_updated_camera();
@@ -151,10 +151,6 @@ namespace Toreo {
     // OpenGL screen has been painted. This will NOT update the data in point clouds,
     // trajectories, boxes, etc.
     boost::signals2::signal<void ()> *signal_updated_screen();
-    // This is the handler to realize a connection to a signal that is activated after the
-    // OpenGL frame has been changed. This WILL update the data in point clouds,
-    // trajectories, boxes, etc.
-    boost::signals2::signal<void ()> *signal_updated_frame();
 
     static boost::signals2::signal<void (int, int)> signal_window_resize;
     static boost::signals2::signal<void (int, int)> signal_mouse_click;
@@ -170,7 +166,6 @@ namespace Toreo {
     virtual void initialize();
     virtual void paint();
     virtual void resize(const int width, const int height);
-    virtual void update();
 
   private:
     void event_mouse_click(int button, int action);
@@ -196,7 +191,7 @@ namespace Toreo {
 
     // signals
     boost::signals2::signal<void ()> signal_updated_camera_, signal_updated_screen_;
-    boost::signals2::signal<void ()> signal_updated_frame_;
+    std::vector<boost::signals2::signal<void ()> > signal_draw_;
   };
 }
 

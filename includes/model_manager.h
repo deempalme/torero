@@ -2,7 +2,7 @@
 #define TORERO_MODEL_MANAGER_H
 
 // OpenGL loader and core library
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
 #include "includes/definitions.h"
 #include "includes/three_dimensional_model_loader.h"
@@ -10,7 +10,7 @@
 #include "includes/skybox.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
+#include "Algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -81,13 +81,13 @@ namespace Toreo {
                 const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
     // Performs a rotation in the 3D model around its X axis
     // Returns false if Model element with ID = id was not found.
-    bool rotate_in_x(MMid model_id, MMelement element_id, const float x);
+    bool rotate_in_x(MMid model_id, MMelement element_id, const float angle);
     // Performs a rotation in the 3D model around its Y axis
     // Returns false if Model element with ID = id was not found.
-    bool rotate_in_y(MMid model_id, MMelement element_id, const float y);
+    bool rotate_in_y(MMid model_id, MMelement element_id, const float angle);
     // Performs a rotation in the 3D model around its Z axis
     // Returns false if Model element with ID = id was not found.
-    bool rotate_in_z(MMid model_id, MMelement element_id, const float z);
+    bool rotate_in_z(MMid model_id, MMelement element_id, const float angle);
     // Draws the 3D model's duplicated with id = element_id into the screen.
     // Returns false if the duplicated element does not exist
     // or the 3D model was not proerly created.
@@ -123,16 +123,15 @@ namespace Toreo {
     Shader *model_shader_;
     GLint m_u_scene_model_, m_u_object_model_, m_u_view_, m_u_projection_, m_u_light_;
     GLint m_u_light_color_, m_u_light_size_, m_u_camera_, m_u_sun_, m_u_sun_color_;
-    GLint m_u_pbr_, m_u_fog_, m_u_albedo_, m_u_normal_, m_u_metallized_, m_u_metallic_;
-    GLint m_u_metallic_value_, m_u_roughed_, m_u_roughness_, m_u_roughness_value_;
-    GLint m_u_ao_, m_u_colored_, m_u_color_, m_u_irradiance_, m_u_prefilter_, m_u_brdfLUT_;
+    GLint m_u_pbr_, m_u_fog_, m_u_metallized_, m_u_metallic_value_, m_u_roughed_;
+    GLint m_u_roughness_value_, m_u_colored_, m_u_color_;
 
     Skybox *skybox_;
     bool skybox_visibility_;
 
     std::vector<Visualizer::Model3D> models_;
 
-    boost::signals2::connection signal_updated_camera_, signal_updated_screen_;
+    boost::signals2::connection signal_updated_camera_, signal_draw_all_;
 
     Algebraica::vec3f sun_direction_, sun_color_;
   };

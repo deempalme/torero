@@ -1,9 +1,9 @@
 #ifndef TORERO_SHADER_H
 #define TORERO_SHADER_H
 
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
-#include "libs/algebraica/Algebraica.h"
+#include "Algebraica.h"
 
 #include <string>
 #include <fstream>

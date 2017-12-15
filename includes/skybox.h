@@ -1,16 +1,15 @@
 #ifndef TORERO_SKYBOX_H
 #define TORERO_SKYBOX_H
 
-#include "libs/GLAD/include/glad/glad.h"
-#include "libs/glfw/include/GLFW/glfw3.h"
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
 #include "includes/shader.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
-#include "libs/stb/stb_image.h"
+#include "Algebraica.h"
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/signals2.hpp>
@@ -54,11 +53,9 @@ namespace Toreo {
     bool is_ready_, is_loaded_;
 
     Shader *irradiance_shader_;
-    GLint irr_u_skybox_, irr_u_projection_, irr_u_view_;
     GLuint irr_map_id_;
 
     Shader *prefilter_shader_;
-    GLint pfr_u_skybox_, pfr_u_projection_, pfr_u_roughness_, pfr_u_view_;
     GLuint pfr_map_id_;
 
     Shader *sky_shader_;
@@ -74,7 +71,7 @@ namespace Toreo {
     GLint i_position_, i_normal_, i_uv_;
     GLsizei stride_size_short_, stride_size_medium_, stride_size_long_;
 
-    Visualizer::ImageFile up_, down_, left_, right_, front_, back_;
+    Visualizer::ImageFile up_, down_, left_, right_, front_, back_, brdf_;
 
     boost::thread runner_;
     boost::mutex protector_;

@@ -1,37 +1,32 @@
 #ifndef TORERO_TYPES_H
 #define TORERO_TYPES_H
 
-#include "libs/algebraica/Algebraica.h"
+#include "Algebraica.h"
 #include <boost/signals2.hpp>
 
 namespace Toreo {
-  class ThreeDimensionalModelLoader;
-  class PointCloud;
+  class Ground;
   class Objects;
+  class PointCloud;
+  class Trajectory;
+  class ThreeDimensionalModelLoader;
 }
 
 namespace Visualizer {
-
+  // ------------------------------------------------------------------------------------ //
+  // ----------------------------------- SHADER DATA ------------------------------------ //
+  // ------------------------------------------------------------------------------------ //
   struct ComplexShaderData{
     // vertex position
-    float x  = 0;
-    float y  = 0;
-    float z  = 0;
+    Algebraica::vec3f position;
     // vertex normals
-    float nx = 0;
-    float ny = 0;
-    float nz = 0;
+    Algebraica::vec3f normal;
+    // vertex tangents
+    Algebraica::vec3f tangent;
+    // vertex tangents
+    Algebraica::vec3f bitangent;
     // vertex texture coordinates
-    float ux = 0;
-    float uy = 0;
-    // vertex tangential normals
-    float tx = 0;
-    float ty = 0;
-    float tz = 0;
-    // vertex bitangential normals
-    float bx = 0;
-    float by = 0;
-    float bz = 0;
+    Algebraica::vec2f texture;
   };
 
   struct SimpleShaderData{
@@ -43,13 +38,15 @@ namespace Visualizer {
     Algebraica::vec2f texture;
   };
 
-  struct PointCloudElement{
-    Toreo::PointCloud *point_cloud = nullptr;
-    std::string name;
-    bool visibility;
-    boost::signals2::connection connection;
+  struct ImageFile{
+    int width = 0;
+    int height = 0;
+    int components_size = 0;
+    unsigned char *data = nullptr;
   };
-
+  // ------------------------------------------------------------------------------------ //
+  // ------------------------------- 3D MODEL MANAGEMENT -------------------------------- //
+  // ------------------------------------------------------------------------------------ //
   struct Model3DElement{
     const Algebraica::mat4f *main = nullptr;
     Algebraica::mat4f secondary;
@@ -71,12 +68,14 @@ namespace Visualizer {
     Toreo::ThreeDimensionalModelLoader *model;
     std::vector<Model3DElement> elements;
   };
-
-  struct ImageFile{
-    int width = 0;
-    int height = 0;
-    int components_size = 0;
-    unsigned char *data = nullptr;
+  // ------------------------------------------------------------------------------------ //
+  // ----------------------------- POINT CLOUD MANAGEMENT ------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+  struct PointCloudElement{
+    Toreo::PointCloud *point_cloud = nullptr;
+    std::string name;
+    bool visibility;
+    boost::signals2::connection connection;
   };
 
 #ifndef C_C_S
@@ -150,7 +149,9 @@ namespace Visualizer {
     VARIABLE   = 2u,
     NONE       = 3u
   };
-
+  // ------------------------------------------------------------------------------------ //
+  // -------------------------------- OBJECT MANAGEMENT --------------------------------- //
+  // ------------------------------------------------------------------------------------ //
   enum Shape : unsigned int{
     BOX      = 0u,
     CYLINDER = 1u,
@@ -219,8 +220,105 @@ namespace Visualizer {
     float u, v;
     float w, h, l;
   };
+  // ------------------------------------------------------------------------------------ //
+  // ------------------------------ TRAJECTORY MANAGEMENT ------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+  enum LineType : unsigned int {
+    SOLID          = 0u,
+    DOTTED         = 1u,
+    DASHED         = 2u,
+    ARROWED        = 3u
+  };
+
+  struct TrajectoryVertex{
+    // Object position
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // Object's color (0 to 255)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // Line width in meters
+    float line_width = 1.0f;
+    // Rotation angle in radians
+    // This rotation affects only the longitudinal axis
+    // (imaginary line from this vertex to the next one)
+    float angle = 0.0f;
+  };
+
+  typedef std::vector<TrajectoryVertex> Trajectory;
+
+  struct TrajectoryElement{
+    Toreo::Trajectory *trajectory = nullptr;
+    Visualizer::LineType type;
+    std::string name;
+    bool visibility;
+    boost::signals2::connection connection;
+  };
+
+  struct TrajectoryShader{
+    Algebraica::vec3f position;
+    Algebraica::vec4f color;
+    float line_width;
+    float distance;
+    float angle;
+  };
+  // ------------------------------------------------------------------------------------ //
+  // -------------------------------- GROUND MANAGEMENT --------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+  struct Ground2D{
+    // RGBA color (range 0.0f to 255.0f)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+  };
+
+  struct Ground3D{
+    // RGBA color (range 0.0f to 255.0f)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // cube's Height in meters
+    float height = 0.0f;
+  };
+
+  struct Ground2DShader{
+    Algebraica::vec2f position;
+    Algebraica::vec4f color;
+  };
+
+  struct Ground3DShader{
+    Algebraica::vec2f position;
+    Algebraica::vec4f color;
+    float height;
+  };
+
+  struct GroundElement{
+    Toreo::Ground *ground = nullptr;
+    std::string name;
+    bool visibility;
+    boost::signals2::connection connection;
+  };
+  // ------------------------------------------------------------------------------------ //
+  // -------------------------------- WINDOW MANAGEMENT --------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+  enum Order : int {
+    POINT_CLOUDS = 0,
+    OBJECTS      = 1,
+    GROUND       = 2,
+    STREETS      = 3,
+    MODELS       = 4,
+    TRAJECTORIES = 5,
+    TEXT         = 6,
+    CAMERA       = 7,
+    GUI          = 8
+  };
 }
 
-typedef int PCMid, MMid, MMelement, OMid;
+typedef int PCMid, MMid, MMelement, OMid, TMid, GMid;
 
 #endif // TORERO_TYPES_H

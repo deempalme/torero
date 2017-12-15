@@ -2,14 +2,14 @@
 #define TORERO_POINT_CLOUD_MANAGER_H
 
 // OpenGL loader and core library
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
 #include "includes/definitions.h"
 #include "includes/point_cloud.h"
 #include "includes/shader.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
+#include "Algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -31,7 +31,7 @@ namespace Toreo {
      * *class* already implemented, you will get an error at the creation if `core` was not
      * previously defined.
      *
-     * **Parameters**
+     * **Arguments**
      * {Core*} core = Address to a **Core** *object*.
      *
      * **Errors**
@@ -51,7 +51,7 @@ namespace Toreo {
      * define a **RGB color** to color all the points. It will return the point cloud's **ID**,
      * this will be useful if you want to modify properties or values of the created point cloud.
      *
-     * **Parameters**
+     * **Arguments**
      * {const std::vector<Visualizer::pointXYZ>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
@@ -85,7 +85,7 @@ namespace Toreo {
      * could reach. It will return the point cloud's **ID**, this will be useful if you want
      * to modify properties or values of the created point cloud.
      *
-     * **Parameters**
+     * **Arguments**
      * {const std::vector<Visualizer::pointXYZI>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
@@ -114,7 +114,7 @@ namespace Toreo {
      * must include its own **RGB color**. It will return the point cloud's **ID**, this will
      * be useful if you want to modify properties or values of the created point cloud.
      *
-     * **Parameters**
+     * **Arguments**
      * {const std::vector<Visualizer::pointXYZRGB>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
@@ -142,7 +142,7 @@ namespace Toreo {
      * the point cloud's **ID**, this will be useful if you want to modify properties or values
      * of the created point cloud.
      *
-     * **Parameters**
+     * **Arguments**
      * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
@@ -168,7 +168,7 @@ namespace Toreo {
      * This function changes the data input for the three-dimensional **point cloud**
      * with *identification number* = `id`.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const std::vector<Visualizer::pointXYZ>*} point_cloud = new address to a 3D point cloud's
      * data.
@@ -184,7 +184,7 @@ namespace Toreo {
      * This function changes the data input for the three-dimensional **point cloud**
      * with *identification number* = `id`.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const std::vector<Visualizer::pointXYZI>*} point_cloud = new address to a 3D point cloud's
      * data.
@@ -200,7 +200,7 @@ namespace Toreo {
      * This function changes the data input for the three-dimensional **point cloud**
      * with *identification number* = `id`.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const std::vector<Visualizer::pointXYZRGB>*} point_cloud = new address to a 3D point
      * cloud's data.
@@ -216,7 +216,7 @@ namespace Toreo {
      * This function changes the data input for the three-dimensional **point cloud**
      * with *identification number* = `id`.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = new address to a 3D point
      * cloud's data.
@@ -231,7 +231,7 @@ namespace Toreo {
      *
      * This function changes the visibility of the point cloud with *identification number* = `id`.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const bool} visible = visibility: `true` for visible, `false` for hidden.
      *
@@ -247,7 +247,7 @@ namespace Toreo {
      * readable size is 10 colors per **colormap**. You can only specify one colormap for
      * each Cloud.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const Algebraica::vec3f*} colors = Address of a color's palette array.
      * {const unsigned int} quantity = quantity of array's elements.
@@ -267,7 +267,7 @@ namespace Toreo {
      * Sets the color mode; it could be *grayscale*, *monochrome*, *variable* or *none*. See
      * **color mode** types for more information.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const Visualizer::ColorMode} color_mode = new color mode.
      *
@@ -286,7 +286,7 @@ namespace Toreo {
      * This function changes the transformation matrix (coordinate system's origin and
      * orientation) of the **point cloud** with *identification number* = `id`.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
      *
@@ -301,7 +301,7 @@ namespace Toreo {
      * This function translates the **point cloud** with *identification number* = `id` a
      * distance in **X**, **Y** and **Z** from its current position.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const float} x = Translation distance in **X** axis.
      * {const float} y = Translation distance in **Y** axis.
@@ -319,7 +319,7 @@ namespace Toreo {
      * angles; **pitch**, **yaw** and **roll** from its current orientation (see the coordinate
      * systems for more information).
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const float} pitch = Pitch angle in radians.
      * {const float} yaw = Yaw angle in radians.
@@ -336,7 +336,7 @@ namespace Toreo {
      * This function rotates the **point cloud** with *identification number* = `id` around
      * its **X** axis.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const float} angle = Angle in radians.
      *
@@ -351,7 +351,7 @@ namespace Toreo {
      * This function rotates the **point cloud** with *identification number* = `id` around
      * its **Y** axis.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const float} angle = Angle in radians.
      *
@@ -366,7 +366,7 @@ namespace Toreo {
      * This function rotates the **point cloud** with *identification number* = `id` around
      * its **Z** axis.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
      * {const float} angle = Angle in radians.
      *
@@ -382,7 +382,7 @@ namespace Toreo {
      * You should call this function every time the point cloud's data is modified or call
      * update_all() but it will update each point cloud even if some of them were not changed.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to update.
      *
      * **Returns**
@@ -404,7 +404,7 @@ namespace Toreo {
      * This function draws the data of the **point cloud** with *identification number* = `id`
      * into the screen.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to draw.
      *
      * **Returns**
@@ -429,7 +429,7 @@ namespace Toreo {
      * but not the vector's element, you should call purge when possible if you constantly
      * create and delete point clouds.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to delete.
      *
      * **Returns**
@@ -454,7 +454,7 @@ namespace Toreo {
      * updates its data every time the signal is **triggered**. It disconnects any previous
      * connection with the same point cloud.
      *
-     * **Parameters**
+     * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to delete.
      * {boost::signals2::signal<void ()>*} signal = boost signal to connect.
      *
@@ -470,11 +470,11 @@ namespace Toreo {
      * updates the data of all point clouds every time the signal is **triggered**.
      * It disconnects any previous connection with the same member function.
      *
-     * **Parameters**
+     * **Arguments**
      * {boost::signals2::signal<void ()>*} signal = boost signal to connect.
      *
      */
-    void connect_all(boost::signals2::signal<void ()> *signal);
+    void connect_update(boost::signals2::signal<void ()> *signal);
 
   private:
     void updated_camera();
@@ -485,7 +485,7 @@ namespace Toreo {
     GLint u_pv_;
     std::vector<Visualizer::PointCloudElement> point_clouds_;
 
-    boost::signals2::connection signal_updated_camera_, signal_updated_screen_;
+    boost::signals2::connection signal_updated_camera_, signal_draw_all_;
     boost::signals2::connection signal_updated_all_;
   };
   }

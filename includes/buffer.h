@@ -1,7 +1,7 @@
 #ifndef TORERO_BUFFER_H
 #define TORERO_BUFFER_H
 
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
 namespace Toreo {
   class Buffer

@@ -1,7 +1,7 @@
 #ifndef TORERO_OBJECTS_H
 #define TORERO_OBJECTS_H
 
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
@@ -9,7 +9,7 @@
 #include "includes/texture.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
+#include "Algebraica.h"
 
 #include <vector>
 
@@ -27,9 +27,9 @@ namespace Toreo {
 
     void translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
     void rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
-    void rotate_in_x(const float x);
-    void rotate_in_y(const float y);
-    void rotate_in_z(const float z);
+    void rotate_in_x(const float angle);
+    void rotate_in_y(const float angle);
+    void rotate_in_z(const float angle);
 
     bool update();
     bool draw();

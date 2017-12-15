@@ -2,7 +2,7 @@
 #define TORERO_OBJECT_MANAGER_H
 
 // OpenGL loader and core library
-#include "libs/GLAD/include/glad/glad.h"
+#include "glad/glad.h"
 
 #include "includes/buffer.h"
 #include "includes/definitions.h"
@@ -11,8 +11,7 @@
 #include "includes/texture.h"
 #include "includes/types.h"
 
-#include "libs/algebraica/Algebraica.h"
-#include "libs/stb/stb_image.h"
+#include "Algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -64,11 +63,11 @@ namespace Toreo {
     // Rotates the point cloud using Pitch, Yaw and Roll values
     bool rotate(OMid id, const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
     // Performs a rotation in the point cloud around its X axis
-    bool rotate_in_x(OMid id, const float x);
+    bool rotate_in_x(OMid id, const float angle);
     // Performs a rotation in the point cloud around its Y axis
-    bool rotate_in_y(OMid id, const float y);
+    bool rotate_in_y(OMid id, const float angle);
     // Performs a rotation in the point cloud around its Z axis
-    bool rotate_in_z(OMid id, const float z);
+    bool rotate_in_z(OMid id, const float angle);
     // Updates the data of the point cloud.
     // Returns false if the point cloud was not proerly created.
     bool update(OMid id);
@@ -91,6 +90,18 @@ namespace Toreo {
     // If you delete the point cloud with ID = id or purge all, you will need to call this
     // function again to a new id or new point cloud.
     bool connect(OMid id, boost::signals2::signal<void ()> *signal);
+    /*
+     * ### Connecting the function update_all() to an external signal
+     *
+     * This function connects the member `update_all()` to an external signal and
+     * updates the data of all point clouds every time the signal is **triggered**.
+     * It disconnects any previous connection with the same member function.
+     *
+     * **Parameters**
+     * {boost::signals2::signal<void ()>*} signal = boost signal to connect.
+     *
+     */
+    void connect_update(boost::signals2::signal<void ()> *signal);
 
   private:
     void prepare_hollow_cylinder();
@@ -115,7 +126,8 @@ namespace Toreo {
     std::vector<Visualizer::ObjectElement> objects_;
     Texture *ao_cylinder_, *ao_box_, *ao_square_, *ao_circle_, *ao_arrow_;
 
-    boost::signals2::connection signal_updated_camera_, signal_updated_screen_;
+    boost::signals2::connection signal_updated_camera_, signal_draw_all_;
+    boost::signals2::connection signal_updated_all_;
   };
   }
 

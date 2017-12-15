@@ -87,7 +87,8 @@
 #define MINIMUM_ZOOM        0.05f
 
 //#define FIELD_OF_VIEW       1.047197551f
-#define FIELD_OF_VIEW       0.7853981634f
+// 35mm lens (41.7degrees)
+#define FIELD_OF_VIEW       0.7278023f
 #define NEAR_PLANE          0.1f
 #define FAR_PLANE           1000.0f
 
