@@ -1,5 +1,5 @@
-#include "includes/point_cloud_manager.h"
-#include "includes/core.h"
+#include "include/point_cloud_manager.h"
+#include "include/core.h"
 
 namespace Toreo {
   PointCloudManager::PointCloudManager(Core *core) :
@@ -10,8 +10,8 @@ namespace Toreo {
     point_clouds_(0),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&PointCloudManager::updated_camera, this))),
-    signal_updated_screen_(core->signal_updated_screen()->
-                           connect(boost::bind(&PointCloudManager::draw_all, this)))
+    signal_draw_all_(core->syncronize(Visualizer::POINT_CLOUDS)->
+                     connect(boost::bind(&PointCloudManager::draw_all, this)))
   {
     shader_->set_value(u_pv_, core->camera_matrix_perspective_view());
   }
@@ -27,8 +27,8 @@ namespace Toreo {
     if(signal_updated_camera_.connected())
       signal_updated_camera_.disconnect();
 
-    if(signal_updated_screen_.connected())
-      signal_updated_screen_.disconnect();
+    if(signal_draw_all_.connected())
+      signal_draw_all_.disconnect();
 
     if(signal_updated_all_.connected())
       signal_updated_all_.disconnect();
@@ -192,7 +192,7 @@ namespace Toreo {
   bool PointCloudManager::translate(PCMid id, const float x, const float y, const float z){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->translate(x, y, z);
+        point_clouds_[id].point_cloud->translate(-y, z, -x);
         return true;
       }else
         return false;
@@ -203,7 +203,7 @@ namespace Toreo {
   bool PointCloudManager::rotate(PCMid id, const float pitch, const float yaw, const float roll){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate(pitch, yaw, roll);
+        point_clouds_[id].point_cloud->rotate(-pitch, yaw, -roll);
         return true;
       }else
         return false;
@@ -214,7 +214,7 @@ namespace Toreo {
   bool PointCloudManager::rotate_in_x(PCMid id, const float angle){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate_in_x(angle);
+        point_clouds_[id].point_cloud->rotate_in_z(-angle);
         return true;
       }else
         return false;
@@ -225,7 +225,7 @@ namespace Toreo {
   bool PointCloudManager::rotate_in_y(PCMid id, const float angle){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate_in_y(angle);
+        point_clouds_[id].point_cloud->rotate_in_x(-angle);
         return true;
       }else
         return false;
@@ -236,7 +236,7 @@ namespace Toreo {
   bool PointCloudManager::rotate_in_z(PCMid id, const float angle){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->rotate_in_z(angle);
+        point_clouds_[id].point_cloud->rotate_in_y(angle);
         return true;
       }else
         return false;
@@ -316,7 +316,7 @@ namespace Toreo {
       return false;
   }
 
-  void PointCloudManager::connect_all(boost::signals2::signal<void ()> *signal){
+  void PointCloudManager::connect_update(boost::signals2::signal<void ()> *signal){
     if(signal_updated_all_.connected())
       signal_updated_all_.disconnect();
     signal_updated_all_ = signal->connect(boost::bind(&PointCloudManager::update_all, this));

@@ -1,5 +1,7 @@
-#include "includes/three_dimensional_model_loader.h"
-#include "includes/core.h"
+#include "include/three_dimensional_model_loader.h"
+#include "include/core.h"
+// Image loader
+#include "stb_image.h"
 
 namespace Toreo{
   ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const char *folder_address,
@@ -214,54 +216,89 @@ namespace Toreo{
 
       stbi_set_flip_vertically_on_load(true);
 
+      Algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
+      Algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
+      int e{0};
+
       protector_.lock();
-      size_t total{vertex_indices.size()};
+      int total{static_cast<int>(vertex_indices.size())};
       buffer_data_.resize(total);
       // For each vertex of each triangle
       for(int i = 0; i < total; i++){
-        buffer_data_[i].position = position[vertex_indices[i] - 1];
-        buffer_data_[i].normal = normal[normal_indices[i] - 1];
-        if(texture_indices[i] > 0)
-          buffer_data_[i].texture = texture[texture_indices[i] - 1];
+        buffer_data_.at(i).position = position[vertex_indices.at(i) - 1];
+        buffer_data_.at(i).normal = normal[normal_indices.at(i) - 1];
+        if(texture_indices.at(i) > 0)
+          buffer_data_.at(i).texture = texture[texture_indices.at(i) - 1];
         else
-          buffer_data_[i].texture = Algebraica::vec2f();
+          buffer_data_.at(i).texture = Algebraica::vec2f();
+
+        v2 = v1;
+        v1 = v0;
+        v0 = buffer_data_.at(i).position;
+
+        uv2 = uv1;
+        uv1 = uv0;
+        uv0 = buffer_data_.at(i).texture;
+
+        if(e++ > 1){
+          e = 0;
+          // Vertex positions
+          dP1 = v1 - v0;
+          dP2 = v2 - v0;
+
+          // UV delta
+          dUV1 = uv1 - uv0;
+          dUV2 = uv2 - uv0;
+
+          float r = 1.0f / (dUV1.x() * dUV2.y() - dUV1.y() * dUV2.x());
+          tangent = (dP1 * dUV2.y()   - dP2 * dUV1.y()) * r;
+          bitangent = (dP2 * dUV1.x()   - dP1 * dUV2.x()) * r;
+
+          buffer_data_.at(i).tangent = tangent;
+          buffer_data_.at(i - 1).tangent = tangent;
+          buffer_data_.at(i - 2).tangent = tangent;
+          buffer_data_.at(i).bitangent = bitangent;
+          buffer_data_.at(i - 1).bitangent = bitangent;
+          buffer_data_.at(i - 2).bitangent = bitangent;
+        }
 
 //        std::cout << std::setprecision(6) << std::fixed << std::showpos
 //                  << "{ "
-//                  << buffer_data_[i].position.x() << ", "
-//                  << buffer_data_[i].position.y() << ", "
-//                  << buffer_data_[i].position.z() << ", "
-//                  << buffer_data_[i].normal.x() << ", "
-//                  << buffer_data_[i].normal.y() << ", "
-//                  << buffer_data_[i].normal.z() << ", " << std::noshowpos
-//                  << buffer_data_[i].texture.x() << ", "
-//                  << buffer_data_[i].texture.y() << ", ";
+//                  << buffer_data_.at(i).position.x() << ", "
+//                  << buffer_data_.at(i).position.y() << ", "
+//                  << buffer_data_.at(i).position.z() << ", "
+//                  << buffer_data_.at(i).normal.x() << ", "
+//                  << buffer_data_.at(i).normal.y() << ", "
+//                  << buffer_data_.at(i).normal.z() << ", " << std::noshowpos
+//                  << buffer_data_.at(i).texture.x() << ", "
+//                  << buffer_data_.at(i).texture.y() << ", ";
 //        int x{0}, y{0}, z{0};
 
 //        // for 3D models
-//        if(vertex_indices[i] > 64){
+//        if(vertex_indices.at(i) > 64){
 //          x = 1;
 //          z = 1;
 //        }
-//        if(buffer_data_[i].position.y() > -0.45f && buffer_data_[i].position.y() < 0.45f)
+//        if(buffer_data_.at(i).position.y() > -0.45f && buffer_data_.at(i).position.y() < 0.45f)
 //          y = 1;
 
 //        // for squares
-//        if(buffer_data_[i].position.x() > -0.45f && buffer_data_[i].position.x() < 0.45f)
+//        if(buffer_data_.at(i).position.x() > -0.45f && buffer_data_.at(i).position.x() < 0.45f)
 //          x = 1;
-//        if(buffer_data_[i].position.z() > -0.45f && buffer_data_[i].position.z() < 0.45f)
+//        if(buffer_data_.at(i).position.z() > -0.45f && buffer_data_.at(i).position.z() < 0.45f)
 //          z = 1;
 
 //        // for circles
-//        if(vertex_indices[i] > 28){
+//        if(vertex_indices.at(i) > 28){
 //          x = 1;
 //          z = 1;
 //        }
 
 //        std::cout<< x << ", " << y << ", " << z << " }," << std::endl;
       }
+
 //      std::cout << total << std::endl;
-      data_size_ = static_cast<GLsizei>(total * sizeof(Visualizer::SimpleShaderData));
+      data_size_ = static_cast<GLsizei>(total * sizeof(Visualizer::ComplexShaderData));
 
       // loading albedo image
       albedo_.data = stbi_load(std::string(folder_address_ + "/albedo.png").c_str(),
@@ -300,11 +337,13 @@ namespace Toreo{
       if(!error_ && is_ready_){
         shader_->use();
 
-        i_position_ = shader_->attribute_location("i_position");
-        i_normal_   = shader_->attribute_location("i_normal");
-        i_uv_       = shader_->attribute_location("i_uv");
+        i_position_  = shader_->attribute_location("i_position");
+        i_normal_    = shader_->attribute_location("i_normal");
+        i_tangent_   = shader_->attribute_location("i_tangent");
+        i_bitangent_ = shader_->attribute_location("i_bitangent");
+        i_uv_        = shader_->attribute_location("i_uv");
 
-        GLsizei stride_size{sizeof(Visualizer::SimpleShaderData)};
+        GLsizei stride_size{sizeof(Visualizer::ComplexShaderData)};
 
         buffer_->create();
         buffer_->vertex_bind();
@@ -318,6 +357,14 @@ namespace Toreo{
         offset += sizeof(Algebraica::vec3f);
         buffer_->enable(i_normal_);
         buffer_->attributte_buffer(i_normal_, _3D, offset, stride_size);
+
+        offset += sizeof(Algebraica::vec3f);
+        buffer_->enable(i_tangent_);
+        buffer_->attributte_buffer(i_tangent_, _3D, offset, stride_size);
+
+        offset += sizeof(Algebraica::vec3f);
+        buffer_->enable(i_bitangent_);
+        buffer_->attributte_buffer(i_bitangent_, _3D, offset, stride_size);
 
         offset += sizeof(Algebraica::vec3f);
         buffer_->enable(i_uv_);

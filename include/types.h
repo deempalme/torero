@@ -159,6 +159,8 @@ namespace Visualizer {
     SQUARE   = 3u
   };
 
+#ifndef O_M_D
+#define O_M_D
   struct Object{
     // Object position (LOCATED at the object's center)
     float x = 0.0f;
@@ -190,7 +192,9 @@ namespace Visualizer {
     bool solid = false;
     // Line width in meters
     float line_width = 0.1f;
+    std::string name;
   };
+#endif
 
   struct ObjectElement{
     Toreo::Objects *object = nullptr;

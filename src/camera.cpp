@@ -1,4 +1,4 @@
-#include "includes/camera.h"
+#include "include/camera.h"
 
 namespace Toreo {
   Camera::Camera(const Algebraica::vec3f position, const Algebraica::vec3f target,
@@ -32,21 +32,21 @@ namespace Toreo {
   }
 
   void Camera::set_position(const float x, const float y, const float z){
-    camera_position_ = Algebraica::vec3f(-y, z, -x);
+    camera_position_(x, y, z);
 
     initialize();
     update_view();
   }
 
   void Camera::set_target(const float x, const float y, const float z){
-    camera_target_ = Algebraica::vec3f(-y, z, -x);
+    camera_target_(x, y, z);
 
     initialize();
     update_view();
   }
 
   void Camera::set_up(const float x, const float y, const float z){
-    camera_up_ = Algebraica::vec3f(-y, z, -x);
+    camera_up_(x, y, z);
     initialize(false);
     update_view();
   }
@@ -92,7 +92,7 @@ namespace Toreo {
   }
 
   void Camera::translate_camera(const float x, const float y, const float z){
-    camera_translation_ += Algebraica::vec3f(-y, z, -x);
+    camera_translation_ += Algebraica::vec3f(x, y, z);
     update_view();
   }
 
@@ -273,4 +273,4 @@ namespace Toreo {
                                       camera_position_.z() - camera_target_.z());
     initial_max_pitch_ = _PI + initial_min_pitch_;
   }
-  }
+}

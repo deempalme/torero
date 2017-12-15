@@ -4,10 +4,10 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "includes/definitions.h"
-#include "includes/point_cloud.h"
-#include "includes/shader.h"
-#include "includes/types.h"
+#include "include/definitions.h"
+#include "include/point_cloud.h"
+#include "include/shader.h"
+#include "include/types.h"
 
 #include "Algebraica.h"
 // signals and slots

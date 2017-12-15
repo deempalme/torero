@@ -4,8 +4,8 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "includes/definitions.h"
-#include "includes/types.h"
+#include "include/definitions.h"
+#include "include/types.h"
 
 #include <string>
 

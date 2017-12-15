@@ -1,6 +1,9 @@
-#include "includes/skybox.h"
-#include "includes/core.h"
-#include "includes/shader.h"
+#include "include/skybox.h"
+#include "include/core.h"
+#include "include/shader.h"
+// Image loader
+#include "stb_image.h"
+#include "stb_image_write.h"
 
 namespace Toreo {
   Skybox::Skybox(const char *folder_path, const char *file_extension, Core *core) :
@@ -43,19 +46,10 @@ namespace Toreo {
     if(!irradiance_shader_->use())
       core_->message_handler(irradiance_shader_->error_log(), ERROR_MESSAGE);
 
-    irr_u_skybox_ = irradiance_shader_->uniform_location("u_skybox");
-    irr_u_projection_ = irradiance_shader_->uniform_location("u_projection");
-    irr_u_view_ = irradiance_shader_->uniform_location("u_view");
-
     // Prefilter shader
     // ----------------
     if(!prefilter_shader_->use())
       core_->message_handler(prefilter_shader_->error_log(), ERROR_MESSAGE);
-
-    pfr_u_view_ = prefilter_shader_->uniform_location("u_view");
-    pfr_u_skybox_ = prefilter_shader_->uniform_location("u_skybox");
-    pfr_u_projection_ = prefilter_shader_->uniform_location("u_projection");
-    pfr_u_roughness_ = prefilter_shader_->uniform_location("u_roughness");
 
     // Skybox shader
     // -------------
@@ -141,10 +135,14 @@ namespace Toreo {
     // loading back image
     back_.data = stbi_load(std::string(folder_path_ + "bk" + file_extension_).c_str(),
                            &back_.width, &back_.height, &back_.components_size, 0);
+    stbi_set_flip_vertically_on_load(true);
+    brdf_.data = stbi_load(std::string(folder_path_ + "brdf.png").c_str(),
+                           &brdf_.width, &brdf_.height, &brdf_.components_size, 0);
     protector_.unlock();
 
     protector_.lock();
-    is_ready_ = up_.data && down_.data && left_.data && right_.data && front_.data && back_.data;
+    is_ready_ = up_.data && down_.data && left_.data && right_.data
+                && front_.data && back_.data && brdf_.data;
     protector_.unlock();
   }
 
@@ -219,6 +217,7 @@ namespace Toreo {
 
         // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
         // --------------------------------------------------------------------------------
+        glActiveTexture(GL_TEXTURE0);
         glGenTextures(1, &irr_map_id_);
         glBindTexture(GL_TEXTURE_CUBE_MAP, irr_map_id_);
 
@@ -239,15 +238,17 @@ namespace Toreo {
         // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
         // -----------------------------------------------------------------------------
         irradiance_shader_->use();
-        irradiance_shader_->set_value(irr_u_skybox_, 0);
-        irradiance_shader_->set_value(irr_u_projection_, capture_projection);
+        irradiance_shader_->set_value(irradiance_shader_->uniform_location("u_skybox"), 0);
+        irradiance_shader_->set_value(irradiance_shader_->uniform_location("u_projection"),
+                                      capture_projection);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
 
         glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
         glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
         for(unsigned int i = 0; i < 6; ++i){
-          irradiance_shader_->set_value(irr_u_view_, capture_views[i]);
+          irradiance_shader_->set_value(irradiance_shader_->uniform_location("u_view"),
+                                        capture_views[i]);
           glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                  GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irr_map_id_, 0);
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -258,6 +259,7 @@ namespace Toreo {
 
         // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
         // --------------------------------------------------------------------------------
+        glActiveTexture(GL_TEXTURE1);
         glGenTextures(1, &pfr_map_id_);
         glBindTexture(GL_TEXTURE_CUBE_MAP, pfr_map_id_);
         for(unsigned int i = 0; i < 6; ++i)
@@ -276,8 +278,9 @@ namespace Toreo {
         // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter
         // -----------------------------------------------------------------------------------------
         prefilter_shader_->use();
-        prefilter_shader_->set_value(pfr_u_skybox_, 0);
-        prefilter_shader_->set_value(pfr_u_projection_, capture_projection);
+        prefilter_shader_->set_value(prefilter_shader_->uniform_location("u_skybox"), 0);
+        prefilter_shader_->set_value(prefilter_shader_->uniform_location("u_projection"),
+                                     capture_projection);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, sky_texture_id_);
 
@@ -292,9 +295,11 @@ namespace Toreo {
           glViewport(0, 0, mipWidth, mipHeight);
 
           float roughness = (float)mip / (float)(maxMipLevels - 1);
-          prefilter_shader_->set_value(pfr_u_roughness_, roughness);
+          prefilter_shader_->set_value(prefilter_shader_->uniform_location("u_roughness"),
+                                       roughness);
           for(unsigned int i = 0; i < 6; ++i){
-            prefilter_shader_->set_value(pfr_u_view_, capture_views[i]);
+            prefilter_shader_->set_value(prefilter_shader_->uniform_location("u_view"),
+                                         capture_views[i]);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, pfr_map_id_, mip);
 
@@ -306,30 +311,62 @@ namespace Toreo {
 
         // pbr: generate a 2D LUT from the BRDF equations used.
         // ----------------------------------------------------
+        glActiveTexture(GL_TEXTURE2);
         glGenTextures(1, &brdf_texture_id_);
 
         // pre-allocate enough memory for the LUT texture.
         glBindTexture(GL_TEXTURE_2D, brdf_texture_id_);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
-        // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
-        glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                               brdf_texture_id_, 0);
+        switch(brdf_.components_size){
+        case 1:
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, brdf_.width,
+                       brdf_.height, 0, GL_RED, GL_UNSIGNED_BYTE, brdf_.data);
+          break;
+        case 2:
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, brdf_.width,
+                       brdf_.height, 0, GL_RG, GL_UNSIGNED_BYTE, brdf_.data);
+          break;
+        case 4:
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, brdf_.width,
+                       brdf_.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brdf_.data);
+          break;
+        default:
+          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, brdf_.width,
+                       brdf_.height, 0, GL_RGB, GL_UNSIGNED_BYTE, brdf_.data);
+          break;
+        }
 
-        glViewport(0, 0, 512, 512);
-        brdf_shader_->use();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render_quad();
+//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+//        // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//        // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
+//        glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer_);
+//        glBindRenderbuffer(GL_RENDERBUFFER, render_buffer_);
+//        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+//        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+//                               brdf_texture_id_, 0);
+
+//        glViewport(0, 0, 512, 512);
+//        brdf_shader_->use();
+//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//        render_quad();
+
+//        unsigned char *Buff = new unsigned char[512*512*3];
+//        glReadBuffer(GL_BACK);
+//        glReadPixels(0, 0, 512, 512, GL_RGB, GL_UNSIGNED_BYTE, Buff);
+//        stbi_write_png("testing_bitch.png", 512, 512, 3, Buff, 3 * sizeof(float));
+
+//        delete Buff;
+
+//        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // initialize static shader uniforms before rendering
         // --------------------------------------------------
@@ -445,8 +482,10 @@ namespace Toreo {
     float vertices[] = {
       // positions        // texture Coords
       -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+      -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
       -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
       +1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+      +1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
       +1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
     };
 
@@ -473,7 +512,7 @@ namespace Toreo {
   void Skybox::render_quad(){
     // render square
     buffer_squad_->vertex_bind();
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
     buffer_squad_->vertex_release();
   }
-  }
+}

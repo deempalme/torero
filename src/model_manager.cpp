@@ -1,37 +1,11 @@
-#include "includes/model_manager.h"
-#include "includes/core.h"
+#include "include/model_manager.h"
+#include "include/core.h"
 
 namespace Toreo {
   ModelManager::ModelManager(Core *core) :
     core_(core),
     model_shader_(new Shader("resources/shaders/PBR.vert",
                              "resources/shaders/PBR.frag")),
-////    m_u_scene_model_(model_shader_->uniform_location("u_scene_model")),
-//    m_u_object_model_(model_shader_->uniform_location("model")),
-//    m_u_view_(model_shader_->uniform_location("view")),
-//    m_u_projection_(model_shader_->uniform_location("projection")),
-//    m_u_light_(model_shader_->uniform_location("lightPositions")),
-//    m_u_light_color_(model_shader_->uniform_location("lightColors")),
-////    m_u_light_size_(model_shader_->uniform_location("u_light_size")),
-//    m_u_camera_(model_shader_->uniform_location("camPos")),
-////    m_u_sun_(model_shader_->uniform_location("u_sun")),
-////    m_u_sun_color_(model_shader_->uniform_location("u_sun_color")),
-////    m_u_pbr_(model_shader_->uniform_location("u_pbr")),
-////    m_u_fog_(model_shader_->uniform_location("u_fog")),
-//    m_u_albedo_(model_shader_->uniform_location("albedoMap")),
-//    m_u_normal_(model_shader_->uniform_location("normalMap")),
-////    m_u_metallized_(model_shader_->uniform_location("u_metallized")),
-//    m_u_metallic_(model_shader_->uniform_location("metallicMap")),
-////    m_u_metallic_value_(model_shader_->uniform_location("u_metallic_value")),
-////    m_u_roughed_(model_shader_->uniform_location("u_roughed")),
-//    m_u_roughness_(model_shader_->uniform_location("roughnessMap")),
-////    m_u_roughness_value_(model_shader_->uniform_location("u_roughness_value")),
-//    m_u_ao_(model_shader_->uniform_location("aoMap")),
-////    m_u_colored_(model_shader_->uniform_location("u_colored")),
-////    m_u_color_(model_shader_->uniform_location("u_color")),
-//    m_u_irradiance_(model_shader_->uniform_location("irradianceMap")),
-//    m_u_prefilter_(model_shader_->uniform_location("prefilterMap")),
-//    m_u_brdfLUT_(model_shader_->uniform_location("brdfLUT")),
     m_u_scene_model_(model_shader_->uniform_location("u_scene_model")),
     m_u_object_model_(model_shader_->uniform_location("u_object_model")),
     m_u_view_(model_shader_->uniform_location("u_view")),
@@ -44,20 +18,12 @@ namespace Toreo {
     m_u_sun_color_(model_shader_->uniform_location("u_sun_color")),
     m_u_pbr_(model_shader_->uniform_location("u_pbr")),
     m_u_fog_(model_shader_->uniform_location("u_fog")),
-    m_u_albedo_(model_shader_->uniform_location("u_albedo")),
-    m_u_normal_(model_shader_->uniform_location("u_normal")),
     m_u_metallized_(model_shader_->uniform_location("u_metallized")),
-    m_u_metallic_(model_shader_->uniform_location("u_metallic")),
     m_u_metallic_value_(model_shader_->uniform_location("u_metallic_value")),
     m_u_roughed_(model_shader_->uniform_location("u_roughed")),
-    m_u_roughness_(model_shader_->uniform_location("u_roughness")),
     m_u_roughness_value_(model_shader_->uniform_location("u_roughness_value")),
-    m_u_ao_(model_shader_->uniform_location("u_ao")),
     m_u_colored_(model_shader_->uniform_location("u_colored")),
     m_u_color_(model_shader_->uniform_location("u_color")),
-    m_u_irradiance_(model_shader_->uniform_location("u_irradiance")),
-    m_u_prefilter_(model_shader_->uniform_location("u_prefilter")),
-    m_u_brdfLUT_(model_shader_->uniform_location("u_brdfLUT")),
     skybox_(new Skybox("resources/cubemap/", ".png", core)),
     skybox_visibility_(true),
     models_(0),
@@ -70,14 +36,14 @@ namespace Toreo {
     update_camera();
     update_vehicle_model();
 
-    model_shader_->set_value(m_u_irradiance_, 0);
-    model_shader_->set_value(m_u_prefilter_, 1);
-    model_shader_->set_value(m_u_brdfLUT_, 2);
-    model_shader_->set_value(m_u_albedo_, 3);
-    model_shader_->set_value(m_u_normal_, 4);
-    model_shader_->set_value(m_u_metallic_, 5);
-    model_shader_->set_value(m_u_roughness_, 6);
-    model_shader_->set_value(m_u_ao_, 7);
+    model_shader_->set_value(model_shader_->uniform_location("u_irradiance"), 0);
+    model_shader_->set_value(model_shader_->uniform_location("u_prefilter"), 1);
+    model_shader_->set_value(model_shader_->uniform_location("u_brdfLUT"), 2);
+    model_shader_->set_value(model_shader_->uniform_location("u_albedo"), 3);
+    model_shader_->set_value(model_shader_->uniform_location("u_normal"), 4);
+    model_shader_->set_value(model_shader_->uniform_location("u_metallic"), 5);
+    model_shader_->set_value(model_shader_->uniform_location("u_roughness"), 6);
+    model_shader_->set_value(model_shader_->uniform_location("u_ao"), 7);
 
     model_shader_->set_value(m_u_sun_, sun_direction_);
     model_shader_->set_value(m_u_sun_color_, sun_color_);
@@ -90,27 +56,27 @@ namespace Toreo {
       Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
       Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(300.0f, 300.0f, 300.0f),
-      Algebraica::vec3f(300.0f, 300.0f, 300.0f),
-      Algebraica::vec3f(300.0f, 300.0f, 300.0f),
-      Algebraica::vec3f(300.0f, 300.0f, 300.0f)
-    };
 //    Algebraica::vec3f lightColors[4] = {
-//      Algebraica::vec3f(511.0f, 511.0f, 0.0f),
-//      Algebraica::vec3f(511.0f, 0.0f, 0.0f),
-//      Algebraica::vec3f(0.0f, 511.0f, 0.0f),
-//      Algebraica::vec3f(0.0f, 0.0f, 511.0f)
+//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      Algebraica::vec3f(500.0f, 500.0f, 500.0f)
 //    };
+    Algebraica::vec3f lightColors[4] = {
+      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10,
+      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10,
+      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10,
+      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10
+    };
 
     model_shader_->set_values(m_u_light_, &lightPositions[0], 4);
     model_shader_->set_values(m_u_light_color_, &lightColors[0], 4);
     model_shader_->set_value(m_u_light_size_, 4);
 
     signal_updated_camera_ = core->signal_updated_camera()->connect(
-          boost::bind(&ModelManager::update_camera, this));
-    signal_updated_screen_ = core->signal_updated_screen()->connect(
-          boost::bind(&ModelManager::draw_all, this));
+                               boost::bind(&ModelManager::update_camera, this));
+    signal_draw_all_ = core->syncronize(Visualizer::MODELS)->connect(
+                         boost::bind(&ModelManager::draw_all, this));
   }
 
   ModelManager::~ModelManager(){
@@ -120,8 +86,8 @@ namespace Toreo {
 
     if(signal_updated_camera_.connected())
       signal_updated_camera_.disconnect();
-    if(signal_updated_screen_.connected())
-      signal_updated_screen_.disconnect();
+    if(signal_draw_all_.connected())
+      signal_draw_all_.disconnect();
 
     delete model_shader_;
     delete skybox_;
@@ -150,11 +116,11 @@ namespace Toreo {
 
   MMelement ModelManager::add(MMid id, const Algebraica::mat4f *transformation_matrix){
     if(models_.size() > id)
-      if(models_[id].model){
+      if(models_.at(id).model){
         Visualizer::Model3DElement new_element;
         new_element.main = transformation_matrix;
-        models_[id].elements.push_back(new_element);
-        return models_[id].elements.size() - 1;
+        models_.at(id).elements.push_back(new_element);
+        return models_.at(id).elements.size() - 1;
       }else
         return -1;
     else
@@ -164,13 +130,13 @@ namespace Toreo {
   bool ModelManager::colorize(MMid model_id, MMelement element_id, const bool colorize,
                               const int R, const int G, const int B, const int Alpha){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].colorize = colorize;
-          models_[model_id].elements[element_id].R = R;
-          models_[model_id].elements[element_id].G = G;
-          models_[model_id].elements[element_id].B = B;
-          models_[model_id].elements[element_id].A = Alpha;
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).colorize = colorize;
+          models_.at(model_id).elements.at(element_id).R = R;
+          models_.at(model_id).elements.at(element_id).G = G;
+          models_.at(model_id).elements.at(element_id).B = B;
+          models_.at(model_id).elements.at(element_id).A = Alpha;
           return true;
         }else
           return false;
@@ -183,10 +149,10 @@ namespace Toreo {
   bool ModelManager::metallize(MMid model_id, MMelement element_id, const bool metallize,
                                const float metallic_value){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].metallize = metallize;
-          models_[model_id].elements[element_id].metallic = metallic_value;
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).metallize = metallize;
+          models_.at(model_id).elements.at(element_id).metallic = metallic_value;
           return true;
         }else
           return false;
@@ -199,10 +165,10 @@ namespace Toreo {
   bool ModelManager::roughen(MMid model_id, MMelement element_id, const bool roughen,
                              const float roughness_value){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].roughen = roughen;
-          models_[model_id].elements[element_id].roughness = roughness_value;
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).roughen = roughen;
+          models_.at(model_id).elements.at(element_id).roughness = roughness_value;
           return true;
         }else
           return false;
@@ -214,9 +180,9 @@ namespace Toreo {
 
   bool ModelManager::set_visibility(MMid model_id, MMelement element_id, const bool visible){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].visibility = visible;
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).visibility = visible;
           return true;
         }else
           return false;
@@ -229,8 +195,8 @@ namespace Toreo {
   bool ModelManager::set_transformation_matrix(MMid model_id, MMelement element_id,
                                                const Algebraica::mat4f *transformation_matrix){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        models_[model_id].elements[element_id].main = transformation_matrix;
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        models_.at(model_id).elements.at(element_id).main = transformation_matrix;
         return true;
       }else
         return false;
@@ -241,9 +207,9 @@ namespace Toreo {
   bool ModelManager::translate(MMid model_id, MMelement element_id,
                                const float x, const float y, const float z){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].secondary.translate(-y, z, -x);
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).secondary.translate(-y, z, -x);
           return true;
         }else
           return false;
@@ -256,9 +222,9 @@ namespace Toreo {
   bool ModelManager::rotate(MMid model_id, MMelement element_id,
                             const float pitch, const float yaw, const float roll){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].secondary.rotate(pitch, yaw, roll);
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).secondary.rotate(-pitch, yaw, -roll);
           return true;
         }else
           return false;
@@ -268,11 +234,11 @@ namespace Toreo {
       return false;
   }
 
-  bool ModelManager::rotate_in_x(MMid model_id, MMelement element_id, const float x){
+  bool ModelManager::rotate_in_x(MMid model_id, MMelement element_id, const float angle){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].secondary.rotate_x(x);
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).secondary.rotate_z(-angle);
           return true;
         }else
           return false;
@@ -282,11 +248,11 @@ namespace Toreo {
       return false;
   }
 
-  bool ModelManager::rotate_in_y(MMid model_id, MMelement element_id, const float y){
+  bool ModelManager::rotate_in_y(MMid model_id, MMelement element_id, const float angle){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].secondary.rotate_y(y);
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).secondary.rotate_x(-angle);
           return true;
         }else
           return false;
@@ -296,11 +262,11 @@ namespace Toreo {
       return false;
   }
 
-  bool ModelManager::rotate_in_z(MMid model_id, MMelement element_id, const float z){
+  bool ModelManager::rotate_in_z(MMid model_id, MMelement element_id, const float angle){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          models_[model_id].elements[element_id].secondary.rotate_z(z);
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          models_.at(model_id).elements.at(element_id).secondary.rotate_y(angle);
           return true;
         }else
           return false;
@@ -312,13 +278,14 @@ namespace Toreo {
 
   bool ModelManager::draw_element(MMid model_id, MMelement element_id){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        if(models_[model_id].elements[element_id].main){
-          if(models_[model_id].elements[element_id].visibility){
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        if(models_.at(model_id).elements.at(element_id).main){
+          if(models_.at(model_id).elements.at(element_id).visibility){
             model_shader_->use();
-            models_[model_id].model->pre_drawing();
-            draw(&models_[model_id], &models_[model_id].elements[element_id]);
-            models_[model_id].model->post_drawing();
+            skybox_->bind_reflectance();
+            models_.at(model_id).model->pre_drawing();
+            draw(&models_.at(model_id), &models_.at(model_id).elements.at(element_id));
+            models_.at(model_id).model->post_drawing();
           }
           return true;
         }else
@@ -331,14 +298,15 @@ namespace Toreo {
 
   bool ModelManager::draw_model(MMid model_id){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > 0){
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > 0){
         model_shader_->use();
-        models_[model_id].model->pre_drawing();
-        for(Visualizer::Model3DElement element : models_[model_id].elements)
+        skybox_->bind_reflectance();
+        models_.at(model_id).model->pre_drawing();
+        for(Visualizer::Model3DElement element : models_.at(model_id).elements)
           if(element.main && element.visibility)
-            draw(&models_[model_id], &element);
+            draw(&models_.at(model_id), &element);
 
-        models_[model_id].model->post_drawing();
+        models_.at(model_id).model->post_drawing();
         return true;
       }else
         return false;
@@ -365,9 +333,9 @@ namespace Toreo {
 
   bool ModelManager::delete_element(MMid model_id, MMelement element_id){
     if(models_.size() > model_id)
-      if(models_[model_id].model && models_[model_id].elements.size() > element_id){
-        models_[model_id].elements[element_id].main = nullptr;
-        models_[model_id].elements[element_id].visibility = false;
+      if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
+        models_.at(model_id).elements.at(element_id).main = nullptr;
+        models_.at(model_id).elements.at(element_id).visibility = false;
         return true;
       }else
         return false;
@@ -377,10 +345,10 @@ namespace Toreo {
 
   bool ModelManager::delete_model(MMid id){
     if(models_.size() > id)
-      if(models_[id].model){
-        delete models_[id].model;
-        models_[id].model = nullptr;
-        models_[id].elements.clear();
+      if(models_.at(id).model){
+        delete models_.at(id).model;
+        models_.at(id).model = nullptr;
+        models_.at(id).elements.clear();
         return true;
       }else
         return false;
@@ -439,14 +407,10 @@ namespace Toreo {
     model_shader_->set_value(m_u_view_, core_->camera_matrix_view());
     model_shader_->set_value(m_u_projection_, core_->camera_matrix_perspective());
     model_shader_->set_value(m_u_camera_, core_->camera_position());
-    //  model_shader_->set_value(m_u_irradiance_, );
-    //  model_shader_->set_value(m_u_prefilter_, );
-    //  model_shader_->set_value(m_u_brdfLUT_, );
   }
 
   void ModelManager::update_vehicle_model(){
     model_shader_->use();
       model_shader_->set_value(m_u_scene_model_, core_->vehicle_frame());
-    //  model_shader_->set_value(m_u_light_, );
   }
-  }
+}

@@ -23,24 +23,24 @@ include_directories(${GLFW_INCLUDE_DIRS})
 
 #header files
 set(HPP_FILES
-  includes/buffer.h
-  includes/camera.h
-  includes/core.h
-  includes/definitions.h
-  includes/ground.h
-  includes/ground_manager.h
-  includes/model_manager.h
-  includes/objects.h
-  includes/object_manager.h
-  includes/point_cloud_manager.h
-  includes/point_cloud.h
-  includes/shader.h
-  includes/skybox.h
-  includes/texture.h
-  includes/three_dimensional_model_loader.h
-  includes/trajectory.h
-  includes/trajectory_manager.h
-  includes/types.h
+  include/buffer.h
+  include/camera.h
+  include/core.h
+  include/definitions.h
+  include/ground.h
+  include/ground_manager.h
+  include/model_manager.h
+  include/objects.h
+  include/object_manager.h
+  include/point_cloud_manager.h
+  include/point_cloud.h
+  include/shader.h
+  include/skybox.h
+  include/texture.h
+  include/three_dimensional_model_loader.h
+  include/trajectory.h
+  include/trajectory_manager.h
+  include/types.h
 )
 
 #source files
@@ -124,7 +124,7 @@ include_directories(${TORERO_DIRS_LOCAL})
 
 set(TORERO_DIRS
   ${PROJECT_SOURCE_DIR}
-  ${PROJECT_SOURCE_DIR}/includes
+  ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/lib/GLAD/include
   ${ALGEBRAICA_DIRS}
   ${COORDINATE_DIRS}

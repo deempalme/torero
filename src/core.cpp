@@ -1,4 +1,6 @@
-#include "includes/core.h"
+#include "include/core.h"
+// Image loader
+#include "stb_image.h"
 
 namespace Toreo {
   Core::Core(int _argc, char **_argv) :
@@ -25,7 +27,8 @@ namespace Toreo {
     vehicle_frame_(&identity_matrix_),
     navigation_frame_(&identity_matrix_),
     camera_(Algebraica::vec3f(-12.0f, 0.0f, 5.0f), Algebraica::vec3f(),
-            Algebraica::vec3f(0.0f, 0.0f, 1.0f), vehicle_frame_)
+            Algebraica::vec3f(0.0f, 0.0f, 1.0f), vehicle_frame_),
+    signal_draw_(9)
   {
     // glfw: initialize and configure
     // ------------------------------
@@ -109,23 +112,23 @@ namespace Toreo {
   }
 
   void Core::camera_set_position(const float x, const float y, const float z){
-    camera_.set_position(x, y, z);
+    camera_.set_position(-y, z, -x);
   }
 
   void Core::camera_set_target(const float x, const float y, const float z){
-    camera_.set_target(x, y, z);
+    camera_.set_target(-y, z, -x);
   }
 
   void Core::camera_set_up(const float x, const float y, const float z){
-    camera_.set_up(x, y, z);
+    camera_.set_up(-y, z, -x);
   }
 
   void Core::camera_rotate(const float pitch, const float yaw, const float roll){
-    camera_.rotate_camera(pitch, yaw, roll);
+    camera_.rotate_camera(-pitch, yaw, -roll);
   }
 
   void Core::camera_translate(const float x, const float y, const float z){
-    camera_.translate_camera(x, y, z);
+    camera_.translate_camera(-y, z, -x);
   }
 
   void Core::camera_set_zoom(const float zoom){
@@ -226,6 +229,10 @@ namespace Toreo {
     glViewport(0, 0, width_, height_);
   }
 
+  void Core::swap_buffers(){
+    glfwSwapBuffers(window_);
+  }
+
   void Core::wait_for_events(){
     glfwWaitEvents();
   }
@@ -238,6 +245,14 @@ namespace Toreo {
     glfwPollEvents();
   }
 
+  bool Core::window_visibility(){
+    return glfwGetWindowAttrib(window_, GLFW_VISIBLE);
+  }
+
+  bool Core::window_closing(){
+    return glfwWindowShouldClose(window_);
+  }
+
   int Core::execute(const bool infinite_loop){
     if(!error_){
       glfwShowWindow(window_);
@@ -246,9 +261,9 @@ namespace Toreo {
 
           if(glfwGetWindowAttrib(window_, GLFW_VISIBLE)){
             paint();
-          }
 
-          glfwSwapBuffers(window_);
+            glfwSwapBuffers(window_);
+          }
           //glfwWaitEventsTimeout(0.1);
           glfwWaitEvents();
           //glfwPollEvents();
@@ -293,16 +308,16 @@ namespace Toreo {
     return max_filtering_;
   }
 
+  boost::signals2::signal<void ()> *Core::syncronize(Visualizer::Order object){
+    return &signal_draw_.at(object);
+  }
+
   boost::signals2::signal<void ()> *Core::signal_updated_camera(){
     return &signal_updated_camera_;
   }
 
   boost::signals2::signal<void ()> *Core::signal_updated_screen(){
     return &signal_updated_screen_;
-  }
-
-  boost::signals2::signal<void ()> *Core::signal_updated_frame(){
-    return &signal_updated_frame_;
   }
 
   void Core::message_handler(const std::string text, const int message_type){
@@ -355,6 +370,9 @@ namespace Toreo {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     signal_updated_screen_();
+
+    for(int i = 0; i < 9; ++i)
+      signal_draw_.at(i)();
   }
 
   void Core::resize(const int width, const int height){
@@ -368,13 +386,6 @@ namespace Toreo {
     camera_.set_resolution(window_width, window_height, width_, height_);
 
     has_changed_ = true;
-  }
-
-  void Core::update(){
-    //clearing the screen of old information
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    signal_updated_frame_();
   }
 
   void Core::event_mouse_click(int button, int action){
@@ -439,7 +450,7 @@ namespace Toreo {
 
     stbi_image_free(icon.pixels);
   }
-  }
+}
 
 void callback_resize(GLFWwindow *window, int width, int height){
   Toreo::Core::signal_window_resize(width, height);

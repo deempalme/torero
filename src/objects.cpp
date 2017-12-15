@@ -1,4 +1,4 @@
-#include "includes/objects.h"
+#include "include/objects.h"
 
 namespace Toreo {
   Objects::Objects(Shader *shader_program, const std::vector<Visualizer::Object> *objects,
@@ -42,23 +42,23 @@ namespace Toreo {
   }
 
   void Objects::translate(const float x, const float y, const float z){
-    secondary_model_.translate(-y, z, -y);
+    secondary_model_.translate(x, y, z);
   }
 
   void Objects::rotate(const float pitch, const float yaw, const float roll){
     secondary_model_.rotate(pitch, yaw, roll);
   }
 
-  void Objects::rotate_in_x(const float x){
-    secondary_model_.rotate_x(x);
+  void Objects::rotate_in_x(const float angle){
+    secondary_model_.rotate_x(angle);
   }
 
-  void Objects::rotate_in_y(const float y){
-    secondary_model_.rotate_y(y);
+  void Objects::rotate_in_y(const float angle){
+    secondary_model_.rotate_y(angle);
   }
 
-  void Objects::rotate_in_z(const float z){
-    secondary_model_.rotate_z(z);
+  void Objects::rotate_in_z(const float angle){
+    secondary_model_.rotate_z(angle);
   }
 
   bool Objects::update(){

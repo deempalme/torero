@@ -31,8 +31,6 @@
 *.out
 *.app
 
-# Excluding SimOuput
-/SimOutput
-
 # Excluding compiled files and folders
 /lib/coordinate_conversor
+/resources/models3D

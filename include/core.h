@@ -5,9 +5,9 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "includes/camera.h"
-#include "includes/definitions.h"
-#include "includes/types.h"
+#include "include/camera.h"
+#include "include/definitions.h"
+#include "include/types.h"
 
 // linear mathematical functions
 #include "Algebraica.h"
@@ -115,6 +115,8 @@ namespace Toreo {
     void wait_for_events(const double timeout);
     // Processes all pending events.
     void process_pending_events();
+    bool window_visibility();
+    bool window_closing();
 
     // This is the main function; it will open a new window with predefined properties or
     // properties defined by the user suchlike, width, height, title, etc.

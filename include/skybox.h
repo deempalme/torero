@@ -4,10 +4,10 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "includes/buffer.h"
-#include "includes/definitions.h"
-#include "includes/shader.h"
-#include "includes/types.h"
+#include "include/buffer.h"
+#include "include/definitions.h"
+#include "include/shader.h"
+#include "include/types.h"
 
 #include "Algebraica.h"
 #include <boost/bind.hpp>

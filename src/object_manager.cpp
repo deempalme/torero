@@ -1,5 +1,7 @@
-#include "includes/object_manager.h"
-#include "includes/core.h"
+#include "include/object_manager.h"
+#include "include/core.h"
+// Image loader
+#include "stb_image.h"
 
 namespace Toreo {
   ObjectManager::ObjectManager(Core *core) :
@@ -30,8 +32,8 @@ namespace Toreo {
     ao_arrow_(nullptr),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&ObjectManager::updated_camera, this))),
-    signal_updated_screen_(core->signal_updated_screen()->
-                           connect(boost::bind(&ObjectManager::draw_all, this)))
+    signal_draw_all_(core->syncronize(Visualizer::OBJECTS)->
+                     connect(boost::bind(&ObjectManager::draw_all, this)))
   {
     if(!shader_->use())
       std::cout << shader_->error_log() << std::endl;
@@ -89,8 +91,11 @@ namespace Toreo {
     if(signal_updated_camera_.connected())
       signal_updated_camera_.disconnect();
 
-    if(signal_updated_screen_.connected())
-      signal_updated_screen_.disconnect();
+    if(signal_draw_all_.connected())
+      signal_draw_all_.disconnect();
+
+    if(signal_updated_all_.connected())
+      signal_updated_all_.disconnect();
 
     delete hollow_cylinder_;
     delete hollow_box_;
@@ -196,7 +201,7 @@ namespace Toreo {
   bool ObjectManager::translate(OMid id, const float x, const float y, const float z){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
-        objects_[id].object->translate(x, y, z);
+        objects_[id].object->translate(-y, z, -x);
         return true;
       }else
         return false;
@@ -207,7 +212,7 @@ namespace Toreo {
   bool ObjectManager::rotate(OMid id, const float pitch, const float yaw, const float roll){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
-        objects_[id].object->rotate(pitch, yaw, roll);
+        objects_[id].object->rotate(-pitch, yaw, -roll);
         return true;
       }else
         return false;
@@ -215,10 +220,10 @@ namespace Toreo {
       return false;
   }
 
-  bool ObjectManager::rotate_in_x(OMid id, const float x){
+  bool ObjectManager::rotate_in_x(OMid id, const float angle){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
-        objects_[id].object->rotate_in_x(x);
+        objects_[id].object->rotate_in_z(-angle);
         return true;
       }else
         return false;
@@ -226,10 +231,10 @@ namespace Toreo {
       return false;
   }
 
-  bool ObjectManager::rotate_in_y(OMid id, const float y){
+  bool ObjectManager::rotate_in_y(OMid id, const float angle){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
-        objects_[id].object->rotate_in_y(y);
+        objects_[id].object->rotate_in_x(-angle);
         return true;
       }else
         return false;
@@ -237,10 +242,10 @@ namespace Toreo {
       return false;
   }
 
-  bool ObjectManager::rotate_in_z(OMid id, const float z){
+  bool ObjectManager::rotate_in_z(OMid id, const float angle){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
-        objects_[id].object->rotate_in_z(z);
+        objects_[id].object->rotate_in_y(angle);
         return true;
       }else
         return false;
@@ -318,6 +323,12 @@ namespace Toreo {
         return false;
     else
       return false;
+  }
+
+  void ObjectManager::connect_update(boost::signals2::signal<void ()> *signal){
+    if(signal_updated_all_.connected())
+      signal_updated_all_.disconnect();
+    signal_updated_all_ = signal->connect(boost::bind(&ObjectManager::update_all, this));
   }
 
   void ObjectManager::prepare_hollow_cylinder(){

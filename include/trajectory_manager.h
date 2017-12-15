@@ -4,11 +4,11 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "includes/definitions.h"
-#include "includes/trajectory.h"
-#include "includes/shader.h"
-#include "includes/texture.h"
-#include "includes/types.h"
+#include "include/definitions.h"
+#include "include/trajectory.h"
+#include "include/shader.h"
+#include "include/texture.h"
+#include "include/types.h"
 
 #include "Algebraica.h"
 // signals and slots

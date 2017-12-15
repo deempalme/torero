@@ -4,11 +4,11 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "includes/definitions.h"
-#include "includes/three_dimensional_model_loader.h"
-#include "includes/shader.h"
-#include "includes/skybox.h"
-#include "includes/types.h"
+#include "include/definitions.h"
+#include "include/three_dimensional_model_loader.h"
+#include "include/shader.h"
+#include "include/skybox.h"
+#include "include/types.h"
 
 #include "Algebraica.h"
 // signals and slots

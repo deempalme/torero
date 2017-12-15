@@ -1,4 +1,4 @@
-#include "includes/point_cloud.h"
+#include "include/point_cloud.h"
 
 namespace Toreo {
   PointCloud::PointCloud(Shader *shader_program,
@@ -195,11 +195,11 @@ namespace Toreo {
   }
 
   void PointCloud::translate(const float x, const float y, const float z){
-    secondary_model_.translate(-y, z, -x);
+    secondary_model_.translate(x, y, z);
   }
 
   void PointCloud::translate(const Algebraica::vec3f translation){
-    secondary_model_.translate(-translation.y(), translation.z(), -translation.x());
+    secondary_model_.translate(translation.x(), translation.y(), translation.z());
   }
 
   void PointCloud::rotate(const float pitch, const float yaw, const float roll){
@@ -210,16 +210,16 @@ namespace Toreo {
     secondary_model_.rotate(rotation.x(), rotation.y(), rotation.z());
   }
 
-  void PointCloud::rotate_in_x(const float x){
-    secondary_model_.rotate_x(x);
+  void PointCloud::rotate_in_x(const float angle){
+    secondary_model_.rotate_x(angle);
   }
 
-  void PointCloud::rotate_in_y(const float y){
-    secondary_model_.rotate_y(y);
+  void PointCloud::rotate_in_y(const float angle){
+    secondary_model_.rotate_y(angle);
   }
 
-  void PointCloud::rotate_in_z(const float z){
-    secondary_model_.rotate_z(z);
+  void PointCloud::rotate_in_z(const float angle){
+    secondary_model_.rotate_z(angle);
   }
 
   bool PointCloud::update(){
@@ -232,37 +232,37 @@ namespace Toreo {
         data_size_ = point_cloud_xyz_->size();
         buffer_.allocate_array(point_cloud_xyz_->data(),
                                data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(i_position_);
+        buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
         break;
       case POINT_XYZRGB:
         data_size_ = point_cloud_rgb_->size();
         buffer_.allocate_array(point_cloud_rgb_->data(),
                                data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(i_position_);
+        buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
-        glEnableVertexAttribArray(i_color_);
+        buffer_.enable(i_color_);
         buffer_.attributte_buffer(i_color_, _3D, offset_, type_size_);
-        glEnableVertexAttribArray(i_alpha_);
+        buffer_.enable(i_alpha_);
         break;
       case POINT_XYZRGBA:
         data_size_ = point_cloud_rgba_->size();
         buffer_.allocate_array(point_cloud_rgba_->data(),
                                data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(i_position_);
+        buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
-        glEnableVertexAttribArray(i_color_);
+        buffer_.enable(i_color_);
         buffer_.attributte_buffer(i_color_, _3D, offset_, type_size_);
-        glEnableVertexAttribArray(i_alpha_);
+        buffer_.enable(i_alpha_);
         buffer_.attributte_buffer(i_alpha_, _1D, offset_x2_, type_size_);
         break;
       default:
         data_size_ = point_cloud_xyzi_->size();
         buffer_.allocate_array(point_cloud_xyzi_->data(),
                                data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        glEnableVertexAttribArray(i_position_);
+        buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
-        glEnableVertexAttribArray(i_intensity_);
+        buffer_.enable(i_intensity_);
         buffer_.attributte_buffer(i_intensity_, _1D, offset_, type_size_);
         break;
       }
@@ -328,10 +328,10 @@ namespace Toreo {
   void PointCloud::restart(){
     shader_->use();
     buffer_.vertex_bind();
-    glDisableVertexAttribArray(i_position_);
-    glDisableVertexAttribArray(i_color_);
-    glDisableVertexAttribArray(i_intensity_);
-    glDisableVertexAttribArray(i_alpha_);
+    buffer_.disable(i_position_);
+    buffer_.disable(i_color_);
+    buffer_.disable(i_intensity_);
+    buffer_.disable(i_alpha_);
     buffer_.vertex_release();
   }
 }
