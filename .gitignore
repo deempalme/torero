@@ -35,6 +35,4 @@
 /SimOutput
 
 # Excluding compiled files and folders
-/resources/models3D
-/lib/stb
 /lib/coordinate_conversor
