@@ -13,11 +13,6 @@ Don't forget to observe which [coordinate systems](https://github.com/DroidDrive
 There are guides for each section of the API:
 
   * [Core](https://github.com/DroidDrive/torero/wiki/Core) – Main window handler, controls the program's screen where everything is displayed.
-  * Point cloud manager – Handles **point clouds**, it could accept different data structure inputs compatible with ROS, PCL and onwer defined data structure.
-  * Object manager – Handles objects suchlike **boxes**, **cylinders**, **squares** and **circles**.
-  * 3D Models manager – Handles **three-dimensional models** created with design software, suchlike, *blender*, *SolidWorks*, etc.
-
-  * [Core](https://github.com/DroidDrive/torero/wiki/Core) – Main window handler, controls the program's screen where everything is displayed.
   * [Point Cloud Manager](https://github.com/DroidDrive/torero/wiki/Point-Cloud-Manager) – Handles **point clouds**, it could accept different data structure inputs compatible with ROS, PCL and onwer defined data structure.
   * [Object Manager](https://github.com/DroidDrive/torero/wiki/Object-Manager) – Handles objects suchlike **boxes**, **cylinders**, **squares** and **circles**.
   * [Trajectory Manager](https://github.com/DroidDrive/torero/wiki/Trajectory-Manager) – Handles **trajectories**, **paths** or **lines**.
