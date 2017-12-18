@@ -3,9 +3,9 @@
 #include "stb_image.h"
 
 namespace Toreo {
-  Core::Core(int _argc, char **_argv) :
-    argc_(_argc),
-    argv_(_argv),
+  Core::Core(int argc, char **argv) :
+    argc_(argc),
+    argv_(argv),
     window_(nullptr),
     width_(DEFAULT_WIDTH),
     height_(DEFAULT_HEIGHT),
@@ -33,7 +33,7 @@ namespace Toreo {
     // glfw: initialize and configure
     // ------------------------------
     if(!glfwInit()){
-      message_handler("GLFW initialization failed", ERROR_MESSAGE);
+      message_handler("GLFW initialization failed", Visualizer::ERROR);
       error_log_ =  GLFW_NOT_LOADED;
       error_ = true;
     }else{
@@ -58,7 +58,7 @@ namespace Toreo {
 
       if(!window_){
         glfwTerminate();
-        message_handler("GLFW failed creating a window", ERROR_MESSAGE);
+        message_handler("GLFW failed creating a window", Visualizer::ERROR);
         error_log_ = WINDOW_NOT_LOADED;
         error_ = true;
       }else{
@@ -77,7 +77,7 @@ namespace Toreo {
         // ---------------------------------------
         if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
           glfwTerminate();
-          message_handler("Failed to initialize GLAD", ERROR_MESSAGE);
+          message_handler("Failed to initialize GLAD", Visualizer::ERROR);
           error_log_ = GLAD_NOT_LOADED;
           error_ = true;
         }else{
@@ -175,10 +175,6 @@ namespace Toreo {
     return navigation_frame_;
   }
 
-  void Core::set_window_title(const char *title){
-    glfwSetWindowTitle(window_, title);
-  }
-
   void Core::set_window_title(const std::string title){
     glfwSetWindowTitle(window_, title.c_str());
   }
@@ -274,13 +270,13 @@ namespace Toreo {
     }
   }
 
-  int Core::execute(const int width, const int height, const char *title,
+  int Core::execute(const int width, const int height, const std::string title,
                     const bool full_screen, const bool maximized, const bool infinite_loop){
     if(!error_){
       if(maximized)
         glfwMaximizeWindow(window_);
 
-      glfwSetWindowTitle(window_, title);
+      glfwSetWindowTitle(window_, title.c_str());
 
       const GLFWvidmode *screen{glfwGetVideoMode(glfwGetPrimaryMonitor())};
       width_ = (width <= 0)? screen->width : width;
@@ -300,10 +296,6 @@ namespace Toreo {
     }
   }
 
-  GLFWwindow *Core::get_window(){
-    return window_;
-  }
-
   const GLfloat Core::max_anisotropic_filtering(){
     return max_filtering_;
   }
@@ -320,15 +312,15 @@ namespace Toreo {
     return &signal_updated_screen_;
   }
 
-  void Core::message_handler(const std::string text, const int message_type){
+  void Core::message_handler(const std::string text, const Visualizer::Message message_type){
     switch(message_type){
-    case ERROR_MESSAGE:
+    case Visualizer::ERROR:
       std::cout << "Error: ";
       break;
-    case WARNING_MESSAGE:
+    case Visualizer::WARNING:
       std::cout << "Warning: ";
       break;
-    case ATTENTION_MESSAGE:
+    case Visualizer::ATTENTION:
       std::cout << "Attention: ";
       break;
     default:

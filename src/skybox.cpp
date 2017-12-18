@@ -44,17 +44,17 @@ namespace Toreo {
     // Irradiance shader
     // -----------------
     if(!irradiance_shader_->use())
-      core_->message_handler(irradiance_shader_->error_log(), ERROR_MESSAGE);
+      core_->message_handler(irradiance_shader_->error_log(), Visualizer::ERROR);
 
     // Prefilter shader
     // ----------------
     if(!prefilter_shader_->use())
-      core_->message_handler(prefilter_shader_->error_log(), ERROR_MESSAGE);
+      core_->message_handler(prefilter_shader_->error_log(), Visualizer::ERROR);
 
     // Skybox shader
     // -------------
     if(!sky_shader_->use())
-      core_->message_handler(sky_shader_->error_log(), ERROR_MESSAGE);
+      core_->message_handler(sky_shader_->error_log(), Visualizer::ERROR);
 
     sky_u_pv_ = sky_shader_->uniform_location("u_pv");
     sky_u_skybox_ = sky_shader_->uniform_location("u_skybox");
@@ -379,7 +379,7 @@ namespace Toreo {
         is_loaded_ = true;
 
       }else{
-        core_->message_handler("Some/all files for the skybox were not found", ERROR_MESSAGE);
+        core_->message_handler("Some/all files for the skybox were not found", Visualizer::ERROR);
       }
     }
   }

@@ -321,6 +321,12 @@ namespace Visualizer {
     CAMERA       = 7,
     GUI          = 8
   };
+  enum Message : unsigned int {
+    ERROR      = 0u,
+    WARNING    = 1u,
+    ATTENTION  = 2u,
+    NORMAL     = 3u
+  };
 }
 
 typedef int PCMid, MMid, MMelement, OMid, TMid, GMid;

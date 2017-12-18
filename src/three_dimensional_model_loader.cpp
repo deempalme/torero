@@ -158,7 +158,7 @@ namespace Toreo{
       if(!boost::filesystem::exists(boost::filesystem::path(folder_address_))){
         core_->message_handler("*** Model loader: ***\n The file: " + first_path +
                                " was not found.\n  Neither: " + folder_address_ + "\n",
-                               ERROR_MESSAGE);
+                               Visualizer::ERROR);
         return false;
       }
     }
@@ -395,7 +395,7 @@ namespace Toreo{
 
         is_loaded_ = true;
       }else
-        core_->message_handler(error_log_, ERROR_MESSAGE);
+        core_->message_handler(error_log_, Visualizer::ERROR);
     }
   }
 }
