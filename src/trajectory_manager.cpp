@@ -270,7 +270,7 @@ namespace Toreo {
       return false;
   }
 
-  void TrajectoryManager::connect_update(boost::signals2::signal<void ()> *signal){
+  void TrajectoryManager::connect_all(boost::signals2::signal<void ()> *signal){
     if(signal_updated_all_.connected())
       signal_updated_all_.disconnect();
     signal_updated_all_ = signal->connect(boost::bind(&TrajectoryManager::update_all, this));

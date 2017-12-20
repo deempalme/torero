@@ -16,11 +16,13 @@ namespace Toreo {
     u_directional_light_ground_(ground_shader_->uniform_location("u_directional_light")),
     u_directional_light_color_ground_(ground_shader_->uniform_location("u_directional_light_color")),
     u_camera_position_ground_(ground_shader_->uniform_location("u_camera_position")),
+    grounds_(0),
+    grid_(nullptr),
     line_shader_(new Shader("resources/shaders/lines.vert",
                             "resources/shaders/lines.frag")),
     u_view_line_(line_shader_->uniform_location("u_view")),
     u_perspective_line_(line_shader_->uniform_location("u_projection")),
-    grounds_(0),
+    grid_visibility_(true),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&GroundManager::updated_camera, this))),
     signal_draw_all_(core->syncronize(Visualizer::GROUND)->
@@ -49,6 +51,9 @@ namespace Toreo {
     if(ground_shader_)
       delete ground_shader_;
 
+    if(grid_)
+      delete grid_;
+
     if(line_shader_)
       delete line_shader_;
   }
@@ -59,20 +64,15 @@ namespace Toreo {
                           const float length,
                           const unsigned int number_of_elements_through_width,
                           const unsigned int number_of_elements_through_length,
-                          const unsigned int line_quantity_in_width,
-                          const unsigned int line_quantity_in_length,
                           const Algebraica::mat4f *transformation_matrix,
-                          const bool ground_visible,
-                          const bool lines_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, line_shader_, ground),
+                          const bool ground_visible){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
     groundy.ground->set_ground_size(width, length, number_of_elements_through_width,
                                     number_of_elements_through_length);
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
 
-    groundy.ground->set_lines(line_quantity_in_width, line_quantity_in_length);
-    groundy.ground->line_visibility(lines_visible);
     groundy.ground->update();
 
     grounds_.push_back(groundy);
@@ -85,20 +85,75 @@ namespace Toreo {
                           const float length,
                           const unsigned int number_of_elements_through_width,
                           const unsigned int number_of_elements_through_length,
-                          const unsigned int line_quantity_in_width,
-                          const unsigned int line_quantity_in_length,
                           const Algebraica::mat4f *transformation_matrix,
-                          const bool ground_visible,
-                          const bool lines_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, line_shader_, ground),
+                          const bool ground_visible){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
     groundy.ground->set_ground_size(width, length, number_of_elements_through_width,
                                     number_of_elements_through_length);
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
 
-    groundy.ground->set_lines(line_quantity_in_width, line_quantity_in_length);
-    groundy.ground->line_visibility(lines_visible);
+    groundy.ground->update();
+
+    grounds_.push_back(groundy);
+    return grounds_.size() - 1;
+  }
+
+  GMid GroundManager::add(const std::vector<Visualizer::FreeGround2D> *ground,
+                          const std::string name,
+                          const Algebraica::mat4f *transformation_matrix,
+                          const bool ground_visible){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+                                          name, ground_visible };
+    if(transformation_matrix != nullptr)
+      groundy.ground->set_transformation_matrix(transformation_matrix);
+
+    groundy.ground->update();
+
+    grounds_.push_back(groundy);
+    return grounds_.size() - 1;
+  }
+
+  GMid GroundManager::add(const std::vector<Visualizer::FreeGround3D> *ground,
+                          const std::string name,
+                          const Algebraica::mat4f *transformation_matrix,
+                          const bool ground_visible){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+                                          name, ground_visible };
+    if(transformation_matrix != nullptr)
+      groundy.ground->set_transformation_matrix(transformation_matrix);
+
+    groundy.ground->update();
+
+    grounds_.push_back(groundy);
+    return grounds_.size() - 1;
+  }
+
+  GMid GroundManager::add(const std::vector<Visualizer::FreePolarGround2D> *ground,
+                          const std::string name,
+                          const Algebraica::mat4f *transformation_matrix,
+                          const bool ground_visible){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+                                          name, ground_visible };
+    if(transformation_matrix != nullptr)
+      groundy.ground->set_transformation_matrix(transformation_matrix);
+
+    groundy.ground->update();
+
+    grounds_.push_back(groundy);
+    return grounds_.size() - 1;
+  }
+
+  GMid GroundManager::add(const std::vector<Visualizer::FreePolarGround3D> *ground,
+                          const std::string name,
+                          const Algebraica::mat4f *transformation_matrix,
+                          const bool ground_visible){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+                                          name, ground_visible };
+    if(transformation_matrix != nullptr)
+      groundy.ground->set_transformation_matrix(transformation_matrix);
+
     groundy.ground->update();
 
     grounds_.push_back(groundy);
@@ -127,6 +182,52 @@ namespace Toreo {
       return false;
   }
 
+  bool GroundManager::change_input(GMid id, const std::vector<Visualizer::FreeGround2D> *ground){
+    if(grounds_.size() > id)
+      if(grounds_.at(id).ground != nullptr){
+        grounds_.at(id).ground->change_input(ground);
+        return true;
+      }else
+        return false;
+    else
+      return false;
+  }
+
+  bool GroundManager::change_input(GMid id, const std::vector<Visualizer::FreeGround3D> *ground){
+    if(grounds_.size() > id)
+      if(grounds_.at(id).ground != nullptr){
+        grounds_.at(id).ground->change_input(ground);
+        return true;
+      }else
+        return false;
+    else
+      return false;
+  }
+
+  bool GroundManager::change_input(GMid id,
+                                   const std::vector<Visualizer::FreePolarGround2D> *ground){
+    if(grounds_.size() > id)
+      if(grounds_.at(id).ground != nullptr){
+        grounds_.at(id).ground->change_input(ground);
+        return true;
+      }else
+        return false;
+    else
+      return false;
+  }
+
+  bool GroundManager::change_input(GMid id,
+                                   const std::vector<Visualizer::FreePolarGround3D> *ground){
+    if(grounds_.size() > id)
+      if(grounds_.at(id).ground != nullptr){
+        grounds_.at(id).ground->change_input(ground);
+        return true;
+      }else
+        return false;
+    else
+      return false;
+  }
+
   bool GroundManager::fog_visibility(GMid id, const bool visible){
     if(grounds_.size() > id)
       if(grounds_.at(id).ground != nullptr){
@@ -138,6 +239,73 @@ namespace Toreo {
       return false;
   }
 
+  bool GroundManager::grid_add(const float width, const float length,
+                               const unsigned int line_quantity_through_width,
+                               const unsigned int line_quantity_through_length,
+                               const Algebraica::mat4f *transformation_matrix){
+    const bool ok{!grid_};
+
+    if(ok){
+      grid_ = new LineGrid(line_shader_, width, length,
+                           line_quantity_through_width, line_quantity_through_length);
+      if(transformation_matrix)
+        grid_->transformation_matrix(transformation_matrix);
+    }
+    return ok;
+  }
+
+  bool GroundManager::grid_color(const float r, const float g, const float b, const float alpha){
+    const bool ok{grid_};
+
+    if(ok) grid_->color(r, g, b, alpha);
+    return ok;
+  }
+
+  bool GroundManager::grid_fog(const bool visible){
+    const bool ok{grid_};
+
+    if(ok) grid_->fog(visible);
+    return ok;
+  }
+
+  bool GroundManager::grid_properties(const float width, const float length,
+                                      const unsigned int line_quantity_through_width,
+                                      const unsigned int line_quantity_through_length){
+    const bool ok{grid_};
+
+    if(ok) grid_->properties(width, length, line_quantity_through_width,
+                             line_quantity_through_length);
+    return ok;
+  }
+
+  bool GroundManager::grid_rotate(const float pitch, const float yaw, const float roll){
+    const bool ok{grid_};
+
+    if(ok) grid_->rotate(-pitch, yaw, -roll);
+    return ok;
+  }
+
+  bool GroundManager::grid_translate(const float x, const float y, const float z){
+    const bool ok{grid_};
+
+    if(ok) grid_->translate(-y, z, -x);
+    return ok;
+  }
+
+  bool GroundManager::grid_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+    const bool ok{grid_};
+
+    if(ok) grid_->transformation_matrix(transformation_matrix);
+    return ok;
+  }
+
+  bool GroundManager::grid_visibility(const bool visible){
+    const bool ok{grid_};
+
+    if(ok) grid_visibility_ = visible;
+    return ok;
+  }
+
   bool GroundManager::ground_size(GMid id, const float width, const float length,
                                   const unsigned int number_of_elements_through_width,
                                   const unsigned int number_of_elements_through_length){
@@ -146,41 +314,6 @@ namespace Toreo {
         grounds_.at(id).ground->set_ground_size(width, length,
                                                 number_of_elements_through_width,
                                                 number_of_elements_through_length);
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  bool GroundManager::lines_settings(GMid id, const unsigned int line_quantity_in_width,
-                                     const unsigned int line_quantity_in_length){
-    if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->set_lines(line_quantity_in_width, line_quantity_in_length);
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  bool GroundManager::line_color(GMid id, const float r, const float g,
-                                 const float b, const float alpha){
-    if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->line_color(r, g, b, alpha);
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  bool GroundManager::line_visibility(GMid id, const bool visible){
-    if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->line_visibility(visible);
         return true;
       }else
         return false;
@@ -292,6 +425,8 @@ namespace Toreo {
   }
 
   void GroundManager::draw_all(){
+    if(grid_ && grid_visibility_)
+      grid_->draw();
     for(Visualizer::GroundElement ground : grounds_)
       if(ground.ground != nullptr && ground.visibility)
         ground.ground->draw();
@@ -335,7 +470,7 @@ namespace Toreo {
       return false;
   }
 
-  void GroundManager::connect_update(boost::signals2::signal<void ()> *signal){
+  void GroundManager::connect_all(boost::signals2::signal<void ()> *signal){
     if(signal_updated_all_.connected())
       signal_updated_all_.disconnect();
     signal_updated_all_ = signal->connect(boost::bind(&GroundManager::update_all, this));

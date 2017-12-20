@@ -54,7 +54,7 @@ namespace Toreo {
       glfwWindowHint(GLFW_BLUE_BITS, screen->blueBits);
       glfwWindowHint(GLFW_REFRESH_RATE, screen->refreshRate);
 
-      window_ = glfwCreateWindow(width_, height_, "Toreo", NULL, NULL);
+      window_ = glfwCreateWindow(width_, height_, "Torero", NULL, NULL);
 
       if(!window_){
         glfwTerminate();

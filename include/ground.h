@@ -16,13 +16,19 @@ namespace Toreo {
   class Ground
   {
   public:
-    Ground(Shader *ground_shader, Shader *lines_shader,
-           const std::vector<Visualizer::Ground2D> *ground);
-    Ground(Shader *ground_shader, Shader *lines_shader,
-           const std::vector<Visualizer::Ground3D> *ground);
+    Ground(Shader *ground_shader, const std::vector<Visualizer::Ground2D> *ground);
+    Ground(Shader *ground_shader, const std::vector<Visualizer::Ground3D> *ground);
+    Ground(Shader *ground_shader, const std::vector<Visualizer::FreeGround2D> *ground);
+    Ground(Shader *ground_shader, const std::vector<Visualizer::FreeGround3D> *ground);
+    Ground(Shader *ground_shader, const std::vector<Visualizer::FreePolarGround2D> *ground);
+    Ground(Shader *ground_shader, const std::vector<Visualizer::FreePolarGround3D> *ground);
 
     void change_input(const std::vector<Visualizer::Ground2D> *ground);
     void change_input(const std::vector<Visualizer::Ground3D> *ground);
+    void change_input(const std::vector<Visualizer::FreeGround2D> *ground);
+    void change_input(const std::vector<Visualizer::FreeGround3D> *ground);
+    void change_input(const std::vector<Visualizer::FreePolarGround2D> *ground);
+    void change_input(const std::vector<Visualizer::FreePolarGround3D> *ground);
 
     void set_transformation_matrix(const Algebraica::mat4f *transformation_matrix);
 
@@ -30,12 +36,6 @@ namespace Toreo {
                          const float length = 100.0f,
                          const unsigned int number_of_elements_through_width = 100u,
                          const unsigned int number_of_elements_through_length = 100u);
-
-    void set_lines(const unsigned int line_quantity_in_width = 100u,
-                   const unsigned int line_quantity_in_length = 100u);
-    void line_color(const float r = 255.0f, const float g = 255.0f, const float b = 255.0f,
-                    const float alpha = 255.0f);
-    void line_visibility(const bool visible = true);
 
     void fog_visibility(const bool visible = true);
 
@@ -52,31 +52,32 @@ namespace Toreo {
 
   private:
     void initialize();
+    void restart();
 
-    Shader *ground_shader_, *lines_shader_;
-    Buffer ground_buffer_, lines_buffer_;
+    Shader *shader_;
+    Buffer buffer_;
 
     float width_, length_, element_width_, element_length_;
     unsigned int quantity_width_, quantity_length_;
-    bool line_visibility_, fog_visibility_;
-    Algebraica::vec4f line_color_;
+    bool fog_visibility_;
+    int is_free_, is_polar_;
     Algebraica::vec3f ground_position_;
 
     const std::vector<Visualizer::Ground2D> *ground_2D_;
     const std::vector<Visualizer::Ground3D> *ground_3D_;
+    const std::vector<Visualizer::FreeGround2D> *free_ground_2D_;
+    const std::vector<Visualizer::FreeGround3D> *free_ground_3D_;
+    const std::vector<Visualizer::FreePolarGround2D> *polar_ground_2D_;
+    const std::vector<Visualizer::FreePolarGround3D> *polar_ground_3D_;
 
     const Algebraica::mat4f *primary_model_;
     Algebraica::mat4f secondary_model_, identity_matrix_;
 
-    GLsizei type_size_, line_type_size_;
-    GLsizei data_size_, line_data_size_;
+    GLsizei type_size_, data_size_;
 
-    GLint i_position_, i_color_, i_height_;
+    GLint i_position_, i_color_, i_dimension_, i_height_;
     GLint u_primary_model_, u_secondary_model_, u_fog_;
-    GLint u_width_, u_length_, u_2D_, u_position_;
-
-    GLint i_position_lines_;
-    GLint u_primary_model_lines_, u_secondary_model_lines_, u_color_lines_, u_fog_lines_;
+    GLint u_width_, u_length_, u_2D_, u_position_, u_free_, u_polar_;
   };
 }
 

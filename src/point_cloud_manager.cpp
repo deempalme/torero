@@ -316,7 +316,7 @@ namespace Toreo {
       return false;
   }
 
-  void PointCloudManager::connect_update(boost::signals2::signal<void ()> *signal){
+  void PointCloudManager::connect_all(boost::signals2::signal<void ()> *signal){
     if(signal_updated_all_.connected())
       signal_updated_all_.disconnect();
     signal_updated_all_ = signal->connect(boost::bind(&PointCloudManager::update_all, this));

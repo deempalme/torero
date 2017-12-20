@@ -5,6 +5,7 @@ layout(points) in;
 layout(triangle_strip, max_vertices = 30) out;
 
 in vec4 g_color[];
+in vec2 g_dimension[];
 in float g_height[];
 
 uniform mat4 u_primary_model;
@@ -14,6 +15,7 @@ uniform mat4 u_projection;
 uniform mat4 u_view;
 uniform int u_fog;
 uniform int u_2D;
+uniform int u_free;
 
 uniform float u_width;
 uniform float u_length;
@@ -49,9 +51,9 @@ out vec4 f_color;
 *    |/                             |/   -y
 *    0 –––––––––––––––––––––––––––– 2
 */
-void build_box(mat4 model, mat4 pv, vec4 position){
-  const float width = u_width/2.0;
-  const float length = u_length/2.0;
+void build_box(mat4 model, mat4 pv, vec4 position, vec2 dimension){
+  const float width = dimension.x/2.0;
+  const float length = dimension.y/2.0;
 
   const vec4 box[8] = vec4[8](
     model * vec4(-width + 0.001, 0.0,         length - 0.001, 0.0),
@@ -112,9 +114,9 @@ void build_box(mat4 model, mat4 pv, vec4 position){
 *    0 –––––––––––––––––––––––––––– 2
 *
 */
-void build_square(mat4 model, mat4 pv, vec4 position){
-  const float width = u_width/2.0;
-  const float length = u_length/2.0;
+void build_square(mat4 model, mat4 pv, vec4 position, vec2 dimension){
+  const float width = dimension.x/2.0;
+  const float length = dimension.y/2.0;
 
   const vec4 square[4] = vec4[4](
     model * vec4(-width, 0.0, length, 0.0),
@@ -137,7 +139,9 @@ void build_square(mat4 model, mat4 pv, vec4 position){
   }
   EndPrimitive();
 }
-
+// ------------------------------------------------------------------------------------ //
+// ---------------------------------------- FOG --------------------------------------- //
+// ------------------------------------------------------------------------------------ //
 float calcule_fog(vec4 position, float alpha){
   const float density = 0.010;
   const float gradient = 3.0;
@@ -150,19 +154,30 @@ float calcule_fog(vec4 position, float alpha){
 
   return alpha * visibility;
 }
-
+// ------------------------------------------------------------------------------------ //
 void main(){
   mat4 model = u_primary_model * u_secondary_model;
-  vec4 position = model * vec4(-u_position.y + gl_in[0].gl_Position.x * u_width,
-                                u_position.z - 0.005,
-                               -u_position.x + gl_in[0].gl_Position.z * u_length, 1.0);
-
+  mat4 rotation = mat4(mat3(model));
   mat4 pv = u_projection * u_view;
+
+  vec4 position;
+
+  if(u_free == 1){
+    position = model * vec4(-gl_in[0].gl_Position.z,
+                             gl_in[0].gl_Position.y - 0.005,
+                            -gl_in[0].gl_Position.x,
+                             1.0);
+  }else{
+    position = model * vec4(-u_position.y + gl_in[0].gl_Position.x * u_width,
+                             u_position.z - 0.005,
+                            -u_position.x + gl_in[0].gl_Position.z * u_length,
+                             1.0);
+  }
 
   f_color = vec4(g_color[0].xyz, mix(g_color[0].a, calcule_fog(position, g_color[0].a), u_fog));
 
   if(g_height[0] > -0.005 && g_height[0] < 0.005 || u_2D == 1)
-    build_square(model, pv, position);
+    build_square(rotation, pv, position, mix(vec2(u_width, u_length), g_dimension[0], u_free));
   else
-    build_box(model, pv, position);
+    build_box(rotation, pv, position, mix(vec2(u_width, u_length), g_dimension[0], u_free));
 }

@@ -49,7 +49,7 @@ void main()
   mat4 rotation = rotate_matrix(i_rotation);
 
   f_position = u_primary_model * u_secondary_model *
-      (rotation * vec4(i_position * scale, 1.0) + vec4(i_translation, 0.0));
+               (rotation * vec4(i_position * scale, 1.0) + vec4(i_translation, 0.0));
   gl_Position = u_pv * f_position;
   f_color = i_color/255.0;
   f_normal = vec4(rotation * vec4(i_normal, 1.0)).xyz;

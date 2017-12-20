@@ -272,6 +272,8 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
   // -------------------------------- GROUND MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //
+#ifndef G_M_E
+#define G_M_E
   struct Ground2D{
     // RGBA color (range 0.0f to 255.0f)
     float r     = 255.0f;
@@ -290,13 +292,76 @@ namespace Visualizer {
     float height = 0.0f;
   };
 
+  struct FreeGround2D{
+    // Position
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // RGBA color (range 0.0f to 255.0f)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // Dimensions
+    float width = 1.0f;
+    float length = 1.0f;
+  };
+
+  struct FreeGround3D{
+    // Position
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // RGBA color (range 0.0f to 255.0f)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // Dimensions
+    float width = 1.0f;
+    float length = 1.0f;
+    float height = 1.0f;
+  };
+
+  struct FreePolarGround2D{
+    // Distance
+    float distance = 0.0f;
+    // Angle
+    float angle = 0.0f;
+    // RGBA color (range 0.0f to 255.0f)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // Dimensions
+    float width = 1.0f;
+    float length = 1.0f;
+  };
+
+  struct FreePolarGround3D{
+    // Distance
+    float distance = 0.0f;
+    // Angle
+    float angle = 0.0f;
+    // RGBA color (range 0.0f to 255.0f)
+    float r     = 255.0f;
+    float g     = 255.0f;
+    float b     = 255.0f;
+    float alpha = 255.0f;
+    // Dimensions
+    float width = 1.0f;
+    float length = 1.0f;
+    float height = 1.0f;
+  };
+#endif
+
   struct Ground2DShader{
-    Algebraica::vec2f position;
+    Algebraica::vec3f position;
     Algebraica::vec4f color;
   };
 
   struct Ground3DShader{
-    Algebraica::vec2f position;
+    Algebraica::vec3f position;
     Algebraica::vec4f color;
     float height;
   };

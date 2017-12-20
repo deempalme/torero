@@ -27,6 +27,7 @@ set(HPP_FILES
   include/camera.h
   include/core.h
   include/definitions.h
+  include/line_grid.h
   include/ground.h
   include/ground_manager.h
   include/model_manager.h
@@ -47,6 +48,7 @@ set(HPP_FILES
 set(CPP_FILES
   src/camera.cpp
   src/core.cpp
+  src/line_grid.cpp
   src/ground.cpp
   src/ground_manager.cpp
   src/model_manager.cpp

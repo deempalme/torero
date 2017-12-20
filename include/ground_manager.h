@@ -5,6 +5,7 @@
 #include "glad/glad.h"
 
 #include "include/definitions.h"
+#include "include/line_grid.h"
 #include "include/ground.h"
 #include "include/shader.h"
 #include "include/texture.h"
@@ -46,10 +47,10 @@ namespace Toreo {
     // -------------------------------- GROUND MANAGEMENT --------------------------------- //
     // ------------------------------------------------------------------------------------ //
     /*
-     * ### Adding a new two-dimensional ground
+     * ### Adding a new *uniform* two-dimensional ground
      *
      * This will add a new ground with values type `Visualizer::Ground2D`, you must also
-     * define a **RGB color** to color all the points. It will return the ground's **ID**,
+     * define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
@@ -62,12 +63,9 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const unsigned int} line_quantity_in_width = Quantity of lines along the lateral axis.
-     * {const unsigned int} line_quantity_in_length = Quantity of lines along the longitudinal axis.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
-     * {const bool} lines_visible = Visibility of its lines.
      *
      * **Returns**
      * {GMid} Ground identification number (use it for future modifications)
@@ -79,16 +77,13 @@ namespace Toreo {
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const unsigned int line_quantity_in_width = 100u,
-             const unsigned int line_quantity_in_length = 100u,
              const Algebraica::mat4f *transformation_matrix = nullptr,
-             const bool ground_visible = true,
-             const bool lines_visible = true);
+             const bool ground_visible = true);
     /*
-     * ### Adding a new three-dimensional ground
+     * ### Adding a new *uniform* three-dimensional ground
      *
      * This will add a new ground with values type `Visualizer::Ground3D`, you must also
-     * define a **RGB color** to color all the points. It will return the ground's **ID**,
+     * define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
@@ -101,12 +96,9 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const unsigned int} line_quantity_in_width = Quantity of lines along the lateral axis.
-     * {const unsigned int} line_quantity_in_length = Quantity of lines along the longitudinal axis.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
-     * {const bool} lines_visible = Visibility of its lines.
      *
      * **Returns**
      * {GMid} Ground identification number (use it for future modifications)
@@ -118,15 +110,108 @@ namespace Toreo {
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const unsigned int line_quantity_in_width = 100u,
-             const unsigned int line_quantity_in_length = 100u,
              const Algebraica::mat4f *transformation_matrix = nullptr,
-             const bool ground_visible = true,
-             const bool lines_visible = true);
+             const bool ground_visible = true);
     /*
-     * ### Changing the ground data input: 2D ground
+     * ### Adding a new two-dimensional ground
      *
-     * This function changes the data input for a different two-dimensional **ground**
+     * This will add a new ground with values type `Visualizer::FreeGround2D`, with this **data
+     * type** you can define a **position** and **size** for each segment. You must also
+     * define a **RGBA color** to color each segment. It will return the ground's **ID**,
+     * this will be useful if you want to modify properties or values of the created ground.
+     *
+     * **Arguments**
+     * {const std::vector<Visualizer::FreeGround2D>*} ground = Address to the ground data
+     * (see data types for more information).
+     * {const std::string} name = Title to display for this ground.
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     * {const bool} ground_visible = Visibility of this ground.
+     *
+     * **Returns**
+     * {GMid} Ground identification number (use it for future modifications)
+     *
+     */
+    GMid add(const std::vector<Visualizer::FreeGround2D> *ground,
+             const std::string name,
+             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const bool ground_visible = true);
+    /*
+     * ### Adding a new three-dimensional ground
+     *
+     * This will add a new ground with values type `Visualizer::FreeGround3D`, with this **data
+     * type** you can define a **position**, **size** and **height** for each segment. You must
+     * also define a **RGBA color** to color each segment. It will return the ground's **ID**,
+     * this will be useful if you want to modify properties or values of the created ground.
+     *
+     * **Arguments**
+     * {const std::vector<Visualizer::FreeGround3D>*} ground = Address to the ground data
+     * (see data types for more information).
+     * {const std::string} name = Title to display for this ground.
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     * {const bool} ground_visible = Visibility of this ground.
+     *
+     * **Returns**
+     * {GMid} Ground identification number (use it for future modifications)
+     *
+     */
+    GMid add(const std::vector<Visualizer::FreeGround3D> *ground,
+             const std::string name,
+             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const bool ground_visible = true);
+    /*
+     * ### Adding a new two-dimensional ground that uses polar values
+     *
+     * This will add a new ground with values type `Visualizer::FreePolarGround2D`, with this **data
+     * type** you can define a **distance**, **angle** and **size** for each segment. You must also
+     * define a **RGBA color** to color each segment. It will return the ground's **ID**,
+     * this will be useful if you want to modify properties or values of the created ground.
+     *
+     * **Arguments**
+     * {const std::vector<Visualizer::FreePolarGround2D>*} ground = Address to the ground data
+     * (see data types for more information).
+     * {const std::string} name = Title to display for this ground.
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     * {const bool} ground_visible = Visibility of this ground.
+     *
+     * **Returns**
+     * {GMid} Ground identification number (use it for future modifications)
+     *
+     */
+    GMid add(const std::vector<Visualizer::FreePolarGround2D> *ground,
+             const std::string name,
+             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const bool ground_visible = true);
+    /*
+     * ### Adding a new three-dimensional ground that uses polar values
+     *
+     * This will add a new ground with values type `Visualizer::FreePolarGround3D`, with this **data
+     * type** you can define a **position**, **size** and **height** for each segment. You must
+     * also define a **RGBA color** to color each segment. It will return the ground's **ID**,
+     * this will be useful if you want to modify properties or values of the created ground.
+     *
+     * **Arguments**
+     * {const std::vector<Visualizer::FreePolarGround3D>*} ground = Address to the ground data
+     * (see data types for more information).
+     * {const std::string} name = Title to display for this ground.
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     * {const bool} ground_visible = Visibility of this ground.
+     *
+     * **Returns**
+     * {GMid} Ground identification number (use it for future modifications)
+     *
+     */
+    GMid add(const std::vector<Visualizer::FreePolarGround3D> *ground,
+             const std::string name,
+             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const bool ground_visible = true);
+    /*
+     * ### Changing the ground data input: uniform 2D ground
+     *
+     * This function changes the data input for a different *uniform* two-dimensional **ground**
      * with *identification number* = `id`.
      *
      * **Arguments**
@@ -140,9 +225,9 @@ namespace Toreo {
      */
     bool change_input(GMid id, const std::vector<Visualizer::Ground2D> *ground);
     /*
-     * ### Changing the ground data input: 3D ground
+     * ### Changing the ground data input: uniform 3D ground
      *
-     * This function changes the data input for a different three-dimensional **ground**
+     * This function changes the data input for a different *uniform* three-dimensional **ground**
      * with *identification number* = `id`.
      *
      * **Arguments**
@@ -156,9 +241,74 @@ namespace Toreo {
      */
     bool change_input(GMid id, const std::vector<Visualizer::Ground3D> *ground);
     /*
+     * ### Changing the ground data input: 2D ground
+     *
+     * This function changes the data input for a different two-dimensional **ground**
+     * with *identification number* = `id`.
+     *
+     * **Arguments**
+     * {GMid} id = **id** of the ground you want to modify.
+     * {const std::vector<Visualizer::FreeGround2D>*} trajectories = new address to a 3D ground's
+     * data.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the ground with **id** was **not** found.
+     *
+     */
+    bool change_input(GMid id, const std::vector<Visualizer::FreeGround2D> *ground);
+    /*
+     * ### Changing the ground data input: 3D ground
+     *
+     * This function changes the data input for a different three-dimensional **ground**
+     * with *identification number* = `id`.
+     *
+     * **Arguments**
+     * {GMid} id = **id** of the ground you want to modify.
+     * {const std::vector<Visualizer::FreeGround3D>*} trajectories = new address to a 3D ground's
+     * data.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the ground with **id** was **not** found.
+     *
+     */
+    bool change_input(GMid id, const std::vector<Visualizer::FreeGround3D> *ground);
+    /*
+     * ### Changing the ground data input: polar 2D ground
+     *
+     * This function changes the data input for a different two-dimensional **ground**
+     * with *identification number* = `id`. **It uses polar values**.
+     *
+     * **Arguments**
+     * {GMid} id = **id** of the ground you want to modify.
+     * {const std::vector<Visualizer::FreePolarGround2D>*} trajectories = new address to a 3D ground's
+     * data.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the ground with **id** was **not** found.
+     *
+     */
+    bool change_input(GMid id, const std::vector<Visualizer::FreePolarGround2D> *ground);
+    /*
+     * ### Changing the ground data input: polar 3D ground
+     *
+     * This function changes the data input for a different three-dimensional **ground**
+     * with *identification number* = `id`. **It uses polar values**.
+     *
+     * **Arguments**
+     * {GMid} id = **id** of the ground you want to modify.
+     * {const std::vector<Visualizer::FreePolarGround3D>*} trajectories = new address to a 3D ground's
+     * data.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the ground with **id** was **not** found.
+     *
+     */
+    bool change_input(GMid id, const std::vector<Visualizer::FreePolarGround3D> *ground);
+    /*
      * ### Adding fog to the scene
      *
      * This function will add/remove fog to the ground with *identification number* = `id`.
+     * The ground segments will start vanishing after certain distance from the camera.
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
@@ -169,6 +319,145 @@ namespace Toreo {
      *
      */
     bool fog_visibility(GMid id, const bool visible = true);
+    /*
+     * ### Adding a grid of lines
+     *
+     * This will add a grid of lines, you must specify the **size** and **quantity of lines** per
+     * axis (**X** and **Y**). If you do not declare the transformation matrix, then, it will
+     * take the "fixed frame" transformation matrix.
+     *
+     * **Arguments**
+     * {const float} width = Grid's width in meters.
+     * {const float} length = Grid's length in meters.
+     * {const unsigned int} line_quantity_through_width = Quantity of lines along the
+     * lateral axis.
+     * {const unsigned int} line_quantity_through_length = Quantity of lines along the
+     * longitudinal axis.
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has been already** created.
+     *
+     */
+    bool grid_add(const float width = 100.0f,
+                  const float length = 100.0f,
+                  const unsigned int line_quantity_through_width = 100u,
+                  const unsigned int line_quantity_through_length = 100u,
+                  const Algebraica::mat4f *transformation_matrix = nullptr);
+    /*
+     * ### Changing the lines' color
+     *
+     * This function changes the lines' color of the grid.
+     *
+     * **Arguments**
+     * {const float} r = RED intensity color (range: 0.0f  to 255.0f).
+     * {const float} ǵ = GREEN intensity color (range: 0.0f  to 255.0f).
+     * {const float} b = BLUE intensity color (range: 0.0f  to 255.0f).
+     * {const float} alpha = ALPHA intensity color (range: 0.0f  to 255.0f).
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_color(const float r = 255.0f, const float g = 255.0f,
+                    const float b = 255.0f, const float alpha = 255.0f);
+    /*
+     * ### Adding fog to the line grid
+     *
+     * This function will add/remove fog to the line grid. The lines will start blending with
+     * the environment after certain distance from the camera.
+     *
+     * **Arguments**
+     * {const bool} visible = visibility: `true` for visible, `false` for hidden.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_fog(const bool visible = true);
+    /*
+     * ### Changing grid's properties
+     *
+     * This function changes the **dimension** and **quantity of lines** that has the line grid.
+     *
+     * **Arguments**
+     * {const float} width = Grid's width in meters.
+     * {const float} length = Grid's length in meters.
+     * {const unsigned int} line_quantity_through_width = Quantity of lines along the
+     * lateral axis.
+     * {const unsigned int} line_quantity_through_length = Quantity of lines along the
+     * longitudinal axis.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_properties(const float width = 100.0f,
+                         const float length = 100.0f,
+                         const unsigned int line_quantity_through_width = 100u,
+                         const unsigned int line_quantity_through_length = 100u);
+    /*
+     * ### Rotating the line grid
+     *
+     * This function rotates the **line grid** using euler angles; **pitch**, **yaw** and
+     * **roll** from its current orientation (see the [[coordinate systems|Coordinate-systems]]
+     * for more information).
+     *
+     * **Arguments**
+     * {const float} pitch = Pitch angle in radians.
+     * {const float} yaw = Yaw angle in radians.
+     * {const float} roll = Roll angle in radians.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
+    /*
+     * ### Translating the line grid
+     *
+     * This function translates the **line grid* a distance in **X**, **Y** and **Z**
+     * from its current position.
+     *
+     * **Arguments**
+     * {const float} x = Translation distance in **X** axis.
+     * {const float} y = Translation distance in **Y** axis.
+     * {const float} z = Translation distance in **Z** axis.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
+    /*
+     * ### Changin the grid's transformation matrix
+     *
+     * This function changes the transformation matrix of the grid. If you do not declare
+     * the transformation matrix, then, it will take the "fixed frame" transformation matrix.
+     *
+     * **Arguments**
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_transformation_matrix(const Algebraica::mat4f *transformation_matrix = nullptr);
+    /*
+     * ### Changing the line grid's visibility
+     *
+     * This function changes the visibility of the line grid.
+     *
+     * **Arguments**
+     * {const bool} visible = Changes the visibility: `false` -> hidden.
+     *
+     * **Returns**
+     * {bool} Returns `false` if the line grid **has not been** created.
+     *
+     */
+    bool grid_visibility(const bool visible = true);
     /*
      * ### Changing the ground's properties
      *
@@ -191,56 +480,6 @@ namespace Toreo {
     bool ground_size(GMid id, const float width = 100.0f, const float length = 100.0f,
                      const unsigned int number_of_elements_through_width = 100u,
                      const unsigned int number_of_elements_through_length = 100u);
-    /*
-     * ### Changing the amount of lines
-     *
-     * This function changes the number of lines to show in the ground with
-     * *identification number* = `id`.
-     *
-     * **Arguments**
-     * {GMid} id = **id** of the ground you want to modify.
-     * {const unsigned int} line_quantity_in_width = Quantity of lines along the lateral axis.
-     * {const unsigned int} line_quantity_in_length = Quantity of lines along the longitudinal axis.
-     *
-     * **Returns**
-     * {bool} Returns `false` if the ground with **id** was **not** found.
-     *
-     */
-    bool lines_settings(GMid id, const unsigned int line_quantity_in_width = 100u,
-                        const unsigned int line_quantity_in_length = 100u);
-    /*
-     * ### Changing the lines' color
-     *
-     * This function changes the lines' color of the ground with *identification number* = `id`.
-     *
-     * **Arguments**
-     * {GMid} id = **id** of the ground you want to modify.
-     * {const float} r = RED intensity color (range: 0.0f  to 255.0f).
-     * {const float} ǵ = GREEN intensity color (range: 0.0f  to 255.0f).
-     * {const float} b = BLUE intensity color (range: 0.0f  to 255.0f).
-     * {const float} alpha = ALPHA intensity color (range: 0.0f  to 255.0f).
-     *
-     * **Returns**
-     * {bool} Returns `false` if the ground with **id** was **not** found.
-     *
-     */
-    bool line_color(GMid id, const float r = 255.0f, const float g = 255.0f,
-                    const float b = 255.0f, const float alpha = 255.0f);
-    /*
-     * ### Changing the visibility of the ground's lines
-     *
-     * This function changes the visibility of the ground's lines with
-     * *identification number* = `id`.
-     *
-     * **Arguments**
-     * {GMid} id = **id** of the ground you want to modify.
-     * {const bool} visible = Visibility: `true` for visible, `false` for hidden.
-     *
-     * **Returns**
-     * {bool} Returns `false` if the ground with **id** was **not** found.
-     *
-     */
-    bool line_visibility(GMid id, const bool visible = true);
     /*
      * ### Changing the visibility of a ground
      *
@@ -291,8 +530,8 @@ namespace Toreo {
      * ### Rotating the ground
      *
      * This function rotates the **ground** with *identification number* = `id` using euler
-     * angles; **pitch**, **yaw** and **roll** from its current orientation (see the coordinate
-     * systems for more information).
+     * angles; **pitch**, **yaw** and **roll** from its current orientation (see the
+     * [[coordinate systems|Coordinate-systems]] for more information).
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
@@ -449,7 +688,7 @@ namespace Toreo {
      * {boost::signals2::signal<void ()>*} signal = boost signal to connect.
      *
      */
-    void connect_update(boost::signals2::signal<void ()> *signal);
+    void connect_all(boost::signals2::signal<void ()> *signal);
 
   private:
     void updated_camera();
@@ -462,9 +701,12 @@ namespace Toreo {
     GLint u_point_light_color_ground_, u_directional_light_ground_;
     GLint u_directional_light_color_ground_, u_camera_position_ground_;
 
+    std::vector<Visualizer::GroundElement> grounds_;
+
+    LineGrid *grid_;
     Shader *line_shader_;
     GLint u_view_line_, u_perspective_line_;
-    std::vector<Visualizer::GroundElement> grounds_;
+    bool grid_visibility_;
 
     boost::signals2::connection signal_updated_camera_;
     boost::signals2::connection signal_updated_all_, signal_draw_all_;

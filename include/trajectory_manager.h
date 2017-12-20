@@ -311,7 +311,7 @@ namespace Toreo {
      * {boost::signals2::signal<void ()>*} signal = boost signal to connect.
      *
      */
-    void connect_update(boost::signals2::signal<void ()> *signal);
+    void connect_all(boost::signals2::signal<void ()> *signal);
 
   private:
     void updated_camera();
