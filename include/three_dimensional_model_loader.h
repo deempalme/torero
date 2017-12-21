@@ -28,11 +28,9 @@ namespace Toreo {
   class ThreeDimensionalModelLoader
   {
   public:
-    explicit ThreeDimensionalModelLoader(const char *folder_address,
-                                         Shader *shader_program, Core *core);
     explicit ThreeDimensionalModelLoader(const std::string folder_address,
                                          Shader *shader_program, Core *core);
-    explicit ThreeDimensionalModelLoader(const unsigned int model,
+    explicit ThreeDimensionalModelLoader(const Visualizer::Models model,
                                          Shader *shader_program, Core *core);
     ~ThreeDimensionalModelLoader();
 
@@ -54,7 +52,7 @@ namespace Toreo {
     Buffer *buffer_;
     GLint i_position_, i_uv_, i_normal_, i_tangent_, i_bitangent_;
 
-    GLsizei data_size_, triangle_count_;
+    GLsizei data_size_;
     std::vector<Visualizer::ComplexShaderData> buffer_data_;
     Visualizer::ImageFile albedo_, normal_, metallic_, roughness_, ao_;
     Texture *t_albedo_, *t_normal_, *t_metallic_, *t_roughness_, *t_ao_;

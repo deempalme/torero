@@ -8,6 +8,7 @@
 #include "include/three_dimensional_model_loader.h"
 #include "include/shader.h"
 #include "include/skybox.h"
+#include "include/cubemap.h"
 #include "include/types.h"
 
 #include "Algebraica.h"
@@ -39,11 +40,9 @@ namespace Toreo {
     //   + Model:
     //     - model.obj      ->  3D model exported as Wavefront (.obj)
     // Returns the id of the loaded 3D model.
-    MMid load_new_model(const char *folder_address);
-    // Returns the id of the loaded 3D model.
     MMid load_new_model(const std::string folder_address);
     // Returns the id of the loaded 3D model.
-    MMid load_new_model(const unsigned int model);
+    MMid load_new_model(const Visualizer::Models model);
     // This will duplicate an existing model with id = MMid, it is possible to change the
     // position of the duplicated model if you specify a *transformation_matrix, translate
     // or rotates the duplicated model.
@@ -107,16 +106,28 @@ namespace Toreo {
     // dinamically call this method from time to time to increase the program performance,
     // all the previous 3D models' IDs will not work anymore
     void purge();
+    // Creates a skybox (background image)
+    bool skybox(const std::string up    = "resources/skybox/up.png",
+                const std::string down  = "resources/skybox/dn.png",
+                const std::string left  = "resources/skybox/lf.png",
+                const std::string right = "resources/skybox/rt.png",
+                const std::string front = "resources/skybox/ft.png",
+                const std::string back  = "resources/skybox/bk.png");
+    // Draws skybox
+    bool skybox_draw();
     // Hides or displays the skybox (scene background)
-    void skybox_visibility(const bool hidden = false);
+    bool skybox_visibility(const bool hidden = true);
     // Defines the sun's direction and color
-    void sun_properties(const Algebraica::vec3f direction = Algebraica::vec3f(),
+    void sun_properties(const Algebraica::vec3f direction =
+                            Algebraica::vec3f(-0.866f, 0.70711f, 0.70711f),
                         const int R = 255, const int G = 255, const int B = 255);
 
   private:
     void draw(Visualizer::Model3D *model, Visualizer::Model3DElement *element);
     void update_camera();
     void update_vehicle_model();
+
+    MMid load_db5();
 
     Core *core_;
 
@@ -128,6 +139,8 @@ namespace Toreo {
 
     Skybox *skybox_;
     bool skybox_visibility_;
+
+    Cubemap *cubemap_;
 
     std::vector<Visualizer::Model3D> models_;
 

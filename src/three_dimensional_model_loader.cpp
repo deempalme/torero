@@ -4,31 +4,6 @@
 #include "stb_image.h"
 
 namespace Toreo{
-  ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const char *folder_address,
-                                                           Shader *shader_program,
-                                                           Core *core) :
-    folder_address_(folder_address),
-    is_ready_(false),
-    is_loaded_(false),
-    core_(core),
-    shader_(shader_program),
-    buffer_(new Buffer()),
-    data_size_(0),
-    buffer_data_(0),
-    t_albedo_(nullptr),
-    t_normal_(nullptr),
-    t_metallic_(nullptr),
-    t_roughness_(nullptr),
-    t_ao_(nullptr),
-    error_(false),
-    error_log_("Model not loaded yet...\n----------\n")
-  {
-    if(check_folder()){
-      runner_ = boost::thread(boost::bind(&ThreeDimensionalModelLoader::initialize, this));
-      runner_.detach();
-    }
-  }
-
   ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const std::string folder_address,
                                                            Shader *shader_program,
                                                            Core *core) :
@@ -54,7 +29,7 @@ namespace Toreo{
     }
   }
 
-  ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const unsigned int model,
+  ThreeDimensionalModelLoader::ThreeDimensionalModelLoader(const Visualizer::Models model,
                                                            Shader *shader_program,
                                                            Core *core) :
     is_ready_(false),
@@ -73,31 +48,31 @@ namespace Toreo{
     error_log_("Model not loaded yet...\n----------\n")
   {
     switch(model){
-    case DB5_BODY:
+    case Visualizer::DB5_BODY:
       folder_address_ = "/resources/models3D/db5_body";
       break;
-    case DB5_WINDOWS:
+    case Visualizer::DB5_WINDOWS:
       folder_address_ = "/resources/models3D/db5_windows";
       break;
-    case DB5_ACCESSORIES:
+    case Visualizer::DB5_ACCESSORIES:
       folder_address_ = "/resources/models3D/db5_accessories";
       break;
-    case DB5_INTERIOR:
+    case Visualizer::DB5_INTERIOR:
       folder_address_ = "/resources/models3D/db5_interior";
       break;
-    case CHASSIS:
+    case Visualizer::CHASSIS:
       folder_address_ = "/resources/models3D/chassis";
       break;
-    case AXIS:
+    case Visualizer::AXIS:
       folder_address_ = "/resources/models3D/axis";
       break;
-    case STEERING:
+    case Visualizer::STEERING:
       folder_address_ = "/resources/models3D/steering";
       break;
-    case TIRE:
+    case Visualizer::TIRE:
       folder_address_ = "/resources/models3D/tire";
       break;
-    case COORDINATE_SYSTEM:
+    default:
       folder_address_ = "/resources/models3D/coordinate_system";
       break;
     }

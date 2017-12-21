@@ -26,6 +26,7 @@ set(HPP_FILES
   include/buffer.h
   include/camera.h
   include/core.h
+  include/cubemap.h
   include/definitions.h
   include/line_grid.h
   include/ground.h
@@ -48,6 +49,7 @@ set(HPP_FILES
 set(CPP_FILES
   src/camera.cpp
   src/core.cpp
+  src/cubemap.cpp
   src/line_grid.cpp
   src/ground.cpp
   src/ground_manager.cpp

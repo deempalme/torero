@@ -37,6 +37,9 @@ void main(void)
   vec3 p2 = gl_in[2].gl_Position.xyz;	// end of current segment, start of next segment
   vec3 p3 = gl_in[3].gl_Position.xyz;	// end of next segment
 
+  if(p2 == p3)
+    return;
+
   // determine the direction of each of the 3 segments (previous, current, next)
   vec2 v0, v1, v2;
   v1 = normalize(p2.xz - p1.xz);

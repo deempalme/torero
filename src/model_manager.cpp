@@ -24,8 +24,9 @@ namespace Toreo {
     m_u_roughness_value_(model_shader_->uniform_location("u_roughness_value")),
     m_u_colored_(model_shader_->uniform_location("u_colored")),
     m_u_color_(model_shader_->uniform_location("u_color")),
-    skybox_(new Skybox("resources/cubemap/", ".png", core)),
-    skybox_visibility_(true),
+    skybox_(nullptr),
+    skybox_visibility_(false),
+    cubemap_(new Cubemap("resources/cubemap/", ".jpg", core)),
     models_(0),
     sun_direction_(-0.70711f, 0.70711f, 0.866f),
     sun_color_(1.0f, 1.0f, 1.0f)
@@ -73,10 +74,10 @@ namespace Toreo {
     model_shader_->set_values(m_u_light_color_, &lightColors[0], 4);
     model_shader_->set_value(m_u_light_size_, 4);
 
-    signal_updated_camera_ = core->signal_updated_camera()->connect(
-                               boost::bind(&ModelManager::update_camera, this));
-    signal_draw_all_ = core->syncronize(Visualizer::MODELS)->connect(
-                         boost::bind(&ModelManager::draw_all, this));
+    signal_updated_camera_ = core->signal_updated_camera()
+                             ->connect(boost::bind(&ModelManager::update_camera, this));
+    signal_draw_all_ = core->syncronize(Visualizer::MODELS)
+                       ->connect(boost::bind(&ModelManager::draw_all, this));
   }
 
   ModelManager::~ModelManager(){
@@ -90,14 +91,10 @@ namespace Toreo {
       signal_draw_all_.disconnect();
 
     delete model_shader_;
-    delete skybox_;
-  }
+    delete cubemap_;
 
-  MMid ModelManager::load_new_model(const char *folder_address){
-    Visualizer::Model3D new_model;
-    new_model.model = new ThreeDimensionalModelLoader(folder_address, model_shader_, core_);
-    models_.push_back(new_model);
-    return models_.size() - 1;
+    if(skybox_)
+      delete skybox_;
   }
 
   MMid ModelManager::load_new_model(const std::string folder_address){
@@ -107,11 +104,17 @@ namespace Toreo {
     return models_.size() - 1;
   }
 
-  MMid ModelManager::load_new_model(const unsigned int model){
-    Visualizer::Model3D new_model;
-    new_model.model = new ThreeDimensionalModelLoader(model, model_shader_, core_);
-    models_.push_back(new_model);
-    return models_.size() - 1;
+  MMid ModelManager::load_new_model(const Visualizer::Models model){
+    if(model == Visualizer::DB5){
+      return load_db5();
+    }else{
+      Visualizer::Model3D new_model;
+      new_model.model = new ThreeDimensionalModelLoader(model, model_shader_, core_);
+      new_model.type = model;
+
+      models_.push_back(new_model);
+      return models_.size() - 1;
+    }
   }
 
   MMelement ModelManager::add(MMid id, const Algebraica::mat4f *transformation_matrix){
@@ -119,6 +122,14 @@ namespace Toreo {
       if(models_.at(id).model){
         Visualizer::Model3DElement new_element;
         new_element.main = transformation_matrix;
+        switch (models_.at(id).type){
+        case Visualizer::COORDINATE_SYSTEM:
+          new_element.metallize = true;
+          new_element.metallic = 0.0f;
+          new_element.roughen = true;
+          new_element.roughness = 0.5f;
+          break;
+        }
         models_.at(id).elements.push_back(new_element);
         return models_.at(id).elements.size() - 1;
       }else
@@ -282,7 +293,7 @@ namespace Toreo {
         if(models_.at(model_id).elements.at(element_id).main){
           if(models_.at(model_id).elements.at(element_id).visibility){
             model_shader_->use();
-            skybox_->bind_reflectance();
+            cubemap_->bind_reflectance();
             models_.at(model_id).model->pre_drawing();
             draw(&models_.at(model_id), &models_.at(model_id).elements.at(element_id));
             models_.at(model_id).model->post_drawing();
@@ -300,9 +311,9 @@ namespace Toreo {
     if(models_.size() > model_id)
       if(models_.at(model_id).model && models_.at(model_id).elements.size() > 0){
         model_shader_->use();
-        skybox_->bind_reflectance();
+        cubemap_->bind_reflectance();
         models_.at(model_id).model->pre_drawing();
-        for(Visualizer::Model3DElement element : models_.at(model_id).elements)
+        for(Visualizer::Model3DElement &element : models_.at(model_id).elements)
           if(element.main && element.visibility)
             draw(&models_.at(model_id), &element);
 
@@ -316,19 +327,19 @@ namespace Toreo {
 
   void ModelManager::draw_all(){
     model_shader_->use();
-    skybox_->bind_reflectance();
-    for(Visualizer::Model3D model : models_){
+    cubemap_->bind_reflectance();
+    for(Visualizer::Model3D &model : models_){
       if(model.model && model.elements.size() > 0){
         model.model->pre_drawing();
-        for(Visualizer::Model3DElement element : model.elements)
+        for(Visualizer::Model3DElement &element : model.elements)
           if(element.main && element.visibility)
             draw(&model, &element);
 
         model.model->post_drawing();
       }
-      if(skybox_visibility_)
-        skybox_->draw();
     }
+    if(skybox_visibility_)
+      skybox_->draw();
   }
 
   bool ModelManager::delete_element(MMid model_id, MMelement element_id){
@@ -366,13 +377,44 @@ namespace Toreo {
     models_.clear();
   }
 
-  void ModelManager::skybox_visibility(const bool hidden){
-    skybox_visibility_ = !hidden;
+  bool ModelManager::skybox(const std::string up, const std::string down,
+                            const std::string left, const std::string right,
+                            const std::string front, const std::string back){
+    bool ok{!skybox_};
+
+    if(ok)
+      skybox_ = new Skybox(up, down, left, right, front, back, core_);
+
+    skybox_visibility_ = true;
+
+    return ok;
+  }
+
+  bool ModelManager::skybox_draw(){
+    bool ok{skybox_};
+
+    if(ok && skybox_visibility_)
+      skybox_->draw();
+    else if(skybox_visibility_)
+      skybox();
+
+    return ok;
+  }
+
+  bool ModelManager::skybox_visibility(const bool hidden){
+    bool ok{skybox_};
+
+    if(ok)
+      skybox_visibility_ = !hidden;
+    else if(!hidden)
+      skybox();
+
+    return ok;
   }
 
   void ModelManager::sun_properties(const Algebraica::vec3f direction,
                                     const int R, const int G, const int B){
-    sun_direction_(-direction.x(), direction.z(), -direction.y());
+    sun_direction_(-direction.y(), direction.z(), -direction.x());
     sun_color_ = Algebraica::vec3f(R / 255.0f, G / 255.0f, B / 255.0f);
     model_shader_->use();
     model_shader_->set_value(m_u_sun_, sun_direction_);
@@ -411,6 +453,63 @@ namespace Toreo {
 
   void ModelManager::update_vehicle_model(){
     model_shader_->use();
-      model_shader_->set_value(m_u_scene_model_, core_->vehicle_frame());
+    model_shader_->set_value(m_u_scene_model_, core_->vehicle_frame());
+  }
+
+  MMid ModelManager::load_db5(){
+    MMid first{static_cast<int>(models_.size())};
+    Visualizer::Model3D new_model;
+    Visualizer::Model3DElement element;
+
+    // Body
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_BODY, model_shader_, core_);
+    new_model.type = Visualizer::DB5_BODY;
+    element.main = core_->vehicle_frame();
+    new_model.elements.push_back(element);
+    models_.push_back(new_model);
+
+    // Tires
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::TIRE, model_shader_, core_);
+    new_model.type = Visualizer::TIRE;
+    new_model.elements.clear();
+
+    // Rear right
+    Algebraica::mat4f tire;
+    tire.translate(0.72f, 0.0f, 0.0f);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    // Frontal right
+    tire.translate(0.0f, 0.0f, -2.48f);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    // Frontal left
+    tire.translate(-1.44f, 0.0f, 0.0f);
+    tire.rotate_y(_PI);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    // Rear left
+    tire.translate(0.0f, 0.0f, -2.48f);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    models_.push_back(new_model);
+
+    // Windows
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_WINDOWS, model_shader_, core_);
+    new_model.type = Visualizer::DB5_WINDOWS;
+    new_model.elements.clear();
+
+    element.metallize = true;
+    element.metallic = 1.0f;
+    element.roughen = true;
+    element.roughness = 0.3f;
+    element.secondary = Algebraica::mat4f();
+    new_model.elements.push_back(element);
+    models_.push_back(new_model);
+
+    return first;
   }
 }

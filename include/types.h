@@ -64,9 +64,24 @@ namespace Visualizer {
     bool pbr = true;
   };
 
+  enum Models : unsigned int {
+    EMPTY             = 0u,
+    DB5_BODY          = 1u,
+    DB5_WINDOWS       = 2u,
+    DB5_ACCESSORIES   = 3u,
+    DB5_INTERIOR      = 4u,
+    CHASSIS           = 5u,
+    AXIS              = 6u,
+    STEERING          = 7u,
+    TIRE              = 8u,
+    COORDINATE_SYSTEM = 9u,
+    DB5               = 10u
+  };
+
   struct Model3D{
     Toreo::ThreeDimensionalModelLoader *model;
     std::vector<Model3DElement> elements;
+    Models type = EMPTY;
   };
   // ------------------------------------------------------------------------------------ //
   // ----------------------------- POINT CLOUD MANAGEMENT ------------------------------- //
@@ -234,6 +249,8 @@ namespace Visualizer {
     ARROWED        = 3u
   };
 
+#ifndef T_M_E
+#define T_M_E
   struct TrajectoryVertex{
     // Object position
     float x = 0.0f;
@@ -253,6 +270,7 @@ namespace Visualizer {
   };
 
   typedef std::vector<TrajectoryVertex> Trajectory;
+#endif
 
   struct TrajectoryElement{
     Toreo::Trajectory *trajectory = nullptr;
@@ -378,13 +396,14 @@ namespace Visualizer {
   enum Order : int {
     POINT_CLOUDS = 0,
     OBJECTS      = 1,
-    GROUND       = 2,
-    STREETS      = 3,
-    MODELS       = 4,
-    TRAJECTORIES = 5,
-    TEXT         = 6,
-    CAMERA       = 7,
-    GUI          = 8
+    SKYBOX       = 2,
+    GROUND       = 3,
+    STREETS      = 4,
+    MODELS       = 5,
+    TRAJECTORIES = 6,
+    TEXT         = 7,
+    CAMERA       = 8,
+    GUI          = 9
   };
   enum Message : unsigned int {
     ERROR      = 0u,
