@@ -313,7 +313,7 @@ namespace Algebraica {
    * vector length
    */
     const T length(){
-      return sqrt(values_[0] * values_[0] + values_[1] * values_[1] +
+      return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1] +
           values_[2] * values_[2] + values_[3] * values_[3]);;
     }
     /*

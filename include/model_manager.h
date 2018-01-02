@@ -128,6 +128,7 @@ namespace Toreo {
     void update_vehicle_model();
 
     MMid load_db5();
+    MMid load_shuttle();
 
     Core *core_;
 
@@ -135,7 +136,7 @@ namespace Toreo {
     GLint m_u_scene_model_, m_u_object_model_, m_u_view_, m_u_projection_, m_u_light_;
     GLint m_u_light_color_, m_u_light_size_, m_u_camera_, m_u_sun_, m_u_sun_color_;
     GLint m_u_pbr_, m_u_fog_, m_u_metallized_, m_u_metallic_value_, m_u_roughed_;
-    GLint m_u_roughness_value_, m_u_colored_, m_u_color_;
+    GLint m_u_roughness_value_, m_u_colored_, m_u_color_, m_u_emitting_;
 
     Skybox *skybox_;
     bool skybox_visibility_;

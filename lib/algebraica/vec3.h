@@ -170,7 +170,7 @@ namespace Algebraica {
     }
     // vector length
     const T length(){
-      return sqrt(values_[0] * values_[0] + values_[1] * values_[1] + values_[2] * values_[2]);
+      return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1] + values_[2] * values_[2]);
     }
     static const T distance(vec3<T> first, vec3<T> second){
       return vec3<T>(first - second).length();
@@ -208,20 +208,20 @@ namespace Algebraica {
     }
     // rotate the vector through X axis
     vec3<T>& rotateX(const T _angle) {
-      values_[1] = values_[1] * cos(_angle) - values_[2] * sin(_angle);
-      values_[2] = values_[1] * sin(_angle) + values_[2] * cos(_angle);
+      values_[1] = values_[1] * std::cos(_angle) - values_[2] * std::sin(_angle);
+      values_[2] = values_[1] * std::sin(_angle) + values_[2] * std::cos(_angle);
       return *this;
     }
     // rotate the vector through Y axis
     vec3<T>& rotateY(const T _angle) {
-      values_[0] = values_[2] * sin(_angle) + values_[0] * cos(_angle);
-      values_[2] = values_[2] * cos(_angle) - values_[0] * sin(_angle);
+      values_[0] = values_[2] * std::sin(_angle) + values_[0] * std::cos(_angle);
+      values_[2] = values_[2] * std::cos(_angle) - values_[0] * std::sin(_angle);
       return *this;
     }
     // rotate the vector through Z axis
     vec3<T>& rotateZ(const T _angle) {
-      values_[0] = values_[0] * cos(_angle) - values_[1] * sin(_angle);
-      values_[1] = values_[0] * sin(_angle) + values_[1] * cos(_angle);
+      values_[0] = values_[0] * std::cos(_angle) - values_[1] * std::sin(_angle);
+      values_[1] = values_[0] * std::sin(_angle) + values_[1] * std::cos(_angle);
       return *this;
     }
 

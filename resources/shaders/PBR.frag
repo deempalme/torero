@@ -11,6 +11,9 @@ uniform bool u_fog;
 // 2D textures
 uniform sampler2D u_albedo;
 uniform sampler2D u_normal;
+// Emission effect
+uniform int u_emitting;
+uniform sampler2D u_emission;
 // metallic effect
 uniform int u_metallized;
 uniform sampler2D u_metallic;
@@ -231,6 +234,7 @@ void main()
 //  color = color / (color + vec3(1.0));
   // gamma correct
   color = pow(color, vec3(1.0/2.2));
+  color = mix(color, mix(color, color * 0.2 + albedo * 0.8, texture(u_emission, o_uv).r), u_emitting);
 
   frag_color = vec4(color, alpha);
 }

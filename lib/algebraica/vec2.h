@@ -132,7 +132,7 @@ namespace Algebraica {
     }
     // vector length
     T length(){
-      return sqrt(values_[0] * values_[0] + values_[1] * values_[1]);
+      return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1]);
     }
     // normalize this vector
     vec2<T>& normalize(){
@@ -150,8 +150,8 @@ namespace Algebraica {
     }
     // rotate the vector through X axis
     vec2<T>& rotate(const T _angle) {
-      values_[0] = values_[0] * cos(_angle);
-      values_[1] = values_[1] * sin(_angle);
+      values_[0] = values_[0] * std::cos(_angle);
+      values_[1] = values_[1] * std::sin(_angle);
       return *this;
     }
 

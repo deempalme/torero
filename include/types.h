@@ -55,11 +55,12 @@ namespace Visualizer {
     float R = 0.0f;
     float G = 0.0f;
     float B = 0.0f;
-    float A = 1.0f;
+    float A = 255.0f;
     bool metallize = false;
     float metallic = 0.0f;
     bool roughen = false;
     float roughness = 0.0f;
+    bool emitting = false;
     bool foggy = false;
     bool pbr = true;
   };
@@ -75,7 +76,10 @@ namespace Visualizer {
     STEERING          = 7u,
     TIRE              = 8u,
     COORDINATE_SYSTEM = 9u,
-    DB5               = 10u
+    DB5               = 10u,
+    SHUTTLE_BODY      = 11u,
+    SHUTTLE_WINDOWS   = 12u,
+    SHUTTLE           = 13u
   };
 
   struct Model3D{
@@ -95,13 +99,15 @@ namespace Visualizer {
 
 #ifndef C_C_S
 #define C_C_S
+  template<typename T>
   union pointXY{
     struct{
-      double x;
-      double y;
+      T x;
+      T y;
     };
-    double data[2];
+    T data[2];
   };
+
   union pointLL{
     struct{
       double latitude;
@@ -390,6 +396,7 @@ namespace Visualizer {
     bool visibility;
     boost::signals2::connection connection;
   };
+
   // ------------------------------------------------------------------------------------ //
   // -------------------------------- WINDOW MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //

@@ -20,6 +20,7 @@ namespace Toreo{
     t_metallic_(nullptr),
     t_roughness_(nullptr),
     t_ao_(nullptr),
+    t_emission_(nullptr),
     error_(false),
     error_log_("Model not loaded yet...\n----------\n")
   {
@@ -44,6 +45,7 @@ namespace Toreo{
     t_metallic_(nullptr),
     t_roughness_(nullptr),
     t_ao_(nullptr),
+    t_emission_(nullptr),
     error_(false),
     error_log_("Model not loaded yet...\n----------\n")
   {
@@ -72,6 +74,12 @@ namespace Toreo{
     case Visualizer::TIRE:
       folder_address_ = "/resources/models3D/tire";
       break;
+    case Visualizer::SHUTTLE_BODY:
+      folder_address_ = "/resources/models3D/shuttle_body";
+      break;
+    case Visualizer::SHUTTLE_WINDOWS:
+      folder_address_ = "/resources/models3D/shuttle_windows";
+      break;
     default:
       folder_address_ = "/resources/models3D/coordinate_system";
       break;
@@ -87,6 +95,7 @@ namespace Toreo{
     delete buffer_;
     if(t_albedo_) delete t_albedo_;
     if(t_ao_) delete t_ao_;
+    if(t_emission_) delete t_emission_;
     if(t_normal_) delete t_normal_;
     if(t_metallic_) delete t_metallic_;
     if(t_roughness_) delete t_roughness_;
@@ -100,6 +109,7 @@ namespace Toreo{
       if(t_metallic_) t_metallic_->use();
       if(t_roughness_) t_roughness_->use();
       if(t_ao_) t_ao_->use();
+      if(t_emission_) t_emission_->use();
       // Loading data buffer
       buffer_->vertex_bind();
     }else
@@ -281,6 +291,9 @@ namespace Toreo{
       // loading ambient occlusion image
       ao_.data = stbi_load(std::string(folder_address_ + "/ao.png").c_str(),
                            &ao_.width, &ao_.height, &ao_.components_size, 0);
+      // loading emission image
+      emission_.data = stbi_load(std::string(folder_address_ + "/emission.png").c_str(),
+                           &emission_.width, &emission_.height, &emission_.components_size, 0);
       // loading normal map image
       normal_.data = stbi_load(std::string(folder_address_ + "/normal.png").c_str(),
                                &normal_.width, &normal_.height, &normal_.components_size, 0);
@@ -362,8 +375,12 @@ namespace Toreo{
         if(ao_.data)
           t_ao_ = new Texture(7, core_->max_anisotropic_filtering(), &ao_);
 
+        if(emission_.data)
+          t_emission_ = new Texture(8, core_->max_anisotropic_filtering(), &emission_);
+
         stbi_image_free(albedo_.data);
         stbi_image_free(ao_.data);
+        stbi_image_free(emission_.data);
         stbi_image_free(normal_.data);
         stbi_image_free(metallic_.data);
         stbi_image_free(roughness_.data);

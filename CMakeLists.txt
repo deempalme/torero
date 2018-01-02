@@ -43,6 +43,7 @@ set(HPP_FILES
   include/trajectory.h
   include/trajectory_manager.h
   include/types.h
+  include/vehicle_manager.h
 )
 
 #source files
@@ -62,6 +63,7 @@ set(CPP_FILES
   src/three_dimensional_model_loader.cpp
   src/trajectory_manager.cpp
   src/trajectory.cpp
+  src/vehicle_manager.cpp
 )
 
 #resource files

@@ -24,6 +24,7 @@ namespace Toreo {
     m_u_roughness_value_(model_shader_->uniform_location("u_roughness_value")),
     m_u_colored_(model_shader_->uniform_location("u_colored")),
     m_u_color_(model_shader_->uniform_location("u_color")),
+    m_u_emitting_(model_shader_->uniform_location("u_emitting")),
     skybox_(nullptr),
     skybox_visibility_(false),
     cubemap_(new Cubemap("resources/cubemap/", ".jpg", core)),
@@ -45,6 +46,7 @@ namespace Toreo {
     model_shader_->set_value(model_shader_->uniform_location("u_metallic"), 5);
     model_shader_->set_value(model_shader_->uniform_location("u_roughness"), 6);
     model_shader_->set_value(model_shader_->uniform_location("u_ao"), 7);
+    model_shader_->set_value(model_shader_->uniform_location("u_emission"), 8);
 
     model_shader_->set_value(m_u_sun_, sun_direction_);
     model_shader_->set_value(m_u_sun_color_, sun_color_);
@@ -107,6 +109,8 @@ namespace Toreo {
   MMid ModelManager::load_new_model(const Visualizer::Models model){
     if(model == Visualizer::DB5){
       return load_db5();
+    }else if(model == Visualizer::SHUTTLE){
+      return load_shuttle();
     }else{
       Visualizer::Model3D new_model;
       new_model.model = new ThreeDimensionalModelLoader(model, model_shader_, core_);
@@ -422,10 +426,12 @@ namespace Toreo {
   }
 
   void ModelManager::draw(Visualizer::Model3D *model, Visualizer::Model3DElement *element){
+    glEnable(GL_CULL_FACE);
     model_shader_->set_value(m_u_colored_, element->colorize);
     if(element->colorize)
       model_shader_->set_value(m_u_color_,
-                               Algebraica::vec4f(element->R, element->G, element->B, element->A));
+                               Algebraica::vec4f(element->R, element->G,
+                                                 element->B, element->A)/255.0f);
 
     model_shader_->set_value(m_u_metallized_, element->metallize);
     if(element->metallize)
@@ -435,6 +441,8 @@ namespace Toreo {
     if(element->roughen)
       model_shader_->set_value(m_u_roughness_value_, element->roughness);
 
+    model_shader_->set_value(m_u_emitting_, element->emitting);
+
     model_shader_->set_value(m_u_fog_, element->foggy);
     model_shader_->set_value(m_u_pbr_, element->pbr);
 
@@ -442,6 +450,7 @@ namespace Toreo {
     model_shader_->set_value(m_u_object_model_, element->secondary);
 
     model->model->draw();
+    glDisable(GL_CULL_FACE);
   }
 
   void ModelManager::update_camera(){
@@ -497,8 +506,22 @@ namespace Toreo {
 
     models_.push_back(new_model);
 
+    // Accessories
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_ACCESSORIES,
+                                                      model_shader_, core_);
+    new_model.type = Visualizer::DB5_ACCESSORIES;
+    new_model.elements.clear();
+
+    element.metallize = true;
+    element.metallic = 1.0f;
+    element.emitting = true;
+    element.secondary = Algebraica::mat4f();
+    new_model.elements.push_back(element);
+    models_.push_back(new_model);
+
     // Windows
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_WINDOWS, model_shader_, core_);
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_WINDOWS,
+                                                      model_shader_, core_);
     new_model.type = Visualizer::DB5_WINDOWS;
     new_model.elements.clear();
 
@@ -506,6 +529,70 @@ namespace Toreo {
     element.metallic = 1.0f;
     element.roughen = true;
     element.roughness = 0.3f;
+    element.secondary = Algebraica::mat4f();
+    new_model.elements.push_back(element);
+    models_.push_back(new_model);
+
+    return first;
+  }
+
+  MMid ModelManager::load_shuttle(){
+    MMid first{static_cast<int>(models_.size())};
+    Visualizer::Model3D new_model;
+    Visualizer::Model3DElement element;
+
+    // Body
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::SHUTTLE_BODY,
+                                                      model_shader_, core_);
+    new_model.type = Visualizer::SHUTTLE_BODY;
+    element.main = core_->vehicle_frame();
+    new_model.elements.push_back(element);
+    models_.push_back(new_model);
+
+    // Tires
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::TIRE, model_shader_, core_);
+    new_model.type = Visualizer::TIRE;
+    new_model.elements.clear();
+
+    // Rear right
+    Algebraica::mat4f tire;
+    tire.translate(0.9f, 0.0f, 0.0f);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    // Frontal right
+    tire.translate(0.0f, 0.0f, -2.48f);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    // Frontal left
+    tire.translate(-1.8f, 0.0f, 0.0f);
+    tire.rotate_y(_PI);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    // Rear left
+    tire.translate(0.0f, 0.0f, -2.48f);
+    element.secondary = tire;
+    new_model.elements.push_back(element);
+
+    models_.push_back(new_model);
+
+    // Windows
+    new_model.model = new ThreeDimensionalModelLoader(Visualizer::SHUTTLE_WINDOWS,
+                                                      model_shader_, core_);
+    new_model.type = Visualizer::SHUTTLE_WINDOWS;
+    new_model.elements.clear();
+
+    element.metallize = true;
+    element.metallic = 1.0f;
+    element.roughen = true;
+    element.roughness = 0.2f;
+//    element.colorize = true;
+//    element.R = 18.0f;
+//    element.G = 58.0f;
+//    element.B = 79.0f;
+//    element.A = 242.25f;
     element.secondary = Algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);

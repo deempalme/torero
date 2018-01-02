@@ -82,10 +82,10 @@ namespace Algebraica {
    * @param {vec3} v is a vector with the axes to rotate around
    */
     mat4<T>& rotate(const T angle, const vec3<T> &v){
-      T const c{static_cast<T>(cos(angle))}, t{T(1) - c};
-      T const s{static_cast<T>(sin(angle))};
+      T const c{std::cos(angle)}, t{T(1) - c};
+      T const s{std::sin(angle)};
 
-      T x{v[0]}, y{v[1]}, z{v[2]}, lenght{static_cast<T>(sqrt(x * x + y * y + z * z))};
+      T x{v[0]}, y{v[1]}, z{v[2]}, lenght{std::sqrt(x * x + y * y + z * z)};
 
       if(lenght < 0.001)
         return *this;
@@ -118,9 +118,9 @@ namespace Algebraica {
       return *this;
     }
     mat4<T>& rotate(const T pitch, const T yaw, const T roll){
-      const T cosA{static_cast<T>(cos(pitch))}, sinA{static_cast<T>(sin(pitch))};
-      const T cosB{static_cast<T>(cos(yaw))},   sinB{static_cast<T>(sin(yaw))};
-      const T cosC{static_cast<T>(cos(roll))},  sinC{static_cast<T>(sin(roll))};
+      const T cosA{std::cos(pitch)}, sinA{std::sin(pitch)};
+      const T cosB{std::cos(yaw)},   sinB{std::sin(yaw)};
+      const T cosC{std::cos(roll)},  sinC{std::sin(roll)};
 
       mat4<T> r_m( cosC * cosB - sinC * sinA * sinB, -sinC * cosA, cosC * sinB + sinC * sinA * cosB, 0,
                    sinC * cosB + cosC * sinA * sinB,  cosC * cosA, sinC * sinB - cosC * sinA * cosB, 0,
@@ -135,8 +135,8 @@ namespace Algebraica {
    * @param {Number} angle is the angle in radians to rotate the matrix by
    */
     mat4<T>& rotate_x(const T angle){
-      T s{static_cast<T>(sin(angle))};
-      T c{static_cast<T>(cos(angle))};
+      T s{std::sin(angle)};
+      T c{std::cos(angle)};
 
       vec4<T> m1(m_[1]), m2(m_[2]);
 
@@ -151,8 +151,8 @@ namespace Algebraica {
    * @param {Number} angle is the angle in radians to rotate the matrix by
    */
     mat4<T>& rotate_y(const T angle){
-      T s{static_cast<T>(sin(angle))};
-      T c{static_cast<T>(cos(angle))};
+      T s{std::sin(angle)};
+      T c{std::cos(angle)};
 
       vec4<T> m0(m_[0]), m2(m_[2]);
 
@@ -167,8 +167,8 @@ namespace Algebraica {
    * @param {Number} angle is the angle in radians to rotate the matrix by
    */
     mat4<T>& rotate_z(const T angle){
-      T s{static_cast<T>(sin(angle))};
-      T c{static_cast<T>(cos(angle))};
+      T s{std::sin(angle)};
+      T c{std::cos(angle)};
 
       vec4<T> m0(m_[0]), m1(m_[1]);
 
@@ -280,7 +280,7 @@ namespace Algebraica {
    * @param {number} far indicates the maximum limit for the objects to appear in screen
    */
     mat4<T>& perspective(const T fov, const T aspect, const T near, const T far){
-      T const tanHalfFov = static_cast<T>(tan(fov / static_cast<T>(2)));
+      T const tanHalfFov = std::tan(fov / static_cast<T>(2));
 
       to_zero();
 

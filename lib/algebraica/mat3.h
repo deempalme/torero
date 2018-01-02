@@ -69,10 +69,10 @@ namespace Algebraica{
    * value printing
    */
     friend std::ostream& operator<<(std::ostream &os, const mat3<T> &m){
-      return os << "mat3(" << std::setprecision(3) << std::fixed <<
-                   m[0][0] << ", " << m[1][0] << ", " << m[2][0] << ",\n" <<
-                                                                    "     " << m[0][1] << ", " << m[1][1] << ", " << m[2][1] << ",\n" <<
-                                                                                                                                "     " << m[0][2] << ", " << m[1][2] << ", " << m[2][2] << ")\n";
+      return os << "mat3(" << std::setprecision(3) << std::fixed
+                << m[0][0] << ", " << m[1][0] << ", " << m[2][0]<< ",\n"
+                << "     " << m[0][1] << ", " << m[1][1] << ", " << m[2][1] << ",\n"
+                << "     " << m[0][2] << ", " << m[1][2] << ", " << m[2][2] << ")\n";
     }
 
     T* data(){

@@ -54,8 +54,8 @@ namespace Toreo {
 
     GLsizei data_size_;
     std::vector<Visualizer::ComplexShaderData> buffer_data_;
-    Visualizer::ImageFile albedo_, normal_, metallic_, roughness_, ao_;
-    Texture *t_albedo_, *t_normal_, *t_metallic_, *t_roughness_, *t_ao_;
+    Visualizer::ImageFile albedo_, normal_, metallic_, roughness_, ao_, emission_;
+    Texture *t_albedo_, *t_normal_, *t_metallic_, *t_roughness_, *t_ao_, *t_emission_;
 
     boost::mutex protector_;
     boost::thread runner_;

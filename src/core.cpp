@@ -350,6 +350,8 @@ namespace Toreo {
     // detects the maximum anisotropic filtering samples
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_filtering_);
     max_filtering_ = (max_filtering_ > 8.0f)? 8.0f : max_filtering_;
+    // Avoiding the rendering of all back faces
+    glCullFace(GL_BACK);
 
     int window_width, window_height;
     glfwGetWindowSize(window_, &window_width, &window_height);
