@@ -1,4 +1,6 @@
 
+![Animated intro](https://github.com/DroidDrive/torero/wiki/images/intro.gif)
+
 # Torero
 *(spanish: [\[ʈɒˈɾɛɾɔ\]](https://translate.google.com/#es/de/Torero%20torea%20al%20toro%20en%20el%20toreo.). Improved visualization with no Qt's Libraries dependecy*
 
