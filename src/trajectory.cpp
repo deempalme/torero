@@ -1,4 +1,4 @@
-#include "include/trajectory.h"
+#include "torero/trajectory.h"
 
 namespace Toreo {
   Trajectory::Trajectory(Shader *shader_program,
@@ -72,20 +72,20 @@ namespace Toreo {
           // Example with a line containing 6 vertices:
           // A A–B-C-D-E–F F
           for(size_t i = 0; i < total; i++){
-            second.color(line.at(i).r, line.at(i).g, line.at(i).b, line.at(i).alpha);
-            second.line_width = line.at(i).line_width;
-            second.position(-line.at(i).y, line.at(i).z, -line.at(i).x);
-            second.angle = line.at(i).angle;
+            second.color(line[i].r, line[i].g, line[i].b, line[i].alpha);
+            second.line_width = line[i].line_width;
+            second.position(-line[i].y, line[i].z, -line[i].x);
+            second.angle = line[i].angle;
             if(i == 0){
               second.distance = 0;
-              sub_trajectory.at(++counter) = second;
+              sub_trajectory[++counter] = second;
             }else if(i == last){
               second.distance += Algebraica::vec3f::distance(second.position, first.position);
-              sub_trajectory.at(++counter) = second;
+              sub_trajectory[++counter] = second;
             }else{
               second.distance += Algebraica::vec3f::distance(second.position, first.position);
             }
-            sub_trajectory.at(++counter) = second;
+            sub_trajectory[++counter] = second;
             first = second;
           }
           trajectories.insert(trajectories.end(), sub_trajectory.begin(), sub_trajectory.end());

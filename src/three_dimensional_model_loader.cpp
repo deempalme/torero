@@ -1,5 +1,5 @@
-#include "include/three_dimensional_model_loader.h"
-#include "include/core.h"
+#include "torero/three_dimensional_model_loader.h"
+#include "torero/core.h"
 // Image loader
 #include "stb_image.h"
 
@@ -148,9 +148,6 @@ namespace Toreo{
       }
     }
     return true;
-
-
-    if(folder_address_.front() != '/') folder_address_ = "/" + folder_address_;
   }
 
   void ThreeDimensionalModelLoader::initialize(){
@@ -210,20 +207,20 @@ namespace Toreo{
       buffer_data_.resize(total);
       // For each vertex of each triangle
       for(int i = 0; i < total; i++){
-        buffer_data_.at(i).position = position[vertex_indices.at(i) - 1];
-        buffer_data_.at(i).normal = normal[normal_indices.at(i) - 1];
-        if(texture_indices.at(i) > 0)
-          buffer_data_.at(i).texture = texture[texture_indices.at(i) - 1];
+        buffer_data_[i].position = position[vertex_indices[i] - 1];
+        buffer_data_[i].normal = normal[normal_indices[i] - 1];
+        if(texture_indices[i] > 0)
+          buffer_data_[i].texture = texture[texture_indices[i] - 1];
         else
-          buffer_data_.at(i).texture = Algebraica::vec2f();
+          buffer_data_[i].texture = Algebraica::vec2f();
 
         v2 = v1;
         v1 = v0;
-        v0 = buffer_data_.at(i).position;
+        v0 = buffer_data_[i].position;
 
         uv2 = uv1;
         uv1 = uv0;
-        uv0 = buffer_data_.at(i).texture;
+        uv0 = buffer_data_[i].texture;
 
         if(e++ > 1){
           e = 0;
@@ -239,42 +236,42 @@ namespace Toreo{
           tangent = (dP1 * dUV2.y()   - dP2 * dUV1.y()) * r;
           bitangent = (dP2 * dUV1.x()   - dP1 * dUV2.x()) * r;
 
-          buffer_data_.at(i).tangent = tangent;
-          buffer_data_.at(i - 1).tangent = tangent;
-          buffer_data_.at(i - 2).tangent = tangent;
-          buffer_data_.at(i).bitangent = bitangent;
-          buffer_data_.at(i - 1).bitangent = bitangent;
-          buffer_data_.at(i - 2).bitangent = bitangent;
+          buffer_data_[i].tangent = tangent;
+          buffer_data_[i - 1].tangent = tangent;
+          buffer_data_[i - 2].tangent = tangent;
+          buffer_data_[i].bitangent = bitangent;
+          buffer_data_[i - 1].bitangent = bitangent;
+          buffer_data_[i - 2].bitangent = bitangent;
         }
 
 //        std::cout << std::setprecision(6) << std::fixed << std::showpos
 //                  << "{ "
-//                  << buffer_data_.at(i).position.x() << ", "
-//                  << buffer_data_.at(i).position.y() << ", "
-//                  << buffer_data_.at(i).position.z() << ", "
-//                  << buffer_data_.at(i).normal.x() << ", "
-//                  << buffer_data_.at(i).normal.y() << ", "
-//                  << buffer_data_.at(i).normal.z() << ", " << std::noshowpos
-//                  << buffer_data_.at(i).texture.x() << ", "
-//                  << buffer_data_.at(i).texture.y() << ", ";
+//                  << buffer_data_[i].position.x() << ", "
+//                  << buffer_data_[i].position.y() << ", "
+//                  << buffer_data_[i].position.z() << ", "
+//                  << buffer_data_[i].normal.x() << ", "
+//                  << buffer_data_[i].normal.y() << ", "
+//                  << buffer_data_[i].normal.z() << ", " << std::noshowpos
+//                  << buffer_data_[i].texture.x() << ", "
+//                  << buffer_data_[i].texture.y() << ", ";
 //        int x{0}, y{0}, z{0};
 
 //        // for 3D models
-//        if(vertex_indices.at(i) > 64){
+//        if(vertex_indices[i] > 64){
 //          x = 1;
 //          z = 1;
 //        }
-//        if(buffer_data_.at(i).position.y() > -0.45f && buffer_data_.at(i).position.y() < 0.45f)
+//        if(buffer_data_[i].position.y() > -0.45f && buffer_data_[i].position.y() < 0.45f)
 //          y = 1;
 
 //        // for squares
-//        if(buffer_data_.at(i).position.x() > -0.45f && buffer_data_.at(i).position.x() < 0.45f)
+//        if(buffer_data_[i].position.x() > -0.45f && buffer_data_[i].position.x() < 0.45f)
 //          x = 1;
-//        if(buffer_data_.at(i).position.z() > -0.45f && buffer_data_.at(i).position.z() < 0.45f)
+//        if(buffer_data_[i].position.z() > -0.45f && buffer_data_[i].position.z() < 0.45f)
 //          z = 1;
 
 //        // for circles
-//        if(vertex_indices.at(i) > 28){
+//        if(vertex_indices[i] > 28){
 //          x = 1;
 //          z = 1;
 //        }

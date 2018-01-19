@@ -1,5 +1,5 @@
-#include "include/skybox.h"
-#include "include/core.h"
+#include "torero/skybox.h"
+#include "torero/core.h"
 // Image loader
 #include "stb_image.h"
 

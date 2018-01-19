@@ -23,27 +23,30 @@ include_directories(${GLFW_INCLUDE_DIRS})
 
 #header files
 set(HPP_FILES
-  include/buffer.h
-  include/camera.h
-  include/core.h
-  include/cubemap.h
-  include/definitions.h
-  include/line_grid.h
-  include/ground.h
-  include/ground_manager.h
-  include/model_manager.h
-  include/objects.h
-  include/object_manager.h
-  include/point_cloud_manager.h
-  include/point_cloud.h
-  include/shader.h
-  include/skybox.h
-  include/texture.h
-  include/three_dimensional_model_loader.h
-  include/trajectory.h
-  include/trajectory_manager.h
-  include/types.h
-  include/vehicle_manager.h
+  include/torero/buffer.h
+  include/torero/camera.h
+  include/torero/core.h
+  include/torero/cubemap.h
+  include/torero/definitions.h
+  include/torero/font_loader.h
+  include/torero/ground.h
+  include/torero/ground_manager.h
+  include/torero/line_grid.h
+  include/torero/model_manager.h
+  include/torero/objects.h
+  include/torero/object_manager.h
+  include/torero/point_cloud_manager.h
+  include/torero/point_cloud.h
+  include/torero/shader.h
+  include/torero/skybox.h
+  include/torero/text_manager.h
+  include/torero/text_object.h
+  include/torero/texture.h
+  include/torero/three_dimensional_model_loader.h
+  include/torero/trajectory.h
+  include/torero/trajectory_manager.h
+  include/torero/types.h
+  include/torero/vehicle_manager.h
 )
 
 #source files
@@ -51,15 +54,18 @@ set(CPP_FILES
   src/camera.cpp
   src/core.cpp
   src/cubemap.cpp
-  src/line_grid.cpp
+  src/font_loader.cpp
   src/ground.cpp
   src/ground_manager.cpp
+  src/line_grid.cpp
   src/model_manager.cpp
   src/objects.cpp
   src/object_manager.cpp
   src/point_cloud_manager.cpp
   src/point_cloud.cpp
   src/skybox.cpp
+  src/text_manager.cpp
+  src/text_object.cpp
   src/three_dimensional_model_loader.cpp
   src/trajectory_manager.cpp
   src/trajectory.cpp
@@ -86,6 +92,9 @@ set(RESOURCE_FILES
   resources/shaders/prefilter.frag
   resources/shaders/skybox.frag
   resources/shaders/skybox.vert
+  resources/shaders/text.frag
+  resources/shaders/text.geom
+  resources/shaders/text.vert
   resources/shaders/trajectory.frag
   resources/shaders/trajectory.geom
   resources/shaders/trajectory.vert
@@ -124,6 +133,7 @@ set(TORERO_DIRS_LOCAL
   ${COORDINATE_DIRS}
   lib/stb
   ${Boost_INCLUDE_DIR}
+  include
 )
 
 include_directories(${TORERO_DIRS_LOCAL})

@@ -1,5 +1,5 @@
-#include "include/cubemap.h"
-#include "include/core.h"
+#include "torero/cubemap.h"
+#include "torero/core.h"
 // Image loader
 #include "stb_image.h"
 
@@ -84,19 +84,19 @@ namespace Toreo {
     up_.data = stbi_load(std::string(folder_path_ + "up" + file_extension_).c_str(),
                          &up_.width, &up_.height, &up_.components_size, 0);
     // loading down image
-    down_.data = stbi_load(std::string(folder_path_ + "dn" + file_extension_).c_str(),
+    down_.data = stbi_load(std::string(folder_path_ + "down" + file_extension_).c_str(),
                            &down_.width, &down_.height, &down_.components_size, 0);
     // loading left image
-    left_.data = stbi_load(std::string(folder_path_ + "lf" + file_extension_).c_str(),
+    left_.data = stbi_load(std::string(folder_path_ + "left" + file_extension_).c_str(),
                            &left_.width, &left_.height, &left_.components_size, 0);
     // loading right image
-    right_.data = stbi_load(std::string(folder_path_ + "rt" + file_extension_).c_str(),
+    right_.data = stbi_load(std::string(folder_path_ + "right" + file_extension_).c_str(),
                             &right_.width, &right_.height, &right_.components_size, 0);
     // loading front image
-    front_.data = stbi_load(std::string(folder_path_ + "ft" + file_extension_).c_str(),
+    front_.data = stbi_load(std::string(folder_path_ + "front" + file_extension_).c_str(),
                             &front_.width, &front_.height, &front_.components_size, 0);
     // loading back image
-    back_.data = stbi_load(std::string(folder_path_ + "bk" + file_extension_).c_str(),
+    back_.data = stbi_load(std::string(folder_path_ + "back" + file_extension_).c_str(),
                            &back_.width, &back_.height, &back_.components_size, 0);
     stbi_set_flip_vertically_on_load(true);
     brdf_.data = stbi_load(std::string(folder_path_ + "brdf.png").c_str(),

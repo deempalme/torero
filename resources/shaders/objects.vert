@@ -7,7 +7,7 @@ in vec2 i_uv;
 in vec3 i_scales;
 
 in vec3 i_translation;
-in vec3 i_rotation;
+in vec4 i_rotation;
 in vec4 i_color;
 in vec3 i_scale;
 in float i_line_width;
@@ -21,6 +21,7 @@ uniform mat4 u_primary_model;
 uniform mat4 u_secondary_model;
 uniform mat4 u_pv;
 
+/*
 // Rotate matrix by pitch, yaw, roll
 mat4 rotate_matrix(vec3 angles){
   const float cosA = cos(angles.x);
@@ -38,6 +39,11 @@ mat4 rotate_matrix(vec3 angles){
 
   return r_m;
 }
+*/
+// Rotate vector using quaternions
+vec3 quaternion_rotation(vec3 v, vec4 q){
+  return v + 2.0 * cross(cross(v, q.xyz) + q.w * v, q.xyz);
+}
 
 void main()
 {
@@ -46,12 +52,11 @@ void main()
   scale.y = mix(i_scale.y, i_scale.y * 1.25 - i_line_width * 2, i_scales.y);
   scale.z = mix(i_scale.z, i_scale.z * 1.25 - i_line_width * 2, i_scales.z);
 
-  mat4 rotation = rotate_matrix(i_rotation);
-
   f_position = u_primary_model * u_secondary_model *
-               (rotation * vec4(i_position * scale, 1.0) + vec4(i_translation, 0.0));
+               (vec4(quaternion_rotation(i_position * scale, i_rotation), 1.0)
+                + vec4(i_translation, 0.0));
   gl_Position = u_pv * f_position;
   f_color = i_color/255.0;
-  f_normal = vec4(rotation * vec4(i_normal, 1.0)).xyz;
+  f_normal = quaternion_rotation(i_normal, i_rotation);
   f_uv = i_uv;
 }

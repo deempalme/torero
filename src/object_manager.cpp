@@ -1,5 +1,5 @@
-#include "include/object_manager.h"
-#include "include/core.h"
+#include "torero/object_manager.h"
+#include "torero/core.h"
 // Image loader
 #include "stb_image.h"
 

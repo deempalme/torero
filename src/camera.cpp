@@ -1,8 +1,9 @@
-#include "include/camera.h"
+#include "torero/camera.h"
 
 namespace Toreo {
   Camera::Camera(const Algebraica::vec3f position, const Algebraica::vec3f target,
-                 const Algebraica::vec3f up, Algebraica::mat4f *vehicle_transformation_matrix) :
+                 const Algebraica::vec3f up,
+                 const Algebraica::mat4f *vehicle_transformation_matrix) :
     vehicle_transformation_matrix_(vehicle_transformation_matrix),
     view_matrix_(),
     perspective_matrix_(),
@@ -16,7 +17,7 @@ namespace Toreo {
     last_camera_target_(camera_target_),
     camera_translation_(),
     pitch_(0.0f),
-    initial_min_pitch_(_PI2 - atan2(position.z() - target.z(), -position.x() + target.x())),
+    initial_min_pitch_(_PI2 + atan2(position.z() - target.z(), -position.x() + target.x())),
     initial_max_pitch_(_PI + initial_min_pitch_),
     yaw_(0.0f),
     roll_(0.0f),
@@ -82,7 +83,8 @@ namespace Toreo {
     set_rotation(&roll_, roll, false);
 
     camera_rotation_matrix_.to_identity();
-    camera_rotation_matrix_.rotate(pitch_, yaw_, roll_);
+    camera_rotation_matrix_.rotate_y(yaw_);
+    camera_rotation_matrix_.rotate_x(pitch_);
 
     if(pitch_ > initial_min_pitch_ && pitch_ < initial_max_pitch_)
       camera_up_(0.0f, -1.0f, 0.0f);
@@ -102,17 +104,25 @@ namespace Toreo {
       set_rotation(&pitch_, rotational_height_factor_ * dy);
 
       camera_rotation_matrix_.to_identity();
-      camera_rotation_matrix_.rotate(pitch_, yaw_, roll_);
+      camera_rotation_matrix_.rotate_y(yaw_);
+      camera_rotation_matrix_.rotate_x(pitch_);
 
       if(pitch_ > initial_min_pitch_ && pitch_ < initial_max_pitch_)
         camera_up_(0.0f, -1.0f, 0.0f);
       else
         camera_up_(0.0f, 1.0f, 0.0f);
     }else{
-      camera_translation_ += camera_rotation_matrix_ *
-          Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
-                            dy * translational_height_factor_ * zoom_,
-                            0);
+      if(locked_camera_ && !fixed_view_)
+        camera_translation_ += vehicle_transformation_matrix_->stationary() *
+                               camera_rotation_matrix_ *
+                               Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+                                                 dy * translational_height_factor_ * zoom_,
+                                                 0);
+      else
+        camera_translation_ += camera_rotation_matrix_ *
+                               Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+                                                 dy * translational_height_factor_ * zoom_,
+                                                 0);
     }
     update_view();
   }
@@ -243,7 +253,7 @@ namespace Toreo {
 
   void Camera::set_rotation(float *variable, float angle, const bool convert){
     if(convert)
-      angle *= toRADIANS;
+      angle = toRADIANS(angle);
 
     angle = *variable + angle;
 

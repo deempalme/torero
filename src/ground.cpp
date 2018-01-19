@@ -1,4 +1,4 @@
-#include "include/ground.h"
+#include "torero/ground.h"
 
 namespace Toreo {
   Ground::Ground(Shader *ground_shader, const std::vector<Visualizer::Ground2D> *ground) :
@@ -283,9 +283,9 @@ namespace Toreo {
             for(float e = 0; e < quantity_length; ++e){
               u = o + static_cast<int>(e);
               ground_2d.position(i, e, 0.0f);
-              ground_2d.color(ground_2D_->at(u).r, ground_2D_->at(u).g,
-                              ground_2D_->at(u).b, ground_2D_->at(u).alpha);
-              ground.at(u) = ground_2d;
+              ground_2d.color((*ground_2D_)[u].r, (*ground_2D_)[u].g,
+                              (*ground_2D_)[u].b, (*ground_2D_)[u].alpha);
+              ground[u] = ground_2d;
             }
           }
           buffer_.vertex_bind();
@@ -315,10 +315,10 @@ namespace Toreo {
             for(float e = 0; e < quantity_length; ++e){
               u = o + static_cast<int>(e);
               ground_3d.position(i, e, 0.0f);
-              ground_3d.color(ground_3D_->at(u).r, ground_3D_->at(u).g,
-                              ground_3D_->at(u).b, ground_3D_->at(u).alpha);
-              ground_3d.height = ground_3D_->at(u).height;
-              ground.at(u) = ground_3d;
+              ground_3d.color((*ground_3D_)[u].r, (*ground_3D_)[u].g,
+                              (*ground_3D_)[u].b, (*ground_3D_)[u].alpha);
+              ground_3d.height = (*ground_3D_)[u].height;
+              ground[u] = ground_3d;
             }
           }
           buffer_.vertex_bind();

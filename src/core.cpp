@@ -1,4 +1,6 @@
-#include "include/core.h"
+#include "torero/core.h"
+#include "torero/model_manager.h"
+#include "torero/vehicle_manager.h"
 // Image loader
 #include "stb_image.h"
 
@@ -22,12 +24,13 @@ namespace Toreo {
     is_inversed_(false),
     has_changed_(true),
     max_filtering_(0.0f),
-    identity_matrix_(),
-    fixed_frame_(&identity_matrix_),
-    vehicle_frame_(&identity_matrix_),
-    navigation_frame_(&identity_matrix_),
+    fixed_frame_(),
+    vehicle_frame_(),
+    navigation_frame_(),
     camera_(Algebraica::vec3f(-12.0f, 0.0f, 5.0f), Algebraica::vec3f(),
-            Algebraica::vec3f(0.0f, 0.0f, 1.0f), vehicle_frame_),
+            Algebraica::vec3f(0.0f, 0.0f, 1.0f), &vehicle_frame_),
+    vehicle_(nullptr),
+    modeler_(nullptr),
     signal_draw_(9)
   {
     // glfw: initialize and configure
@@ -143,6 +146,10 @@ namespace Toreo {
     camera_.isometric_view();
   }
 
+  void Core::camera_update(){
+    camera_.update_view();
+  }
+
   const Algebraica::mat4f &Core::camera_matrix_view(){
     return camera_.view_matrix();
   }
@@ -164,15 +171,31 @@ namespace Toreo {
   }
 
   const Algebraica::mat4f *Core::fixed_frame() const{
-    return fixed_frame_;
+    return &fixed_frame_;
   }
 
   const Algebraica::mat4f *Core::vehicle_frame() const{
-    return vehicle_frame_;
+    return &vehicle_frame_;
   }
 
   const Algebraica::mat4f *Core::navigation_frame() const{
-    return navigation_frame_;
+    return &navigation_frame_;
+  }
+
+  bool Core::set_module(VehicleManager *vehicle_manager){
+    const bool existing{vehicle_};
+    vehicle_ = vehicle_manager;
+
+    vehicle_->set_vehicle_frame(&vehicle_frame_);
+    vehicle_->set_navigation_frame(&navigation_frame_);
+
+    return existing;
+  }
+
+  bool Core::set_module(ModelManager *model_manager){
+    const bool existing{modeler_};
+    modeler_ = model_manager;
+    return existing;
   }
 
   void Core::set_window_title(const std::string title){
@@ -301,7 +324,7 @@ namespace Toreo {
   }
 
   boost::signals2::signal<void ()> *Core::syncronize(Visualizer::Order object){
-    return &signal_draw_.at(object);
+    return &signal_draw_[object];
   }
 
   boost::signals2::signal<void ()> *Core::signal_updated_camera(){
@@ -366,7 +389,7 @@ namespace Toreo {
     signal_updated_screen_();
 
     for(int i = 0; i < 9; ++i)
-      signal_draw_.at(i)();
+      signal_draw_[i]();
   }
 
   void Core::resize(const int width, const int height){
@@ -404,7 +427,7 @@ namespace Toreo {
     old_x_ = floor(posx);
     old_y_ = floor(posy);
 
-    is_inversed_ = (old_y_ < half_height_)? true : false;
+    is_inversed_ = (old_y_ > half_height_)? true : false;
   }
 
   void Core::event_mouse_move(double xpos, double ypos){

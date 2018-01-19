@@ -1,5 +1,5 @@
-#include "include/ground_manager.h"
-#include "include/core.h"
+#include "torero/ground_manager.h"
+#include "torero/core.h"
 // Image loader
 #include "stb_image.h"
 
@@ -162,8 +162,8 @@ namespace Toreo {
 
   bool GroundManager::change_input(GMid id, const std::vector<Visualizer::Ground2D> *ground){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->change_input(ground);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->change_input(ground);
         return true;
       }else
         return false;
@@ -173,8 +173,8 @@ namespace Toreo {
 
   bool GroundManager::change_input(GMid id, const std::vector<Visualizer::Ground3D> *ground){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->change_input(ground);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->change_input(ground);
         return true;
       }else
         return false;
@@ -184,8 +184,8 @@ namespace Toreo {
 
   bool GroundManager::change_input(GMid id, const std::vector<Visualizer::FreeGround2D> *ground){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->change_input(ground);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->change_input(ground);
         return true;
       }else
         return false;
@@ -195,8 +195,8 @@ namespace Toreo {
 
   bool GroundManager::change_input(GMid id, const std::vector<Visualizer::FreeGround3D> *ground){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->change_input(ground);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->change_input(ground);
         return true;
       }else
         return false;
@@ -207,8 +207,8 @@ namespace Toreo {
   bool GroundManager::change_input(GMid id,
                                    const std::vector<Visualizer::FreePolarGround2D> *ground){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->change_input(ground);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->change_input(ground);
         return true;
       }else
         return false;
@@ -219,8 +219,8 @@ namespace Toreo {
   bool GroundManager::change_input(GMid id,
                                    const std::vector<Visualizer::FreePolarGround3D> *ground){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->change_input(ground);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->change_input(ground);
         return true;
       }else
         return false;
@@ -230,8 +230,8 @@ namespace Toreo {
 
   bool GroundManager::fog_visibility(GMid id, const bool visible){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->fog_visibility(visible);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->fog_visibility(visible);
         return true;
       }else
         return false;
@@ -310,8 +310,8 @@ namespace Toreo {
                                   const unsigned int number_of_elements_through_width,
                                   const unsigned int number_of_elements_through_length){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->set_ground_size(width, length,
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->set_ground_size(width, length,
                                                 number_of_elements_through_width,
                                                 number_of_elements_through_length);
         return true;
@@ -323,7 +323,7 @@ namespace Toreo {
 
   bool GroundManager::set_visibility(GMid id, const bool visible){
     if(grounds_.size() > id){
-      grounds_.at(id).visibility = visible;
+      grounds_[id].visibility = visible;
       return true;
     }else
       return false;
@@ -332,8 +332,8 @@ namespace Toreo {
   bool GroundManager::set_transformation_matrix(GMid id,
                                                 const Algebraica::mat4f *transformation_matrix){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->set_transformation_matrix(transformation_matrix);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->set_transformation_matrix(transformation_matrix);
         return true;
       }else
         return false;
@@ -343,8 +343,8 @@ namespace Toreo {
 
   bool GroundManager::translate(GMid id, const float x, const float y, const float z){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->translate(-y, z, -x);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->translate(-y, z, -x);
         return true;
       }else
         return false;
@@ -354,8 +354,8 @@ namespace Toreo {
 
   bool GroundManager::rotate(GMid id, const float pitch, const float yaw, const float roll){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->rotate(-pitch, yaw, -roll);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->rotate(-pitch, yaw, -roll);
         return true;
       }else
         return false;
@@ -365,8 +365,8 @@ namespace Toreo {
 
   bool GroundManager::rotate_in_x(GMid id, const float angle){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->rotate_in_z(-angle);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->rotate_in_z(-angle);
         return true;
       }else
         return false;
@@ -376,8 +376,8 @@ namespace Toreo {
 
   bool GroundManager::rotate_in_y(GMid id, const float angle){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->rotate_in_x(-angle);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->rotate_in_x(-angle);
         return true;
       }else
         return false;
@@ -387,8 +387,8 @@ namespace Toreo {
 
   bool GroundManager::rotate_in_z(GMid id, const float angle){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        grounds_.at(id).ground->rotate_in_y(angle);
+      if(grounds_[id].ground != nullptr){
+        grounds_[id].ground->rotate_in_y(angle);
         return true;
       }else
         return false;
@@ -398,8 +398,8 @@ namespace Toreo {
 
   bool GroundManager::update(GMid id){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr && grounds_.at(id).visibility){
-        grounds_.at(id).ground->update();
+      if(grounds_[id].ground != nullptr && grounds_[id].visibility){
+        grounds_[id].ground->update();
         return true;
       }else
         return false;
@@ -415,8 +415,8 @@ namespace Toreo {
 
   bool GroundManager::draw(GMid id){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr && grounds_.at(id).visibility){
-        grounds_.at(id).ground->draw();
+      if(grounds_[id].ground != nullptr && grounds_[id].visibility){
+        grounds_[id].ground->draw();
         return true;
       }else
         return false;
@@ -434,11 +434,11 @@ namespace Toreo {
 
   bool GroundManager::delete_ground(GMid id){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        if(grounds_.at(id).connection.connected())
-          grounds_.at(id).connection.disconnect();
-        delete grounds_.at(id).ground;
-        grounds_.at(id).ground = nullptr;
+      if(grounds_[id].ground != nullptr){
+        if(grounds_[id].connection.connected())
+          grounds_[id].connection.disconnect();
+        delete grounds_[id].ground;
+        grounds_[id].ground = nullptr;
         return true;
       }else
         return false;
@@ -458,10 +458,10 @@ namespace Toreo {
 
   bool GroundManager::connect(GMid id, boost::signals2::signal<void ()> *signal){
     if(grounds_.size() > id)
-      if(grounds_.at(id).ground != nullptr){
-        if(grounds_.at(id).connection.connected())
-          grounds_.at(id).connection.disconnect();
-        grounds_.at(id).connection =
+      if(grounds_[id].ground != nullptr){
+        if(grounds_[id].connection.connected())
+          grounds_[id].connection.disconnect();
+        grounds_[id].connection =
             signal->connect(boost::bind(&GroundManager::update, this, id));
         return true;
       }else

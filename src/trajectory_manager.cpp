@@ -1,5 +1,5 @@
-#include "include/trajectory_manager.h"
-#include "include/core.h"
+#include "torero/trajectory_manager.h"
+#include "torero/core.h"
 // Image loader
 #include "stb_image.h"
 
@@ -74,8 +74,8 @@ namespace Toreo {
   bool TrajectoryManager::change_input(TMid id,
                                        const std::vector<Visualizer::Trajectory> *trajectory){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->change_input(trajectory);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->change_input(trajectory);
         return true;
       }else
         return false;
@@ -85,8 +85,8 @@ namespace Toreo {
 
   bool TrajectoryManager::set_type(TMid id, const Visualizer::LineType type){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).type = type;
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].type = type;
         return true;
       }else
         return false;
@@ -96,7 +96,7 @@ namespace Toreo {
 
   bool TrajectoryManager::set_visibility(TMid id, const bool visible){
     if(trajectories_.size() > id){
-      trajectories_.at(id).visibility = visible;
+      trajectories_[id].visibility = visible;
       return true;
     }else
       return false;
@@ -105,8 +105,8 @@ namespace Toreo {
   bool TrajectoryManager::set_transformation_matrix(TMid id,
                                                     const Algebraica::mat4f *transformation_matrix){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->set_transformation_matrix(transformation_matrix);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->set_transformation_matrix(transformation_matrix);
         return true;
       }else
         return false;
@@ -116,8 +116,8 @@ namespace Toreo {
 
   bool TrajectoryManager::translate(TMid id, const float x, const float y, const float z){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->translate(-y, z, -x);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->translate(-y, z, -x);
         return true;
       }else
         return false;
@@ -127,8 +127,8 @@ namespace Toreo {
 
   bool TrajectoryManager::rotate(TMid id, const float pitch, const float yaw, const float roll){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->rotate(-pitch, yaw, -roll);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->rotate(-pitch, yaw, -roll);
         return true;
       }else
         return false;
@@ -138,8 +138,8 @@ namespace Toreo {
 
   bool TrajectoryManager::rotate_in_x(TMid id, const float angle){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->rotate_in_z(-angle);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->rotate_in_z(-angle);
         return true;
       }else
         return false;
@@ -149,8 +149,8 @@ namespace Toreo {
 
   bool TrajectoryManager::rotate_in_y(TMid id, const float angle){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->rotate_in_x(-angle);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->rotate_in_x(-angle);
         return true;
       }else
         return false;
@@ -160,8 +160,8 @@ namespace Toreo {
 
   bool TrajectoryManager::rotate_in_z(TMid id, const float angle){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        trajectories_.at(id).trajectory->rotate_in_y(angle);
+      if(trajectories_[id].trajectory != nullptr){
+        trajectories_[id].trajectory->rotate_in_y(angle);
         return true;
       }else
         return false;
@@ -171,8 +171,8 @@ namespace Toreo {
 
   bool TrajectoryManager::update(TMid id){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr && trajectories_.at(id).visibility){
-        trajectories_.at(id).trajectory->update();
+      if(trajectories_[id].trajectory != nullptr && trajectories_[id].visibility){
+        trajectories_[id].trajectory->update();
         return true;
       }else
         return false;
@@ -188,8 +188,8 @@ namespace Toreo {
 
   bool TrajectoryManager::draw(TMid id){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr && trajectories_.at(id).visibility){
-        switch(trajectories_.at(id).type){
+      if(trajectories_[id].trajectory != nullptr && trajectories_[id].visibility){
+        switch(trajectories_[id].type){
         case Visualizer::DOTTED:
           if(dotted_) dotted_->use();
           break;
@@ -203,7 +203,7 @@ namespace Toreo {
           if(solid_) solid_->use();
           break;
         }
-        trajectories_.at(id).trajectory->draw();
+        trajectories_[id].trajectory->draw();
         return true;
       }else
         return false;
@@ -234,11 +234,11 @@ namespace Toreo {
 
   bool TrajectoryManager::delete_trajectory(TMid id){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        if(trajectories_.at(id).connection.connected())
-          trajectories_.at(id).connection.disconnect();
-        delete trajectories_.at(id).trajectory;
-        trajectories_.at(id).trajectory = nullptr;
+      if(trajectories_[id].trajectory != nullptr){
+        if(trajectories_[id].connection.connected())
+          trajectories_[id].connection.disconnect();
+        delete trajectories_[id].trajectory;
+        trajectories_[id].trajectory = nullptr;
         return true;
       }else
         return false;
@@ -258,10 +258,10 @@ namespace Toreo {
 
   bool TrajectoryManager::connect(TMid id, boost::signals2::signal<void ()> *signal){
     if(trajectories_.size() > id)
-      if(trajectories_.at(id).trajectory != nullptr){
-        if(trajectories_.at(id).connection.connected())
-          trajectories_.at(id).connection.disconnect();
-        trajectories_.at(id).connection =
+      if(trajectories_[id].trajectory != nullptr){
+        if(trajectories_[id].connection.connected())
+          trajectories_[id].connection.disconnect();
+        trajectories_[id].connection =
             signal->connect(boost::bind(&TrajectoryManager::update, this, id));
         return true;
       }else
