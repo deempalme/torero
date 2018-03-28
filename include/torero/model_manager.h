@@ -4,11 +4,11 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
+#include "torero/cubemap.h"
 #include "torero/definitions.h"
-#include "torero/three_dimensional_model_loader.h"
 #include "torero/shader.h"
 #include "torero/skybox.h"
-#include "torero/cubemap.h"
+#include "torero/three_dimensional_model_loader.h"
 #include "torero/types.h"
 
 #include "algebraica/algebraica.h"
@@ -122,6 +122,8 @@ namespace Toreo {
     void sun_properties(const Algebraica::vec3f direction =
                             Algebraica::vec3f(-0.866f, 0.70711f, 0.70711f),
                         const float R = 255.0f, const float G = 255.0f, const float B = 255.0f);
+
+    Cubemap *get_cubemap();
 
   private:
     void draw(Visualizer::Model3D *model, Visualizer::Model3DElement *element);

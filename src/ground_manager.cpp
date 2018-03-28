@@ -11,6 +11,7 @@ namespace Toreo {
                               "resources/shaders/ground.geom")),
     u_projection_ground_(ground_shader_->uniform_location("u_projection")),
     u_view_ground_(ground_shader_->uniform_location("u_view")),
+    u_pv_ground_(ground_shader_->uniform_location("u_pv")),
     u_point_light_ground_(ground_shader_->uniform_location("u_point_light")),
     u_point_light_color_ground_(ground_shader_->uniform_location("u_point_light_color")),
     u_directional_light_ground_(ground_shader_->uniform_location("u_directional_light")),
@@ -32,7 +33,7 @@ namespace Toreo {
   }
 
   GroundManager::~GroundManager(){
-    for(Visualizer::GroundElement ground : grounds_)
+    for(Visualizer::GroundElement &ground : grounds_)
       if(ground.ground != nullptr){
         if(ground.connection.connected())
           ground.connection.disconnect();
@@ -58,6 +59,31 @@ namespace Toreo {
       delete line_shader_;
   }
 
+  GMid GroundManager::add(const std::vector<Visualizer::GroundGrid> *ground,
+                          const std::string name,
+                          const float width,
+                          const float length,
+                          const unsigned int number_of_elements_through_width,
+                          const unsigned int number_of_elements_through_length,
+                          const Algebraica::mat4f *transformation_matrix,
+                          const bool ground_visible,
+                          const bool calculate_height,
+                          const float maximum_height){
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
+                                          name, ground_visible };
+    groundy.ground->change_input(ground);
+    groundy.ground->set_ground_size(width, length, number_of_elements_through_width,
+                                    number_of_elements_through_length);
+    if(transformation_matrix != nullptr)
+      groundy.ground->set_transformation_matrix(transformation_matrix);
+
+    if(calculate_height)
+      groundy.ground->calculate_height(true, maximum_height);
+
+    grounds_.push_back(groundy);
+    return grounds_.size() - 1;
+  }
+
   GMid GroundManager::add(const std::vector<Visualizer::Ground2D> *ground,
                           const std::string name,
                           const float width,
@@ -66,14 +92,13 @@ namespace Toreo {
                           const unsigned int number_of_elements_through_length,
                           const Algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
                                           name, ground_visible };
+    groundy.ground->change_input(ground);
     groundy.ground->set_ground_size(width, length, number_of_elements_through_width,
                                     number_of_elements_through_length);
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
-
-    groundy.ground->update();
 
     grounds_.push_back(groundy);
     return grounds_.size() - 1;
@@ -87,14 +112,13 @@ namespace Toreo {
                           const unsigned int number_of_elements_through_length,
                           const Algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
                                           name, ground_visible };
+    groundy.ground->change_input(ground);
     groundy.ground->set_ground_size(width, length, number_of_elements_through_width,
                                     number_of_elements_through_length);
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
-
-    groundy.ground->update();
 
     grounds_.push_back(groundy);
     return grounds_.size() - 1;
@@ -104,12 +128,12 @@ namespace Toreo {
                           const std::string name,
                           const Algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
                                           name, ground_visible };
+    groundy.ground->change_input(ground);
+
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
-
-    groundy.ground->update();
 
     grounds_.push_back(groundy);
     return grounds_.size() - 1;
@@ -119,12 +143,12 @@ namespace Toreo {
                           const std::string name,
                           const Algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
                                           name, ground_visible };
+    groundy.ground->change_input(ground);
+
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
-
-    groundy.ground->update();
 
     grounds_.push_back(groundy);
     return grounds_.size() - 1;
@@ -134,12 +158,12 @@ namespace Toreo {
                           const std::string name,
                           const Algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
                                           name, ground_visible };
+    groundy.ground->change_input(ground);
+
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
-
-    groundy.ground->update();
 
     grounds_.push_back(groundy);
     return grounds_.size() - 1;
@@ -149,12 +173,12 @@ namespace Toreo {
                           const std::string name,
                           const Algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
-    Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
+    Visualizer::GroundElement groundy = { new Ground(ground_shader_),
                                           name, ground_visible };
+    groundy.ground->change_input(ground);
+
     if(transformation_matrix != nullptr)
       groundy.ground->set_transformation_matrix(transformation_matrix);
-
-    groundy.ground->update();
 
     grounds_.push_back(groundy);
     return grounds_.size() - 1;
@@ -408,7 +432,8 @@ namespace Toreo {
   }
 
   void GroundManager::update_all(){
-    for(Visualizer::GroundElement ground : grounds_)
+    std::cout << "updating" << std::endl;
+    for(Visualizer::GroundElement &ground : grounds_)
       if(ground.ground != nullptr && ground.visibility)
         ground.ground->update();
   }
@@ -425,11 +450,11 @@ namespace Toreo {
   }
 
   void GroundManager::draw_all(){
-    if(grid_ && grid_visibility_)
-      grid_->draw();
-    for(Visualizer::GroundElement ground : grounds_)
+    for(Visualizer::GroundElement &ground : grounds_)
       if(ground.ground != nullptr && ground.visibility)
         ground.ground->draw();
+    if(grid_ && grid_visibility_)
+      grid_->draw();
   }
 
   bool GroundManager::delete_ground(GMid id){
@@ -447,7 +472,7 @@ namespace Toreo {
   }
 
   void GroundManager::purge(){
-    for(Visualizer::GroundElement ground : grounds_)
+    for(Visualizer::GroundElement &ground : grounds_)
       if(ground.ground != nullptr){
         if(ground.connection.connected())
           ground.connection.disconnect();
@@ -480,6 +505,7 @@ namespace Toreo {
     ground_shader_->use();
     ground_shader_->set_value(u_view_ground_, core_->camera_matrix_view());
     ground_shader_->set_value(u_projection_ground_, core_->camera_matrix_perspective());
+    ground_shader_->set_value(u_pv_ground_, core_->camera_matrix_perspective_view());
     ground_shader_->set_value(u_camera_position_ground_, core_->camera_position());
     line_shader_->use();
     line_shader_->set_value(u_view_line_, core_->camera_matrix_view());

@@ -94,10 +94,10 @@ namespace Algebraica {
     const T cosB{static_cast<T>(std::cos(yaw))},   sinB{static_cast<T>(std::sin(yaw))};
     const T cosC{static_cast<T>(std::cos(roll))},  sinC{static_cast<T>(std::sin(roll))};
 
-    mat4<T> r_m( cosC * cosB - sinC * sinA * sinB, -sinC * cosA, cosC * sinB + sinC * sinA * cosB, 0,
-                 sinC * cosB + cosC * sinA * sinB,  cosC * cosA, sinC * sinB - cosC * sinA * cosB, 0,
-                                     -cosA * sinB,         sinA,                      cosA * cosB, 0,
-                                                0,            0,                                0, 1);
+    mat4<T> r_m(cosC * cosB - sinC * sinA * sinB,-sinC * cosA, cosC * sinB + sinC * sinA * cosB, 0,
+                sinC * cosB + cosC * sinA * sinB, cosC * cosA, sinC * sinB - cosC * sinA * cosB, 0,
+                                    -cosA * sinB,        sinA,                      cosA * cosB, 0,
+                                               0,           0,                                0, 1);
 
     return *this = *this * r_m;
   }
@@ -107,10 +107,10 @@ namespace Algebraica {
     const T cosB{static_cast<T>(std::cos(yaw))},   sinB{static_cast<T>(std::sin(yaw))};
     const T cosC{static_cast<T>(std::cos(roll))},  sinC{static_cast<T>(std::sin(roll))};
 
-    mat4<T> r_m( cosC * cosB - sinC * sinA * sinB, -sinC * cosA, cosC * sinB + sinC * sinA * cosB, 0,
-                 sinC * cosB + cosC * sinA * sinB,  cosC * cosA, sinC * sinB - cosC * sinA * cosB, 0,
-                                     -cosA * sinB,         sinA,                      cosA * cosB, 0,
-                                                0,            0,                                0, 1);
+    mat4<T> r_m(cosC * cosB - sinC * sinA * sinB,-sinC * cosA, cosC * sinB + sinC * sinA * cosB, 0,
+                sinC * cosB + cosC * sinA * sinB, cosC * cosA, sinC * sinB - cosC * sinA * cosB, 0,
+                                    -cosA * sinB,        sinA,                      cosA * cosB, 0,
+                                               0,           0,                                0, 1);
 
     return *this = r_m;
   }
@@ -256,9 +256,9 @@ namespace Algebraica {
   }
 
   ALGTEM mat4<T>& mat4<T>::normalize_and_rotate(const T non_normalized_x,
-                                             const T non_normalized_y,
-                                             const T non_normalized_z,
-                                             const T non_normalized_w){
+                                                const T non_normalized_y,
+                                                const T non_normalized_z,
+                                                const T non_normalized_w){
     mat4<T> r_m;
     const T sqw = non_normalized_w * non_normalized_w;
     const T sqx = non_normalized_x * non_normalized_x;
@@ -323,9 +323,9 @@ namespace Algebraica {
   }
 
   ALGTEM mat4<T>& mat4<T>::from_non_normalized_quaternion(const T non_normalized_x,
-                                                       const T non_normalized_y,
-                                                       const T non_normalized_z,
-                                                       const T non_normalized_w){
+                                                          const T non_normalized_y,
+                                                          const T non_normalized_z,
+                                                          const T non_normalized_w){
     const T sqw = non_normalized_w * non_normalized_w;
     const T sqx = non_normalized_x * non_normalized_x;
     const T sqy = non_normalized_y * non_normalized_y;
@@ -356,7 +356,8 @@ namespace Algebraica {
     return *this;
   }
 
-  ALGTEM mat4<T>& mat4<T>::from_non_normalized_quaternion(const quaternion<T> non_normalized_quaternion){
+  ALGTEM mat4<T>& mat4<T>::from_non_normalized_quaternion(const quaternion<T>
+                                                          non_normalized_quaternion){
     const T sqw = non_normalized_quaternion.w() * non_normalized_quaternion.w();
     const T sqx = non_normalized_quaternion.x() * non_normalized_quaternion.x();
     const T sqy = non_normalized_quaternion.y() * non_normalized_quaternion.y();
@@ -501,6 +502,20 @@ namespace Algebraica {
     m_[3][2] = - (far_plane + near_plane) / (far_plane - near_plane);
 
     return *this;
+  }
+
+  ALGTEM mat4<T> mat4<T>::from_ortho(const T left, const T right, const T bottom, const T top,
+                                      const T near_plane, const T far_plane){
+    mat4<T> ortho;
+
+    ortho[0][0] = static_cast<T>(2) / (right - left);
+    ortho[1][1] = static_cast<T>(2) / (top - bottom);
+    ortho[2][2] = - static_cast<T>(2) / (far_plane - near_plane);
+    ortho[3][0] = - (right + left) / (right - left);
+    ortho[3][1] = - (top + bottom) / (top - bottom);
+    ortho[3][2] = - (far_plane + near_plane) / (far_plane - near_plane);
+
+    return ortho;
   }
 
   ALGTEM mat4<T>& mat4<T>::perspective(const T fov, const T aspect, const T near, const T far){

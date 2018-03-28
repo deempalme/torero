@@ -8,14 +8,12 @@
 #include "torero/definitions.h"
 #include "torero/shader.h"
 #include "torero/types.h"
-
+// Linear mathematics
 #include "algebraica/algebraica.h"
-#include <boost/bind.hpp>
+// Boost
 #include <boost/filesystem.hpp>
-#include <boost/signals2.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-
+// Standard
 #include <fstream>
 #include <string>
 
@@ -32,21 +30,23 @@ namespace Toreo {
     ~Skybox();
 
     void draw();
+
+    // Multithread functions
+    void run();
+    void ready();
     const bool is_ready();
 
   private:
-    void check_path(std::string *path);
-    void load_images();
-    void load_ready();
+    const bool check_path(std::string *path);
     void update_camera();
 
-    void write_data_opengl(const Visualizer::ImageFile &image, const int level);
+    void write_data_opengl(Visualizer::ImageFile *image, const int level);
 
     void prepare_cube();
 
     std::string up_path_, dn_path_, lf_path_, rt_path_, ft_path_, bk_path_;
     Core *core_;
-    bool is_ready_, is_loaded_;
+    bool files_exists_, is_ready_, is_loaded_;
 
     Shader *sky_shader_;
     GLint sky_u_pv_, sky_u_skybox_;
@@ -56,7 +56,6 @@ namespace Toreo {
 
     Visualizer::ImageFile up_, down_, left_, right_, front_, back_;
 
-    boost::thread runner_;
     boost::mutex protector_;
 
     boost::signals2::connection signal_update_camera_, signal_update_screen_;

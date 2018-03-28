@@ -47,6 +47,47 @@ namespace Toreo {
     // -------------------------------- GROUND MANAGEMENT --------------------------------- //
     // ------------------------------------------------------------------------------------ //
     /*
+     * ### Adding a new *Occupancy Grid*
+     *
+     * This will add a new ground with values type `Visualizer::GroundGrid`, you must
+     * define the probabilities value. You may choose to display different grid's height
+     * proportional to its probability. White is for free space, black for occupied space and
+     * middle grey for unkonw (may also be for probability ~50%). It will return the
+     * ground's **ID**, this will be useful if you want to modify properties or values of
+     * the created ground.
+     *
+     * **Arguments**
+     * {const std::vector<Visualizer::GroundGrid>*} ground = Address to the ground data
+     * (see data types for more information).
+     * {const std::string} name = Title to display for this ground.
+     * {const float} width = Ground's width in meters.
+     * {const float} length = Ground's length in meters.
+     * {const unsigned int} number_of_elements_through_width = Quantity of elements along the
+     * lateral axis.
+     * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
+     * longitudinal axis.
+     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * that defines the coordinate system's origin and orientation.
+     * {const bool} ground_visible = Visibility of this ground.
+     * {const bool} calculate_height = If true calculates a proportional height for each grid
+     * depending on its probability.
+     * {const float} maximum_height = Maximum reachable height (when probability = 100%).
+     *
+     * **Returns**
+     * {GMid} Ground identification number (use it for future modifications)
+     *
+     */
+    GMid add(const std::vector<Visualizer::GroundGrid> *ground,
+             const std::string name,
+             const float width = 100.0f,
+             const float length = 100.0f,
+             const unsigned int number_of_elements_through_width = 100u,
+             const unsigned int number_of_elements_through_length = 100u,
+             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const bool ground_visible = true,
+             const bool calculate_height = true,
+             const float maximum_height = 2.0f);
+    /*
      * ### Adding a new *uniform* two-dimensional ground
      *
      * This will add a new ground with values type `Visualizer::Ground2D`, you must also
@@ -697,7 +738,7 @@ namespace Toreo {
     Core *core_;
 
     Shader *ground_shader_;
-    GLint u_projection_ground_, u_view_ground_, u_point_light_ground_;
+    GLint u_projection_ground_, u_view_ground_, u_pv_ground_, u_point_light_ground_;
     GLint u_point_light_color_ground_, u_directional_light_ground_;
     GLint u_directional_light_color_ground_, u_camera_position_ground_;
 

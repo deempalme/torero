@@ -142,6 +142,8 @@ namespace Algebraica {
    */
     mat4<T>& ortho(const T left, const T right, const T bottom, const T top,
                    const T near_plane, const T far_plane);
+    static mat4<T> from_ortho(const T left, const T right, const T bottom, const T top,
+                              const T near_plane, const T far_plane);
     /*
    * Creates a perspective matrix
    *

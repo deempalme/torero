@@ -7,6 +7,8 @@
 
 #include "torero/camera.h"
 #include "torero/definitions.h"
+#include "torero/multithread_manager.h"
+#include "torero/screen_conversor.h"
 #include "torero/types.h"
 
 // linear mathematical functions
@@ -14,20 +16,15 @@
 // standard
 #include <iostream>
 #include <string>
-
+// Boost
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
-
-void callback_resize(GLFWwindow *window, int width, int height);
-void callback_mouse_click(GLFWwindow *window, int button, int action, int mods);
-void callback_mouse_move(GLFWwindow *window, double xpos, double ypos);
-void callback_mouse_scroll(GLFWwindow *window, double xoffset, double yoffset);
 
 namespace Toreo {
   class ModelManager;
   class VehicleManager;
 
-  class Core
+  class Core : public MultiThreadManager
   {
   public:
     /*
@@ -44,12 +41,110 @@ namespace Toreo {
      * In this case a message will be displayed at the Terminal/console.
      *
      */
-    explicit Core(int argc, char **argv);
-    virtual ~Core();
+    explicit Core(int argc, char **argv, const bool system_title = false);
+    ~Core();
 
     // ------------------------------------------------------------------------------------ //
     // -------------------------------- CAMERA MANAGEMENT --------------------------------- //
     // ------------------------------------------------------------------------------------ //
+    bool *camera_blocker();
+    /*
+     * ### Obtaining the perspective transformation matrix
+     *
+     * Returns the **perspective** transformation matrix, this matrix is calculated using
+     * **perspective** matrix transformation with window's width and height as parameters
+     * to get the aspect radio. A near plane with value `NEAR_PLANE`, far plane with value
+     * `FAR_PLANE` and field of view with value `FIELD_OF_VIEW`.
+     *
+     * **Returns**
+     * {const Algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f &camera_matrix_perspective();
+    const Algebraica::mat4f &camera_matrix_perspective_inversed();
+    /*
+     * ### Obtaining the multiplied matrix between perspective and view matrices
+     *
+     * Returns the multiplied matrix between **perspective and view** transformation matrices.
+     *
+     * **Returns**
+     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
+     * camera matrices multiplication.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f &camera_matrix_perspective_view();
+    const Algebraica::mat4f &camera_matrix_perspective_view_inversed();
+    /*
+     * ### Obtaining the non-translated multiplied matrix between perspective and view matrices
+     *
+     * Returns the **non-translated** multiplied matrix between **perspective and view**
+     * transformation matrices. **Note:* this matrix only contains the **rotations** of
+     * pv_matrix and **not translations**.
+     *
+     * **Returns**
+     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
+     * camera matrices multiplication WITHOUT translation (only rotation).
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f &camera_matrix_perspective_view_static();
+    const Algebraica::mat4f &camera_matrix_perspective_view_static_inversed();
+    /*
+     * ### Obtaining the view transformation matrix
+     *
+     * Returns the **view** transformation matrix, this matrix is calculated using
+     * **look at** matrix transformation with the camera as parameter.
+     *
+     * **Returns**
+     * {const Algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f &camera_matrix_view();
+    const Algebraica::mat4f &camera_matrix_view_inversed();
+    /*
+     * ### Obtaining the camera position
+     *
+     * This function returns a 3D vector with the camera position in X, Y and Z.
+     *
+     * **Returns**
+     * {const Algebraica::vec3f} 3D vector width camera position.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::vec3f &camera_position();
+    const Algebraica::vec3f &camera_relative_position();
+    /*
+     * ### Rotating the camera
+     *
+     * Multiplies the Camera position by a rotation matrix using euler angles
+     * (the center is the camera target's position), the angles are in **RADIANS**.
+     * See the [[coordinate systems|Coordinate-systems#orientation-angles]] to view more
+     * details about the angles.
+     *
+     * **Arguments**
+     * {const float} pitch = Pitch angle in radians.
+     * {const float} yaw = Yaw angle in radians.
+     * {const float} roll = Roll angle in radians.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+//    void camera_rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
+    void camera_rotate(const Algebraica::quaternionF quaternion);
     /*
      * ### Setting camera position
      *
@@ -99,23 +194,20 @@ namespace Toreo {
      */
     void camera_set_up(const float x = 0.0f, const float y = 0.0f, const float z = 1.0f);
     /*
-     * ### Rotating the camera
+     * ### Setting the camera's zoom
      *
-     * Multiplies the Camera position by a rotation matrix using euler angles
-     * (the center is the camera target's position), the angles are in **RADIANS**.
-     * See the [[coordinate systems|Coordinate-systems#orientation-angles]] to view more
-     * details about the angles.
+     * This changes the scenary zoom, maximum = 0.05 : minimum = 15. The smaller the zoom
+     * factor is, the closer to the target the camera position becomes.
      *
      * **Arguments**
-     * {const float} pitch = Pitch angle in radians.
-     * {const float} yaw = Yaw angle in radians.
-     * {const float} roll = Roll angle in radians.
+     * {const float} zoom = Zoom factor, if `zoom = 0.05` then, the camera position
+     * **vector** is multiplied for 0.05.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    void camera_rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
+    void camera_set_zoom(const float zoom = 1.0f);
     /*
      * ### Translating the camera
      *
@@ -132,41 +224,6 @@ namespace Toreo {
      */
     void camera_translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
     /*
-     * ### Setting the camera's zoom
-     *
-     * This changes the scenary zoom, maximum = 0.05 : minimum = 15. The smaller the zoom
-     * factor is, the closer to the target the camera position becomes.
-     *
-     * **Arguments**
-     * {const float} zoom = Zoom factor, if `zoom = 0.05` then, the camera position
-     * **vector** is multiplied for 0.05.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_set_zoom(const float zoom = 1.0f);
-    /*
-     * ### Change view to top view
-     *
-     * Changes the view to **Top view**.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_top_view();
-    /*
-     * ### Change view to isometric view
-     *
-     * Changes the view to **Isometric view**.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_isometric_view();
-    /*
      * ### Updating the camera
      *
      * This function updates the camera position and orientation, it is very useful when the
@@ -178,333 +235,28 @@ namespace Toreo {
      */
     void camera_update();
     /*
-     * ### Obtaining the view transformation matrix
+     * ### Change view to isometric view
      *
-     * Returns the **view** transformation matrix, this matrix is calculated using
-     * **look at** matrix transformation with the camera as parameter.
-     *
-     * **Returns**
-     * {const Algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
+     * Changes the view to **Isometric view**.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_view();
+    void camera_view_isometric();
     /*
-     * ### Obtaining the perspective transformation matrix
+     * ### Change view to top view
      *
-     * Returns the **perspective** transformation matrix, this matrix is calculated using
-     * **perspective** matrix transformation with window's width and height as parameters
-     * to get the aspect radio. A near plane with value `NEAR_PLANE`, far plane with value
-     * `FAR_PLANE` and field of view with value `FIELD_OF_VIEW`.
-     *
-     * **Returns**
-     * {const Algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
+     * Changes the view to **Top view**.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_perspective();
-    /*
-     * ### Obtaining the multiplied matrix between perspective and view matrices
-     *
-     * Returns the multiplied matrix between **perspective and view** transformation matrices.
-     *
-     * **Returns**
-     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
-     * camera matrices multiplication.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const Algebraica::mat4f &camera_matrix_perspective_view();
-    /*
-     * ### Obtaining the non-translated multiplied matrix between perspective and view matrices
-     *
-     * Returns the **non-translated** multiplied matrix between **perspective and view**
-     * transformation matrices. **Note:* this matrix only contains the **rotations** of
-     * pv_matrix and **not translations**.
-     *
-     * **Returns**
-     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
-     * camera matrices multiplication WITHOUT translation (only rotation).
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const Algebraica::mat4f &camera_matrix_static_perspective_view();
-    /*
-     * ### Obtaining the camera position
-     *
-     * This function returns a 3D vector with the camera position in X, Y and Z.
-     *
-     * **Returns**
-     * {const Algebraica::vec3f} 3D vector width camera position.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const Algebraica::vec3f &camera_position();
-
-    // ------------------------------------------------------------------------------------ //
-    // ----------------------------- SCENE's FRAME MATRICES ------------------------------- //
-    // ------------------------------------------------------------------------------------ //
-    /*
-     * ### Obtaining the "fixed frame" transformation matrix
-     *
-     * This function returns the *address* to the **fixed frame** transformation matrix,
-     * its origins is the Latitude and Longitude 0° (see
-     * [[coordinate system|Coordinate-systems#fixed-frame]] for more information).
-     *
-     * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **fixed frame** transformation matrix.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const Algebraica::mat4f *fixed_frame() const;
-    /*
-     * ### Obtaining the "vehicle frame" transformation matrix
-     *
-     * This function returns the *address* to the **vehicle frame** transformation matrix,
-     * its origins is at the center of the rear wheel axis (see
-     * [[coordinate system|Coordinate-systems#vehicle-frame]] for more information).
-     *
-     * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **vehicle frame** transformation matrix.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const Algebraica::mat4f *vehicle_frame() const;
-    /*
-     * ### Obtaining the "navigation frame" transformation matrix
-     *
-     * This function returns the *address* to the **navigation frame** transformation matrix,
-     * its origins is at the center of the rear wheel axis but it does NOT rotate (see
-     * [[coordinate system|Coordinate-systems#navigation-frame]] for more information).
-     *
-     * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **navigation frame** transformation matrix.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const Algebraica::mat4f *navigation_frame() const;
-    /*
-     * ### Setting the vehicle management class
-     *
-     * This function obtains and connects the **vehicle**, **navigation matrices** and other
-     * data from the `VehicleManager` class addressed at the argument.
-     *
-     * **Arguments**
-     * {VehicleManager*} vehicle_manager = Address to the **vehicle manager** class.
-     *
-     * **Returns**
-     * {bool} Returns `true` if there was a previously addressed `VehicleManager` class.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    bool set_module(VehicleManager *vehicle_manager);
-    bool set_module(ModelManager *model_manager);
-
-    // ------------------------------------------------------------------------------------ //
-    // -------------------------------- WINDOW MANAGEMENT --------------------------------- //
-    // ------------------------------------------------------------------------------------ //
-    /*
-     * ### Window title
-     *
-     * To change the window title (which appears at the bar in the top side of the window) use:
-     *
-     * **Arguments**
-     * {const std::string} title = The UTF-8 encoded window title.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void set_window_title(const std::string title);
-    /*
-     * ### Window size
-     *
-     * This function changes the size of the window, use negative values to equalize window
-     * and monitor width or/and height. For full screen windows, the specified size becomes
-     * the new resolution of the window. The window is resized to fit the resolution of the
-     * set video mode.
-     *
-     * **Arguments**
-     * {const int} width = Size in pixels of the window. Use any negative value to set the
-     * window's width equal to the monitor's resolution.
-     * {const int}	height	= Size in pixels of the window. Use any negative value to set the
-     * window's height equal to the monitor's resolution.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void set_window_size(const int width, const int height);
-    /*
-     * ### Window position
-     *
-     * Changes the window's position in screen, The origin of the coordinate system is at
-     * the top-left corner of the monitor.
-     *
-     * **Arguments**
-     * {const int}	x =	Position from the left side of the monitor in pixels.
-     * {const int}	y =	Position from the top side of the monitor in pixels.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void set_window_position(const int x, const int y);
-    /*
-     * ### Maximize window
-     *
-     * Maximizes to fit all the monitor or resizes back the window to its defined width and height.
-     *
-     * **Arguments**
-     * {const bool}	maximized =	Set this to `true` to maximize or `false` to restore the window's
-     * size back to `width` and `height`.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void maximize_window(const bool maximized = true);
-    /*
-     * ### Minimize window
-     *
-     * Minimizes the window or resizes it back to its defined width and height.
-     *
-     * **Arguments**
-     * {const bool}	minimized =	Set this to `true` to minimize or `false` to restore the window's
-     * size back to `width` and `height`.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void minimize_window(const bool minimized = true);
-    /*
-     * ### Full screen window
-     *
-     * Makes the window full screen or resizes back the window to its defined width and
-     * height. **This will hide the title and launcher bar**.
-     *
-     * **Arguments**
-     * {const bool}	make_full =	Set this to `true` to make full screen or `false` to restore
-     * the window's size back to `width` and `height`.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void full_screen(const bool make_full = true);
-    /*
-     * ### Redrawing the window's screen
-     *
-     * Redraws the whole window's screen, if you have updated data that have not been drawn
-     * in screen you could call this function. **Note:* try to call this function only when
-     * is really needed because is a big performance consumer, a **better practice** is to
-     * draw every element separately.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void redraw_screen();
-    /*
-     * ### Restarting the screen viewport
-     *
-     * This function restarts the screen viewport to its original aspect radio; defined when
-     * you defined the window's **width** and **height** or uses its pre-defined values.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void restart_viewport();
-    /*
-     * ### Giving time to OpenGL to draw into the screen
-     *
-     * The next four functions are very useful and give the program enough time to redraw
-     * the screen, if you are using an infinite loop to execute your program, then, you will
-     * need to call `swap_buffers()` and one of other functions at least 30 times per second
-     * to have a fluid animation.
-     *
-     */
-    /*
-     * ### Changing between framebuffers (OpenGL)
-     *
-     * This function switches between back and front framebuffers, it is mandatory to use it
-     * after you manually redraw the screen \[`redraw_screen()`\] and if you used `execute(false)`.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void swap_buffers();
-    /*
-     * ### Waiting for triggering events
-     *
-     * Waits until an event is triggered (mouse, keyboard, etc). This will pause the program's
-     * execution until an event is triggered.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void wait_for_events();
-    /*
-     * ### Waiting for triggering events or until time runs out
-     *
-     * Waits until an event is triggered (mouse, keyboard, etc) or until the timeout
-     * (in seconds) has passed. This will pause the program's execution until an event
-     * is triggered or the time is over.
-     *
-     * **Arguments**
-     * {const double} timeout = Waiting time in seconds, use decimals for more precision.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void wait_for_events(const double timeout);
-    /*
-     * ### Processing all pending events
-     *
-     * This function processes all pending events suchlike screen drawing without any waiting.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void process_pending_events();
-    /*
-     * ### Checking window's visility
-     *
-     * This function returns the window's visibility; `true` if is not minimized or
-     * `false` if is minimized.
-     *
-     * **Returns**
-     * {bool}`true` if is not minimized or `false` if is minimized.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    bool window_visibility();
+    void camera_view_top();
+    void camera_zoom_in();
+    void camera_zoom_out();
+    void close();
     /*
      * ### Checking if window is closing
      *
@@ -519,7 +271,7 @@ namespace Toreo {
      * This will return error if the window was not created properly.
      *
      */
-    bool window_closing();
+    bool closing();
     /*
      * ### Execute window
      *
@@ -569,8 +321,135 @@ namespace Toreo {
                 const bool infinite_loop = true);
 
     // ------------------------------------------------------------------------------------ //
-    // ------------------------------ OPENGL TEXTURE MANAGER ------------------------------ //
+    // ----------------------------- SCENE's FRAME MATRICES ------------------------------- //
     // ------------------------------------------------------------------------------------ //
+    /*
+     * ### Obtaining the "fixed frame" transformation matrix
+     *
+     * This function returns the *address* to the **fixed frame** transformation matrix,
+     * its origins is the Latitude and Longitude 0° (see
+     * [[coordinate system|Coordinate-systems#fixed-frame]] for more information).
+     *
+     * **Returns**
+     * {const Algebraica::mat4f *const} Address to the **fixed frame** transformation matrix.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f *frame_global() const;
+    /*
+     * ### Obtaining the "vehicle frame" transformation matrix
+     *
+     * This function returns the *address* to the **vehicle frame** transformation matrix,
+     * its origins is at the center of the rear wheel axis (see
+     * [[coordinate system|Coordinate-systems#vehicle-frame]] for more information).
+     *
+     * **Returns**
+     * {const Algebraica::mat4f *const} Address to the **vehicle frame** transformation matrix.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f *frame_vehicle() const;
+    const Algebraica::mat4f *frame_vehicle_yaw() const;
+    /*
+     * ### Obtaining the "navigation frame" transformation matrix
+     *
+     * This function returns the *address* to the **navigation frame** transformation matrix,
+     * its origins is at the center of the rear wheel axis but it does NOT rotate (see
+     * [[coordinate system|Coordinate-systems#navigation-frame]] for more information).
+     *
+     * **Returns**
+     * {const Algebraica::mat4f *const} Address to the **navigation frame** transformation matrix.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    const Algebraica::mat4f *frame_navigation() const;
+    const Algebraica::mat4f *frame_navigation_plus() const;
+    /*
+     * ### Full screen window
+     *
+     * Makes the window full screen or resizes back the window to its defined width and
+     * height. **This will hide the title and launcher bar**.
+     *
+     * **Arguments**
+     * {const bool}	make_full =	Set this to `true` to make full screen or `false` to restore
+     * the window's size back to `width` and `height`.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void full_screen(const bool make_full = true);
+    const double get_time();
+    const int *height() const;
+    /*
+     * ### Maximize window
+     *
+     * Maximizes to fit all the monitor or resizes back the window to its defined width and height.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void maximize();
+    /*
+     * ### Displaying messages in GUI and Terminal/Console
+     *
+     * This function displays messages into the GUI window (in the message box) and in the
+     * Ubuntu Terminal or Window's console.
+     *
+     * **Arguments**
+     * {const std::string} text = Text to display in the GUI and Terminal/Console.
+     * {const int} message_type = Type of message to display.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void message_handler(const std::string text, const Visualizer::Message message_type);
+    /*
+     * ### Minimize window
+     *
+     * Minimizes the window or resizes it back to its defined width and height.
+     *
+     * **Arguments**
+     * {const bool}	minimized =	Set this to `true` to minimize or `false` to restore the window's
+     * size back to `width` and `height`.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void minimize(const bool minimized = true);
+    const int move_frame();
+    bool *mover();
+    const bool paused();
+    /*
+     * ### Processing all pending events
+     *
+     * This function processes all pending events suchlike screen drawing without any waiting.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void process_pending_events();
+    /*
+     * ### Restarting the screen viewport
+     *
+     * This function restarts the screen viewport to its original aspect radio; defined when
+     * you defined the window's **width** and **height** or uses its pre-defined values.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void restart_viewport();
     /*
      * ### Maximum anisotropic filtering
      *
@@ -584,7 +463,142 @@ namespace Toreo {
      * This will return error if the window was not created properly.
      *
      */
-    const GLfloat max_anisotropic_filtering();
+    bool *screen_changer();
+    ScreenConversor *screen_conversor();
+    const GLfloat screen_max_anisotropic_filtering();
+    void screen_paint();
+    /*
+     * ### Redrawing the window's screen
+     *
+     * Redraws the whole window's screen, if you have updated data that have not been drawn
+     * in screen you could call this function. **Note:* try to call this function only when
+     * is really needed because is a big performance consumer, a **better practice** is to
+     * draw every element separately.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void screen_redraw();
+    /*
+     * ### Changing between framebuffers (OpenGL)
+     *
+     * This function switches between back and front framebuffers, it is mandatory to use it
+     * after you manually redraw the screen \[`redraw_screen()`\] and if you used `execute(false)`.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void screen_swap_buffers();
+    void set_cursor(const Visualizer::Cursor type);
+    bool set_module(ModelManager *model_manager);
+    /*
+     * ### Setting the vehicle management class
+     *
+     * This function obtains and connects the **vehicle**, **navigation matrices** and other
+     * data from the `VehicleManager` class addressed at the argument.
+     *
+     * **Arguments**
+     * {VehicleManager*} vehicle_manager = Address to the **vehicle manager** class.
+     *
+     * **Returns**
+     * {bool} Returns `true` if there was a previously addressed `VehicleManager` class.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    bool set_module(VehicleManager *vehicle_manager);
+    /*
+     * ### Window position
+     *
+     * Changes the window's position in screen, The origin of the coordinate system is at
+     * the top-left corner of the monitor.
+     *
+     * **Arguments**
+     * {const int}	x =	Position from the left side of the monitor in pixels.
+     * {const int}	y =	Position from the top side of the monitor in pixels.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void set_position(const int x, const int y);
+    /*
+     * ### Window size
+     *
+     * This function changes the size of the window, use negative values to equalize window
+     * and monitor width or/and height. For full screen windows, the specified size becomes
+     * the new resolution of the window. The window is resized to fit the resolution of the
+     * set video mode.
+     *
+     * **Arguments**
+     * {const int} width = Size in pixels of the window. Use any negative value to set the
+     * window's width equal to the monitor's resolution.
+     * {const int}	height	= Size in pixels of the window. Use any negative value to set the
+     * window's height equal to the monitor's resolution.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void set_size(const int width, const int height);
+    /*
+     * ### Window title
+     *
+     * To change the window title (which appears at the bar in the top side of the window) use:
+     *
+     * **Arguments**
+     * {const std::string} title = The UTF-8 encoded window title.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void set_title(const std::string title);
+    /*
+     * ### Checking window's visility
+     *
+     * This function returns the window's visibility; `true` if is not minimized or
+     * `false` if is minimized.
+     *
+     * **Returns**
+     * {bool}`true` if is not minimized or `false` if is minimized.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    bool visibility();
+    /*
+     * ### Waiting for triggering events
+     *
+     * Waits until an event is triggered (mouse, keyboard, etc). This will pause the program's
+     * execution until an event is triggered.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void wait_for_events();
+    /*
+     * ### Waiting for triggering events or until time runs out
+     *
+     * Waits until an event is triggered (mouse, keyboard, etc) or until the timeout
+     * (in seconds) has passed. This will pause the program's execution until an event
+     * is triggered or the time is over.
+     *
+     * **Arguments**
+     * {const double} timeout = Waiting time in seconds, use decimals for more precision.
+     *
+     * **Errors**
+     * This will return error if the window was not created properly.
+     *
+     */
+    void wait_for_events(const double timeout);
+    const int *width() const;
+
     // ------------------------------------------------------------------------------------ //
     // ------------------------------------- SIGNALS -------------------------------------- //
     // ------------------------------------------------------------------------------------ //
@@ -605,7 +619,7 @@ namespace Toreo {
      * This will return error if the window was not created properly.
      *
      */
-    boost::signals2::signal<void ()> *syncronize(Visualizer::Order object);
+    boost::signals2::signal<void ()> *syncronize(const Visualizer::Order object);
     /*
      * ### Signal triggered by camera changes
      *
@@ -639,30 +653,10 @@ namespace Toreo {
      *
      */
     boost::signals2::signal<void ()> *signal_updated_screen();
-
-    static boost::signals2::signal<void (int, int)> signal_window_resize;
-    static boost::signals2::signal<void (int, int)> signal_mouse_click;
-    static boost::signals2::signal<void (double, double)> signal_mouse_move;
-    static boost::signals2::signal<void (double)> signal_mouse_scroll;
-
-    // ------------------------------------------------------------------------------------ //
-    // --------------------------------------- SLOTS -------------------------------------- //
-    // ------------------------------------------------------------------------------------ //
-    /*
-     * ### Displaying messages in GUI and Terminal/Console
-     *
-     * This function displays messages into the GUI window (in the message box) and in the
-     * Ubuntu Terminal or Window's console.
-     *
-     * **Arguments**
-     * {const std::string} text = Text to display in the GUI and Terminal/Console.
-     * {const int} message_type = Type of message to display.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void message_handler(const std::string text, const Visualizer::Message message_type);
+    boost::signals2::signal<void (int, int)> *signal_resized_screen();
+    boost::signals2::signal<void (int, int)> *signal_moved_mouse();
+    boost::signals2::signal<void (int, int, int)> *signal_clicked_mouse();
+    boost::signals2::signal<void (int, int, int)> *signal_released_mouse();
 
   protected:
     virtual void initialize();
@@ -670,31 +664,55 @@ namespace Toreo {
     virtual void resize(const int width, const int height);
 
   private:
-    void event_mouse_click(int button, int action);
+    static void callback_resize(GLFWwindow *window, int width, int height);
+    static void callback_mouse_click(GLFWwindow *window, int button, int action, int mods);
+    static void callback_mouse_move(GLFWwindow *window, double xpos, double ypos);
+    static void callback_mouse_scroll(GLFWwindow *window, double xoffset, double yoffset);
+    static void callback_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+
+    void event_mouse_click(int button, int action, int mods);
     void event_mouse_move(double xpos, double ypos);
     void event_mouse_scroll(double yoffset);
+    void event_key_callback(int key, int scancode, int action, int mods);
 
     void updated_camera();
     void load_window_icon();
+    GLFWcursor *load_mouse_icon(const std::string path, const int x_offset, const int y_offset);
 
     int argc_;
     char **argv_;
     GLFWwindow *window_;
-    int width_, height_, half_height_, position_x_, position_y_;
+    int width_, height_, initial_width_, initial_height_, half_height_;
+    int position_x_, position_y_, initial_position_x_, initial_position_y_;
     int error_log_, error_;
-    bool is_left_click_, is_right_click_, is_scroll_click_;
+    bool is_left_click_, is_right_click_, is_scroll_click_, window_moving_;
     int old_x_, old_y_;
-    bool is_inversed_, has_changed_;
+    bool is_inversed_, is_maximized_, maximization_, has_changed_, blocked_;
+    bool is_window_paused_;
+    int frame_mover_;
 
     GLfloat max_filtering_;
-    Algebraica::mat4f fixed_frame_, vehicle_frame_, navigation_frame_;
+    Algebraica::mat4f global_frame_, vehicle_frame_, vehicle_frame_yaw_;
+    Algebraica::mat4f navigation_frame_, navigation_plus_frame_;
+    Algebraica::mat4f inversed_vehicle_frame_;
     Camera camera_;
 
     VehicleManager *vehicle_;
     ModelManager *modeler_;
+    ScreenConversor screen_conversor_;
+
+    GLFWcursor *cursor_normal_, *cursor_pointer_, *cursor_beam_, *cursor_cross_, *cursor_move_;
 
     // signals
+    static boost::signals2::signal<void (int, int)> signal_window_resize;
+    static boost::signals2::signal<void (int, int, int)> signal_mouse_click;
+    static boost::signals2::signal<void (double, double)> signal_mouse_move;
+    static boost::signals2::signal<void (double)> signal_mouse_scroll;
+    static boost::signals2::signal<void (int, int, int, int)> signal_key_callback;
+
     boost::signals2::signal<void ()> signal_updated_camera_, signal_updated_screen_;
+    boost::signals2::signal<void (int, int)> signal_resized_screen_, signal_mouse_moved_;
+    boost::signals2::signal<void (int, int, int)> signal_clicked_mouse_, signal_released_mouse_;
     std::vector<boost::signals2::signal<void ()> > signal_draw_;
   };
 }

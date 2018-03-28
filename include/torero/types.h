@@ -1,20 +1,25 @@
 #ifndef TORERO_TYPES_H
 #define TORERO_TYPES_H
 
+#include "torero/definitions.h"
+
 #include "algebraica/algebraica.h"
 #include <boost/signals2.hpp>
 
 namespace Toreo {
+  class FontLoader;
   class Ground;
+  class GUILoader;
+  class GUIMenu;
+  class GUITitleBar;
   class Objects;
   class PointCloud;
   class Trajectory;
   class ThreeDimensionalModelLoader;
-  class FontLoader;
   class TextObject;
 }
 
-typedef int PCMid, MMid, MMelement, OMid, TMid, GMid, TXMid, FTid;
+typedef int PCMid, MMid, MMelement, OMid, TMid, GMid, TXMid, FTid, GUIid;
 
 namespace Visualizer {  
   // ------------------------------------------------------------------------------------ //
@@ -104,19 +109,19 @@ namespace Visualizer {
 #ifndef P_C_XY_LL
 #define P_C_XY_LL
   template<typename T>
-  union pointXY{
+  union pointLL{
     struct{
-      T x;
-      T y;
+      T latitude;
+      T longitude;
     };
     T data[2];
   };
 
   template<typename T>
-  union pointLL{
+  union pointXY{
     struct{
-      T latitude;
-      T longitude;
+      T x;
+      T y;
     };
     T data[2];
   };
@@ -375,6 +380,16 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
 #ifndef G_M_E
 #define G_M_E
+  union GroundGrid{
+    struct{
+      // Probability if occupied (-1.0f if unknown)
+      float probability;
+      // Box height
+      float height;
+    };
+    float data[2] = {-1.0f, 0.0f};
+  };
+
   union Ground2D{
     struct{
       // RGBA color (range 0.0f to 255.0f)
@@ -472,6 +487,28 @@ namespace Visualizer {
     };
     float data[9] = { 0.0f, 0.0f, 255.0f, 255.0f, 255.0f, 255.0f, 1.0f, 1.0f, 1.0f };
   };
+
+  struct OccupancyGrid {
+    // The map width (in Y axis) [meters]
+    float width  = 100.0f;
+    // The map length (in X axis) [meters]
+    float length = 100.0f;
+    // Number of cells through Y axis
+    unsigned int number_of_elements_through_width  = 100u;
+    // Number of cells through X axis
+    unsigned int number_of_elements_through_length = 100u;
+    // Map origin
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // Map orientation
+    struct {
+      float x = 0.0f;
+      float y = 0.0f;
+      float z = 0.0f;
+      float w = 0.0f;
+    } quaternion;
+  };
 #endif
 
   struct Ground2DShader{
@@ -483,6 +520,11 @@ namespace Visualizer {
     Algebraica::vec3f position;
     Algebraica::vec4f color;
     float height;
+  };
+
+  struct GroundGridShader{
+    Algebraica::vec3f position;
+    float probability;
   };
 
   struct GroundElement{
@@ -497,6 +539,15 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
 #ifndef V_M_S
 #define V_M_S
+  union CoordinatesLLA{
+    struct{
+      float latitude;
+      float longitude;
+      float altitude;
+    };
+    float data[3];
+  };
+
   union OrientationPYR{
     struct{
       float pitch;
@@ -516,32 +567,23 @@ namespace Visualizer {
     float data[4];
   };
 
-  union CoordinatesLLA{
-    struct{
-      float latitude;
-      float longitude;
-      float altitude;
-    };
-    float data[3];
-  };
+  struct Vehicle{
+    CoordinatesLLA position;
+    pointXYZ position_xyz, velocity, acceleration;
+    OrientationXYZW orientation;
+    OrientationPYR euler;
 
-  union Vehicle{
-    struct{
-      CoordinatesLLA position;
-      pointXYZ position_xyz, velocity, acceleration;
-      OrientationXYZW orientation;
+    float steering_angle;
 
-      float steering_angle;
+    float speed;
+    float rpm;
+    float fuel;
 
-      float rpm;
-      int gear;
-      float fuel;
+    float gas;
+    float clutch;
+    float brake;
 
-      float gas;
-      float clutch;
-      float brake;
-    };
-    float data[23];
+    std::string gear;
   };
 #endif
 
@@ -560,7 +602,10 @@ namespace Visualizer {
     CAMERA       = 8,
     GUI          = 9
   };
-  enum Message : unsigned int {
+
+  constexpr int DRAWING_ELEMENTS{10};
+
+  enum class Message : unsigned int {
     ERROR      = 0u,
     WARNING    = 1u,
     ATTENTION  = 2u,
@@ -570,20 +615,45 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
   // ---------------------------------- TEXT MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //
+  enum class Alignment : unsigned int {
+    LEFT   = 0u,
+    CENTER = 1u,
+    RIGHT  = 2u,
+    TOP    = 3u,
+    BOTTOM = 4u
+  };
+
+  enum class TextWeight : unsigned int {
+    LIGHTER = 0u,
+    LIGHT   = 1u,
+    NORMAL  = 2u,
+    BOLD    = 3u,
+    BOLDER  = 4u
+  };
+
+  enum TextType : unsigned int {
+    THREE_DIMENSIONAL = 0u,
+    TWO_DIMENSIONAL   = 1u
+  };
+
   struct TextSimple {
-    // Position:
+    // Position [meters]
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
+    // Orientation angle (in the screen's plane) [radians]
+    float angle = 0.0f;
     // Text
     std::string text;
   };
 
   struct TextColored {
-    // Position:
+    // Position [meters]
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
+    // Orientation angle (in the screen's plane) [radians]
+    float angle = 0.0f;
     // Color (range 0.0f -> 255.0f):
     float r     = 255.0f;
     float g     = 255.0f;
@@ -593,36 +663,69 @@ namespace Visualizer {
     std::string text;
   };
 
-  struct TextExtended {
-    // Position:
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    // Orientation (Euler angles in radians):
-    float pitch = 0.0f;
-    float yaw   = 0.0f;
-    float roll  = 0.0f;
-    // Color (range 0.0f -> 255.0f):
-    float r     = 255.0f;
-    float g     = 255.0f;
-    float b     = 255.0f;
-    float alpha = 255.0f;
-    // Text
-    std::string text;
+  struct TextSimpleShader{
+    // Origin:
+    float x;
+    float y;
+    float z;
+    // Position
+    float p_x;
+    float p_y;
+    // Dimensions:
+    float width;
+    float height;
+    // Texture coordinates
+    //   First corner
+    float u1;
+    float v1;
+    //   Last corner
+    float u2;
+    float v2;
+    // Orientation angle (in the screen's plane) [radians]
+    float angle;
+  };
+
+  struct TextColoredShader{
+    // Origin:
+    float x;
+    float y;
+    float z;
+    // Position
+//    float p_x;
+//    float p_y;
+//    // Dimensions:
+//    float width;
+//    float height;
+//    // Color (range 0.0f -> 255.0f):
+//    float r;
+//    float g;
+//    float b;
+//    float a;
+//    // Texture coordinates
+//    //   First corner
+//    float u1;
+//    float v1;
+//    //   Last corner
+//    float u2;
+//    float v2;
+//    // Orientation angle (in the screen's plane) [radians]
+//    float angle;
   };
 
   struct FontCharacter {
-    int ascii = 0;
+    unsigned int ascii = 0;
     union {
       struct {
         // Dimensions
         float width;
         float height;
         // Texture
-        float u;
-        float v;
+        float u1;
+        float v1;
+        float u2;
+        float v2;
       };
-      float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+      float data[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
     };
     union {
       struct {
@@ -641,10 +744,16 @@ namespace Visualizer {
     FTid font;
     std::string name;
     bool visibility;
+    std::size_t index;
     boost::signals2::connection connection;
   };
 
-  enum Complexity : unsigned int {
+  struct TextIndex {
+    std::size_t index = 0u;
+    bool exist = true;
+  };
+
+  enum class Complexity : unsigned int {
     SIMPLE  = 0u,
     MEDIUM  = 1u,
     COMPLEX = 2u
@@ -655,7 +764,7 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
 #ifndef S_M_S
 #define S_M_S
-  enum StreetLineType : unsigned int {
+  enum class StreetLineType : unsigned int {
     // Solid lines:
     SingleSolidWhiteLine   = 0u,
     SingleSolidYellowLine  = 1u,
@@ -670,7 +779,7 @@ namespace Visualizer {
     NoLine                 = 8u
   };
 
-  enum StreetSidewalkType : unsigned int {
+  enum class StreetSidewalkType : unsigned int {
     RightSidewalk  = 0u,
     LeftSidewalk   = 1u,
     DoubleSidewalk = 2u,
@@ -712,7 +821,7 @@ namespace Visualizer {
     std::vector<StreetVertex> data;
   };
 
-  enum SignalType : unsigned int {
+  enum class SignalType : unsigned int {
     Semaphore,
     SpeedLimit,
     Stop,
@@ -734,16 +843,137 @@ namespace Visualizer {
       };
       float position[3] = { 0.0f, 0.0f, 0.0f };
     };
-    // Orientation (Euler angles in radians)
-    float pitch = 0.0f;
-    float yaw   = 0.0f;
-    float roll  = 0.0f;
+    // Orientation (in radians)
+    struct{
+      float x = 0.0f;
+      float y = 0.0f;
+      float z = 0.0f;
+      float w = 0.0f;
+    } quaternion;
     // Type of signal
     SignalType type = SignalType::SpeedLimit;
     // Visibility
     bool visible = true;
   };
 #endif
+
+  // ------------------------------------------------------------------------------------ //
+  // ----------------------------------- GUI MANAGEMENT --------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+
+  namespace GUIid {
+    enum Id : unsigned int {
+      MENU = 1u,
+      TITLE_BAR = 2u
+    };
+  }
+
+  namespace Mouse {
+    enum Event : unsigned int {
+      MOVE    = 0u,
+      CLICK   = 1u,
+      RELEASE = 2u
+    };
+  }
+
+  namespace Button {
+    enum State : unsigned int {
+      NORMAL = 0u,
+      HOVER  = 1u,
+      CLICK  = 2u
+    };
+
+    struct Button {
+      float top    = 0.0f;
+      float left   = 0.0f;
+      float u      = 0.0f;
+      float v      = 0.0f;
+      State state  = State::NORMAL;
+      float width  = 0.0f;
+      float height = 0.0f;
+      float id     = 0u;
+      std::string text = "";
+    };
+  }
+
+  namespace Menu {
+    enum ButtonType : unsigned int{
+      ZOOM_IN        = 0u,
+      ISOMETRIC_VIEW = 1u,
+      TOP_VIEW       = 2u,
+      ZOOM_OUT       = 3u,
+      PEM_LOGO       = 4u
+    };
+
+    struct Object {
+      Toreo::GUIMenu *object = nullptr;
+      Alignment vertical     = Alignment::CENTER;
+      Alignment horizontal   = Alignment::LEFT;
+      float width            = MENU_WIDTH;
+      float height           = MENU_HEIGHT;
+      bool visibility        = false;
+    };
+  }
+
+  namespace Title {
+    enum ButtonType : unsigned int {
+      TITLE    = 0u,
+      CLOSE    = 1u,
+      MAXIMIZE = 2u,
+      MINIMIZE = 3u,
+      OPTIONS  = 4u
+    };
+  }
+
+  enum class Cursor : unsigned int {
+    NORMAL    = 0u,
+    HAND      = 1u,
+    TEXT      = 2u,
+    CROSSHAIR = 3u,
+    MOVE      = 4u,
+    HIDDEN    = 5u
+  };
+
+  struct ButtonShader{
+    float top;
+    float left;
+    float u;
+    float v;
+    float width;
+    float height;
+    float id;
+    float element;
+  };
+
+  struct PBR_GUIShader {
+    float angle = 0.0f;
+    // Object color
+    float r     = 1.0f;
+    float g     = 1.0f;
+    float b     = 1.0f;
+  };
+
+  struct GUITextShader{
+    // Position
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    // Dimension
+    float width  = 1.0f;
+    float height = 1.0f;
+    // Texture coordinates
+    // First corner
+    float u1 = 0.0f;
+    float v1 = 0.0f;
+    // Second corner
+    float u2 = 0.0f;
+    float v2 = 0.0f;
+    // Color [Range: 0 -> 1]
+    float r = 1.0f;
+    float g = 1.0f;
+    float b = 1.0f;
+    float a = 1.0f;
+  };
 }
 
 #endif // TORERO_TYPES_H

@@ -1,5 +1,5 @@
-
 #include "algebraica/vec3.h"
+#include "algebraica/quaternion.h"
 
 namespace Algebraica {
   ALGTEM T& vec3<T>::operator[](const unsigned int index){
@@ -256,6 +256,13 @@ namespace Algebraica {
   ALGTEM vec3<T>& vec3<T>::rotateZ(const T _angle) {
     values_[0] = values_[0] * std::cos(_angle) - values_[1] * std::sin(_angle);
     values_[1] = values_[0] * std::sin(_angle) + values_[1] * std::cos(_angle);
+    return *this;
+  }
+
+  ALGTEM vec3<T> &vec3<T>::rotate(const quaternion<T> quat){
+    const vec3<T> Q{quat.to_3D()};
+    const vec3<T> A{cross(*this, Q) + (*this) * quat[3]};
+    *this += cross(A, Q) * T(2);
     return *this;
   }
 

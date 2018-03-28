@@ -52,7 +52,7 @@ namespace Toreo {
 
     if(no_error){
       size_t size{0};
-      for(Visualizer::Trajectory line : *trajectories_)
+      for(const Visualizer::Trajectory &line : *trajectories_)
         if(line.size() > 1)
           size += line.size();
 
@@ -61,12 +61,12 @@ namespace Toreo {
       Visualizer::TrajectoryShader first, second;
       size_t total{0}, last{0}, counter{0};
 
-      for(Visualizer::Trajectory line : *trajectories_){
+      for(const Visualizer::Trajectory &line : *trajectories_){
         if((total = line.size()) > 1){
           last = total - 1;
           counter = -1;
 
-          std::vector<Visualizer::TrajectoryShader> sub_trajectory(total + 2);
+          std::vector<Visualizer::TrajectoryShader> sub_trajectory(total + 3);
 
           // Creating the GL_LINE_STRIP_ADJACENCY
           // Example with a line containing 6 vertices:
@@ -81,6 +81,8 @@ namespace Toreo {
               sub_trajectory[++counter] = second;
             }else if(i == last){
               second.distance += Algebraica::vec3f::distance(second.position, first.position);
+              sub_trajectory[++counter] = second;
+              second.position[2] += 0.1f;
               sub_trajectory[++counter] = second;
             }else{
               second.distance += Algebraica::vec3f::distance(second.position, first.position);

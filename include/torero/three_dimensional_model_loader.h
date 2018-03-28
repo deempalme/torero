@@ -8,14 +8,12 @@
 #include "torero/shader.h"
 #include "torero/texture.h"
 #include "torero/types.h"
-
+// Linear mathematics
 #include "algebraica/algebraica.h"
-#include <boost/bind.hpp>
+// Boost
 #include <boost/filesystem.hpp>
-#include <boost/signals2.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-
+// Standard
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -36,15 +34,16 @@ namespace Toreo {
     void pre_drawing();
     void draw();
     void post_drawing();
+
+    void run();
+    void ready();
     const bool is_ready();
 
   private:
     bool check_folder();
-    void initialize();
-    void model_ready();
 
     std::string folder_address_;
-    bool is_ready_, is_loaded_;
+    bool folder_exists_, is_ready_, is_loaded_;
 
     Core *core_;
     Shader *shader_;
@@ -57,7 +56,6 @@ namespace Toreo {
     Texture *t_albedo_, *t_normal_, *t_metallic_, *t_roughness_, *t_ao_, *t_emission_;
 
     boost::mutex protector_;
-    boost::thread runner_;
 
     bool error_;
     std::string error_log_;

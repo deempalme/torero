@@ -297,6 +297,10 @@ namespace Toreo {
                    const float x, const float y, const float z, const float w){
       glUniform4f(uniform_location, x, y, z, w);
     }
+    // Quaternion ------------------------------------------------------------------------
+    void set_value(const GLint uniform_location, const Algebraica::quaternionF &quaternion){
+      glUniform4fv(uniform_location, 1, quaternion.data());
+    }
     // matrix 3D ------------------------------------------------------------------------
     void set_value(const GLint uniform_location, const Algebraica::mat3f &matrix){
       glUniformMatrix3fv(uniform_location, 1, GL_FALSE, matrix.data());

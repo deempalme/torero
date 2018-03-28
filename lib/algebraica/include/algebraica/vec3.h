@@ -15,6 +15,8 @@
  +–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––+
 */
 namespace Algebraica {
+  ALGTEM class quaternion;
+
   ALGTEM class vec3
   {
   public:
@@ -117,6 +119,8 @@ namespace Algebraica {
     vec3<T>& rotateY(const T _angle);
     // rotate the vector through Z axis
     vec3<T>& rotateZ(const T _angle);
+    // rotate using quaternion
+    vec3<T>& rotate(const quaternion<T> quat);
 
   private:
     T values_[3];

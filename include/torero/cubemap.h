@@ -8,14 +8,12 @@
 #include "torero/definitions.h"
 #include "torero/shader.h"
 #include "torero/types.h"
-
+// Linear mathematics
 #include "algebraica/algebraica.h"
-#include <boost/bind.hpp>
+// Boost
 #include <boost/filesystem.hpp>
-#include <boost/signals2.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-
+// Standard
 #include <fstream>
 #include <string>
 
@@ -30,13 +28,12 @@ namespace Toreo {
 
     void bind_reflectance();
 
+    void run();
+    void ready();
     const bool is_ready();
 
   private:
-    void load_images();
-    void load_ready();
-
-    void write_data_opengl(const Visualizer::ImageFile &image, const int level);
+    void write_data_opengl(Visualizer::ImageFile *image, const int level);
 
     void prepare_cube();
     void prepare_quad();
@@ -46,6 +43,7 @@ namespace Toreo {
 
     std::string folder_path_;
     std::string file_extension_;
+    bool folder_exist_;
     Core *core_;
     bool is_ready_, is_loaded_;
 
@@ -62,7 +60,6 @@ namespace Toreo {
 
     Visualizer::ImageFile up_, down_, left_, right_, front_, back_, brdf_;
 
-    boost::thread runner_;
     boost::mutex protector_;
   };
 }

@@ -67,7 +67,9 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    FTid load_font(const std::string font_distance_path, const std::string font_info_path);
+    FTid font_add(const std::string font_distance_path, const std::string font_info_path);
+    bool font_use(const FTid font);
+    const std::vector<Visualizer::FontCharacter> *font_characters(const FTid font) const;
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
@@ -90,7 +92,7 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    bool delete_font(FTid font);
+    bool font_delete(FTid font);
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
@@ -113,7 +115,7 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    void purge_fonts();
+    void font_purge();
     /*
      * ### Changing the point cloud data input: 3D and RGBA colors
      *
@@ -129,7 +131,7 @@ namespace Toreo {
      * {bool} Returns `false` if the point cloud with **id** was **not** found.
      *
      */
-    bool change_font(TXMid id, FTid new_font);
+    bool font_change(TXMid id, FTid new_font);
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
@@ -152,21 +154,24 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    TXMid add(FTid font,
-              const std::vector<Visualizer::TextSimple> *data,
-              const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
-              const bool visible = true);
-    TXMid add(FTid font,
-              const std::vector<Visualizer::TextColored> *data,
-              const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
-              const bool visible = true);
-    TXMid add(FTid font,
-              const std::vector<Visualizer::TextExtended> *data,
-              const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
-              const bool visible = true);
+    TXMid add_3D(FTid font,
+                 const std::vector<Visualizer::TextSimple> *data,
+                 const std::string name,
+                 const Algebraica::mat4f *transformation_matrix = nullptr,
+                 const bool visible = true);
+    TXMid add_3D(FTid font,
+                 const std::vector<Visualizer::TextColored> *data,
+                 const std::string name,
+                 const Algebraica::mat4f *transformation_matrix = nullptr,
+                 const bool visible = true);
+    TXMid add_2D(FTid font,
+                 const std::vector<Visualizer::TextSimple> *data,
+                 const std::string name,
+                 const bool visible = true);
+    TXMid add_2D(FTid font,
+                 const std::vector<Visualizer::TextColored> *data,
+                 const std::string name,
+                 const bool visible = true);
     /*
      * ### Changing the point cloud data input: 3D and RGBA colors
      *
@@ -184,7 +189,6 @@ namespace Toreo {
      */
     bool change_input(TXMid id, const std::vector<Visualizer::TextSimple> *data);
     bool change_input(TXMid id, const std::vector<Visualizer::TextColored> *data);
-    bool change_input(TXMid id, const std::vector<Visualizer::TextExtended> *data);
     /*
      * ### Changing the visibility of a point cloud
      *
@@ -220,22 +224,24 @@ namespace Toreo {
      * in the array `colors`.
      *
      */
+    bool set_font(TXMid id, FTid font);
     bool set_font_color(TXMid id,
                    const float R = 255.0f,
                    const float G = 255.0f,
                    const float B = 255.0f,
                    const float A = 255.0f);
-    bool set_font_size(TXMid id, const float size = 1.0f);
-    bool set_font_widthness(TXMid id, const float width = 1.0f);
-    bool set_edge_softness(TXMid id, const float softness = 0.05f);
-    bool set_border_width(TXMid id, const float width = 0.0f);
-    bool set_border_softness(TXMid id, const float softness = 0.0f);
+    bool set_font_size(TXMid id, const unsigned int size = 15u);
+    bool set_font_weight(TXMid id, const Visualizer::TextWeight
+                         width = Visualizer::TextWeight::NORMAL);
+    bool set_edge_softness(TXMid id, const unsigned int softness = 1u);
+    bool set_border_width(TXMid id, const unsigned int width = 0u);
+    bool set_border_softness(TXMid id, const unsigned int softness = 0u);
     bool set_border_color(TXMid id,
                           const float R = 127.0f,
                           const float G = 127.0f,
                           const float B = 127.0f,
                           const float A = 255.0f);
-    bool set_border_offset(TXMid id, const float x = 0.0f, const float y = 0.0f);
+    bool set_border_offset(TXMid id, const unsigned int x = 0u, const unsigned int y = 0u);
     /*
      * ### Setting the transformation matrix
      *
@@ -251,6 +257,11 @@ namespace Toreo {
      *
      */
     bool set_transformation_matrix(TXMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_line_height(TXMid id, const float line_height = 1.2f);
+    bool set_horizontal_alignment(TXMid id, const Visualizer::Alignment
+                                  alignment = Visualizer::Alignment::LEFT);
+    bool set_vertical_alignment(TXMid id, const Visualizer::Alignment
+                                alignment = Visualizer::Alignment::TOP);
     /*
      * ### Translating the point cloud
      *
@@ -434,13 +445,16 @@ namespace Toreo {
 
   private:
     void updated_camera();
+    void initialize();
 
     Core *core_;
 
     Shader *shader_;
-    GLint u_pv_;
+    GLint u_projection_, u_view_, u_window_;
+    const int *width_, *height_;
 
     std::vector<FontLoader*> fonts_;
+    std::map<FTid, std::vector<Visualizer::TextIndex>> text_indices_;
     std::vector<Visualizer::Text> texts_;
     const Algebraica::mat4f *transformation_matrix_;
 

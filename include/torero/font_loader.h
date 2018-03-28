@@ -6,13 +6,10 @@
 #include "torero/definitions.h"
 #include "torero/texture.h"
 #include "torero/types.h"
-
-#include <boost/bind.hpp>
+// Boost
 #include <boost/filesystem.hpp>
-#include <boost/signals2.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
-
+// Standard
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -32,13 +29,16 @@ namespace Toreo {
     void use();
     const std::vector<Visualizer::FontCharacter> *characters() const;
 
-  private:
-    bool check_path(std::string *path);
     void run();
     void ready();
+    const bool is_ready();
+
+  private:
+    bool check_path(std::string *path);
+    void load_font();
 
     std::string font_distance_path_, font_info_path_;
-    bool is_ready_, is_loaded_;
+    bool file_exists_, is_ready_, is_loaded_;
 
     Core *core_;
     Visualizer::ImageFile distance_;
@@ -46,10 +46,6 @@ namespace Toreo {
     std::vector<Visualizer::FontCharacter> characters_;
 
     boost::mutex protector_;
-    boost::thread runner_;
-
-    int padding_left_, padding_top_, padding_right_, padding_bottom_;
-    int space_x_, space_y_, scale_w_, scale_h_;
 
     bool error_;
     std::string error_log_;

@@ -180,19 +180,19 @@ namespace Algebraica {
   }
 
   ALGTEM bool vec4<T>::operator==(const vec4<T> &v){
-    return values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[2];
+    return values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[3];
   }
 
   ALGTEM const bool vec4<T>::operator==(const vec4<T> &v) const{
-    return values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[2];
+    return values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[3];
   }
 
   ALGTEM bool vec4<T>::operator!=(const vec4<T> &v){
-    return !(values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[2]);
+    return !(values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[3]);
   }
 
   ALGTEM const bool vec4<T>::operator!=(const vec4<T> &v) const{
-    return !(values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[2]);
+    return !(values_[0] == v[0] && values_[1] == v[1] && values_[2] == v[2] && values_[3] == v[3]);
   }
 
   ALGTEM bool vec4<T>::operator>(const vec4<T> &v){

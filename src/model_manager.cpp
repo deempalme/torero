@@ -32,6 +32,10 @@ namespace Toreo {
     sun_direction_(-0.70711f, 0.70711f, 0.866f),
     sun_color_(1.0f, 1.0f, 1.0f)
   {
+    core->multithread_add_process(boost::bind(&Cubemap::run, cubemap_),
+                                  boost::bind(&Cubemap::ready, cubemap_),
+                                  boost::bind(&Cubemap::is_ready, cubemap_));
+
     if(!model_shader_->use())
       std::cout << model_shader_->error_log() << std::endl;
 
@@ -57,7 +61,7 @@ namespace Toreo {
       Algebraica::vec3f(-10.0f, 10.0f, -10.0f),
       Algebraica::vec3f( 10.0f, 10.0f, -10.0f),
       Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+      Algebraica::vec3f( 10.0f, 10.0f, 10.0f)
     };
 //    Algebraica::vec3f lightColors[4] = {
 //      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
@@ -83,7 +87,7 @@ namespace Toreo {
   }
 
   ModelManager::~ModelManager(){
-    for(Visualizer::Model3D model : models_)
+    for(Visualizer::Model3D &model : models_)
       if(model.model)
         delete model.model;
 
@@ -95,13 +99,16 @@ namespace Toreo {
     delete model_shader_;
     delete cubemap_;
 
-    if(skybox_)
-      delete skybox_;
+    if(skybox_) delete skybox_;
   }
 
   MMid ModelManager::load_new_model(const std::string folder_address){
     Visualizer::Model3D new_model;
     new_model.model = new ThreeDimensionalModelLoader(folder_address, model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
     models_.push_back(new_model);
     return models_.size() - 1;
   }
@@ -115,6 +122,10 @@ namespace Toreo {
       Visualizer::Model3D new_model;
       new_model.model = new ThreeDimensionalModelLoader(model, model_shader_, core_);
       new_model.type = model;
+      core_->multithread_add_process(
+            boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+            boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+            boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
       models_.push_back(new_model);
       return models_.size() - 1;
@@ -372,7 +383,7 @@ namespace Toreo {
   }
 
   void ModelManager::purge(){
-    for(Visualizer::Model3D model : models_){
+    for(Visualizer::Model3D &model : models_){
       if(model.model){
         delete model.model;
         model.elements.clear();
@@ -386,8 +397,12 @@ namespace Toreo {
                             const std::string front, const std::string back){
     bool ok{!skybox_};
 
-    if(ok)
+    if(ok){
       skybox_ = new Skybox(up, down, left, right, front, back, core_);
+      core_->multithread_add_process(boost::bind(&Skybox::run, skybox_),
+                                     boost::bind(&Skybox::ready, skybox_),
+                                     boost::bind(&Skybox::is_ready, skybox_));
+    }
 
     skybox_visibility_ = true;
 
@@ -423,6 +438,10 @@ namespace Toreo {
     model_shader_->use();
     model_shader_->set_value(m_u_sun_, sun_direction_);
     model_shader_->set_value(m_u_sun_color_, sun_color_);
+  }
+
+  Cubemap *ModelManager::get_cubemap(){
+    return cubemap_;
   }
 
   void ModelManager::draw(Visualizer::Model3D *model, Visualizer::Model3DElement *element){
@@ -462,7 +481,7 @@ namespace Toreo {
 
   void ModelManager::update_vehicle_model(){
     model_shader_->use();
-    model_shader_->set_value(m_u_scene_model_, core_->vehicle_frame());
+    model_shader_->set_value(m_u_scene_model_, core_->frame_vehicle());
   }
 
   MMid ModelManager::load_db5(){
@@ -472,13 +491,23 @@ namespace Toreo {
 
     // Body
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_BODY, model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::DB5_BODY;
-    element.main = core_->vehicle_frame();
+    element.main = core_->frame_vehicle();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
     // Tires
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::TIRE, model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::TIRE;
     new_model.elements.clear();
 
@@ -509,6 +538,11 @@ namespace Toreo {
     // Accessories
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_ACCESSORIES,
                                                       model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::DB5_ACCESSORIES;
     new_model.elements.clear();
 
@@ -522,6 +556,11 @@ namespace Toreo {
     // Windows
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_WINDOWS,
                                                       model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::DB5_WINDOWS;
     new_model.elements.clear();
 
@@ -544,13 +583,23 @@ namespace Toreo {
     // Body
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::SHUTTLE_BODY,
                                                       model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::SHUTTLE_BODY;
-    element.main = core_->vehicle_frame();
+    element.main = core_->frame_vehicle();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
     // Tires
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::TIRE, model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::TIRE;
     new_model.elements.clear();
 
@@ -581,6 +630,11 @@ namespace Toreo {
     // Windows
     new_model.model = new ThreeDimensionalModelLoader(Visualizer::SHUTTLE_WINDOWS,
                                                       model_shader_, core_);
+    core_->multithread_add_process(
+          boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
+          boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
+
     new_model.type = Visualizer::SHUTTLE_WINDOWS;
     new_model.elements.clear();
 

@@ -29,7 +29,7 @@ namespace Toreo {
   }
 
   TrajectoryManager::~TrajectoryManager(){
-    for(Visualizer::TrajectoryElement trajectory : trajectories_)
+    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr){
         if(trajectory.connection.connected())
           trajectory.connection.disconnect();
@@ -181,7 +181,7 @@ namespace Toreo {
   }
 
   void TrajectoryManager::update_all(){
-    for(Visualizer::TrajectoryElement trajectory : trajectories_)
+    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr && trajectory.visibility)
         trajectory.trajectory->update();
   }
@@ -212,7 +212,7 @@ namespace Toreo {
   }
 
   void TrajectoryManager::draw_all(){
-    for(Visualizer::TrajectoryElement trajectory : trajectories_)
+    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr && trajectory.visibility){
         switch(trajectory.type){
         case Visualizer::DOTTED:
@@ -247,7 +247,7 @@ namespace Toreo {
   }
 
   void TrajectoryManager::purge(){
-    for(Visualizer::TrajectoryElement trajectory : trajectories_)
+    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr){
         if(trajectory.connection.connected())
           trajectory.connection.disconnect();
@@ -312,22 +312,26 @@ namespace Toreo {
     // Solid texture
     t_texture.data = stbi_load(std::string("resources/models3D/trajectory/solid.png").c_str(),
                                &t_texture.width, &t_texture.height, &t_texture.components_size, 0);
-    if(t_texture.data) solid_ = new Texture(8, core_->max_anisotropic_filtering(), &t_texture);
+    if(t_texture.data) solid_ = new Texture(8, core_->screen_max_anisotropic_filtering(),
+                                            &t_texture);
     stbi_image_free(t_texture.data);
     // Dotted texture
     t_texture.data = stbi_load(std::string("resources/models3D/trajectory/dotted.png").c_str(),
                                &t_texture.width, &t_texture.height, &t_texture.components_size, 0);
-    if(t_texture.data) dotted_ = new Texture(8, core_->max_anisotropic_filtering(), &t_texture);
+    if(t_texture.data) dotted_ = new Texture(8, core_->screen_max_anisotropic_filtering(),
+                                             &t_texture);
     stbi_image_free(t_texture.data);
     // Dashed texture
     t_texture.data = stbi_load(std::string("resources/models3D/trajectory/dashed.png").c_str(),
                                &t_texture.width, &t_texture.height, &t_texture.components_size, 0);
-    if(t_texture.data) dashed_ = new Texture(8, core_->max_anisotropic_filtering(), &t_texture);
+    if(t_texture.data) dashed_ = new Texture(8, core_->screen_max_anisotropic_filtering(),
+                                             &t_texture);
     stbi_image_free(t_texture.data);
     // Arrowed texture
     t_texture.data = stbi_load(std::string("resources/models3D/trajectory/arrowed.png").c_str(),
                                &t_texture.width, &t_texture.height, &t_texture.components_size, 0);
-    if(t_texture.data) arrowed_ = new Texture(8, core_->max_anisotropic_filtering(), &t_texture);
+    if(t_texture.data) arrowed_ = new Texture(8, core_->screen_max_anisotropic_filtering(),
+                                              &t_texture);
     stbi_image_free(t_texture.data);
 
     shader_->set_value(u_pv_, core_->camera_matrix_perspective_view());

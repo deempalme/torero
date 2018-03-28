@@ -18,9 +18,9 @@ out vec2 f_uv;
 
 const vec3 normal = vec3(0.0, 1.0, 0.0);
 
-vec3 rotate_z(vec3 vector, float angle){
-  float s = sin(angle);
-  float c = cos(angle);
+vec3 rotate_z(const vec3 vector, const float angle){
+  const float s = sin(angle);
+  const float c = cos(angle);
   vec3 result = vector;
 
   result.x = vector.x * c - vector.y * s;

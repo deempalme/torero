@@ -69,11 +69,11 @@ namespace Toreo {
       std::vector<Visualizer::ObjectShaderHollow> hollow_data(0);
       std::vector<Visualizer::ObjectShaderSolid> arrow_data(0);
 
-      for(Visualizer::Object object : *object_){
+      for(const Visualizer::Object &object : *object_){
         if(object.solid){
           Visualizer::ObjectShaderSolid datum;
           datum.position(-object.y, object.z, -object.x);
-          datum.rotation(-object.orientation.y, object.orientation.z,
+          datum.rotation( object.orientation.y,-object.orientation.z,
                          -object.orientation.x, object.orientation.w);
           datum.color(object.r, object.g, object.b, object.alpha);
           datum.scale(object.width, object.height, object.length);
@@ -83,7 +83,7 @@ namespace Toreo {
         }else{
           Visualizer::ObjectShaderHollow datum;
           datum.position(-object.y, object.z, -object.x);
-          datum.rotation(-object.orientation.y, object.orientation.z,
+          datum.rotation( object.orientation.y,-object.orientation.z,
                          -object.orientation.x, object.orientation.w);
           datum.color(object.r, object.g, object.b, object.alpha);
           datum.scale(object.width, object.height, object.length);
@@ -96,7 +96,7 @@ namespace Toreo {
         if(object.arrow){
           Visualizer::ObjectShaderSolid datum;
           datum.position(-object.y, object.z, -object.x);
-          datum.rotation(-object.orientation.y, object.orientation.z,
+          datum.rotation( object.orientation.y,-object.orientation.z,
                          -object.orientation.x, object.orientation.w);
           datum.color(object.r, object.g, object.b, object.alpha);
           datum.scale(1.0f, 1.0f, object.arrow_length);

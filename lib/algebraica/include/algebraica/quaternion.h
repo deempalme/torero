@@ -51,6 +51,25 @@ namespace Algebraica {
     // Calculates euler angles from quaternion
     void to_euler(T *pitch, T *yaw, T *roll);
     void to_euler(T *pitch, T *yaw, T *roll) const;
+    // Extracts the X, Y and Z values from the quaternion
+    vec3<T> to_3D();
+    const vec3<T> to_3D() const;
+
+    T angle();
+    const T angle() const;
+
+    T pitch();
+    const T pitch() const;
+    T yaw();
+    const T yaw() const;
+    T roll();
+    const T roll() const;
+
+    quaternion<T>& rotate(const vec3<T> axis, const T angle);
+    quaternion<T>& rotate(const T x, const T y, const T z, const T angle);
+
+    static quaternion<T> from_axis_and_angle(const vec3<T> axis, const T angle);
+    static quaternion<T> from_axis_and_angle(const T x, const T y, const T z, const T angle);
     // Add a quaternion
     quaternion<T> operator+(const quaternion<T> &q);
     const quaternion<T> operator+(const quaternion<T> &q) const;
@@ -66,12 +85,12 @@ namespace Algebraica {
     // Multiplies for a quaternion
     quaternion<T> operator*(const quaternion<T> &q);
     const quaternion<T> operator*(const quaternion<T> &q) const;
+    // Multiplies for a vector
+    vec3<T> operator*(const vec3<T> &v);
+    const vec3<T> operator*(const vec3<T> &v) const;
     // Multiplies for a scalar number
     quaternion<T> operator*(const T &s);
     const quaternion<T> operator*(const T &s) const;
-    // Divides for a quaternion
-    quaternion<T> operator/(const quaternion<T> &q);
-    const quaternion<T> operator/(const quaternion<T> &q) const;
     // Divides for a scalar number
     quaternion<T> operator/(const T &s);
     const quaternion<T> operator/(const T &s) const;
@@ -87,8 +106,6 @@ namespace Algebraica {
     quaternion<T>& operator*=(const quaternion<T> &q);
     // Scalar assigment multiplication
     quaternion<T>& operator*=(const T &s);
-    // Quaternion assigment division
-    quaternion<T>& operator/=(const quaternion<T> &q);
     // Scalar assigment division
     quaternion<T>& operator/=(const T &s);
     // Quaternion's printing output

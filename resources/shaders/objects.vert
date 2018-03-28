@@ -21,27 +21,8 @@ uniform mat4 u_primary_model;
 uniform mat4 u_secondary_model;
 uniform mat4 u_pv;
 
-/*
-// Rotate matrix by pitch, yaw, roll
-mat4 rotate_matrix(vec3 angles){
-  const float cosA = cos(angles.x);
-  const float sinA = sin(angles.x);
-  const float cosB = cos(angles.y);
-  const float sinB = sin(angles.y);
-  const float cosC = cos(angles.z);
-  const float sinC = sin(angles.z);
-
-  mat4 r_m =
-      mat4( cosC * cosB - sinC * sinA * sinB, -sinC * cosA, cosC * sinB + sinC * sinA * cosB, 0,
-            sinC * cosB + cosC * sinA * sinB,  cosC * cosA, sinC * sinB - cosC * sinA * cosB, 0,
-           -cosA * sinB,                       sinA,        cosA * cosB,                      0,
-            0,                                 0,           0,                                1);
-
-  return r_m;
-}
-*/
 // Rotate vector using quaternions
-vec3 quaternion_rotation(vec3 v, vec4 q){
+vec3 quaternion_rotation(const vec3 v, const vec4 q){
   return v + 2.0 * cross(cross(v, q.xyz) + q.w * v, q.xyz);
 }
 

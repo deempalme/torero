@@ -24,6 +24,7 @@ namespace Toreo {
     is_quaternion_(false),
     navigation_frame_(nullptr),
     vehicle_frame_(nullptr),
+    vehicle_frame_yaw_(nullptr),
     GPS_(latitude_, longitude_)
   {
     core->set_module(this);
@@ -164,8 +165,16 @@ namespace Toreo {
     vehicle_frame_ = vehicle_frame;
   }
 
+  void VehicleManager::set_vehicle_frame_yaw(Algebraica::mat4f *vehicle_frame_yaw){
+    vehicle_frame_yaw_ = vehicle_frame_yaw;
+  }
+
   void VehicleManager::set_navigation_frame(Algebraica::mat4f *navigation_frame){
     navigation_frame_ = navigation_frame;
+  }
+
+  void VehicleManager::set_navigation_plus_frame(Algebraica::mat4f *navigation_plus_frame){
+    navigation_plus_frame_ = navigation_plus_frame;
   }
 
   void VehicleManager::connect(boost::signals2::signal<void ()> *signal){
@@ -189,19 +198,35 @@ namespace Toreo {
 
     vehicle_frame_->to_identity();
     vehicle_frame_->translate(position_x, *altitude_, position_z);
+    *vehicle_frame_yaw_ = *vehicle_frame_;
     if(is_quaternion_)
-      vehicle_frame_->rotate(*x_, *y_, *z_, *w_);
+      vehicle_frame_->rotate(*y_, -*z_, -*x_, *w_);
     else
       vehicle_frame_->rotate(-*pitch_, *yaw_, -*roll_);
 
+    vehicle_frame_yaw_->rotate(0.0f, *yaw_, 0.0f);
+
     *navigation_frame_ = vehicle_frame_->only_translation();
+    *navigation_plus_frame_ = *navigation_frame_;
+    if(pitch_ && roll_)
+        navigation_plus_frame_->rotate(-*pitch_ * std::cos(*yaw_),
+                                       0.0f,
+                                       -*roll_ * std::cos(*yaw_));
   }
 
   const Algebraica::mat4f *VehicleManager::navigation_frame() const{
     return navigation_frame_;
   }
 
+  const Algebraica::mat4f *VehicleManager::navigation_plus_frame() const{
+    return navigation_plus_frame_;
+  }
+
   const Algebraica::mat4f *VehicleManager::vehicle_frame() const{
     return vehicle_frame_;
+  }
+
+  const Algebraica::mat4f *VehicleManager::vehicle_frame_yaw() const{
+    return vehicle_frame_yaw_;
   }
 }
