@@ -24,7 +24,8 @@ vec3 calculate_point_light(const vec3 light, const vec3 color,
   // ambient
   vec3 ambient = 0.3 * f_color.rgb;
 
-  vec3 lightDir = normalize(light - f_position);
+//  vec3 lightDir = normalize(light - f_position);
+  vec3 lightDir = normalize(light);
   float diff = max(dot(lightDir, f_normal), 0.0);
   vec3 diffuse = diff * f_color.rgb * 0.7;
   // phong light
@@ -32,7 +33,8 @@ vec3 calculate_point_light(const vec3 light, const vec3 color,
   float spec = energy * pow(max(dot(viewDir, reflectDir), 0.0), shininess);
   vec3 specular = spec * color;
   // attenuation
-  float distance = length(light - f_position);
+//  float distance = length(light - f_position);
+  float distance = length(light);
   float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
   // combine results
   return (ambient + diffuse + specular) * attenuation;

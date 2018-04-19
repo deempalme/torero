@@ -1,25 +1,31 @@
-#include "include/camera.h"
+#include "torero/camera.h"
 
 namespace Toreo {
   Camera::Camera(const Algebraica::vec3f position, const Algebraica::vec3f target,
-                 const Algebraica::vec3f up, Algebraica::mat4f *vehicle_transformation_matrix) :
+                 const Algebraica::vec3f up,
+                 const Algebraica::mat4f *vehicle_transformation_matrix) :
     vehicle_transformation_matrix_(vehicle_transformation_matrix),
     view_matrix_(),
     perspective_matrix_(),
     pv_matrix_(),
+    inversed_view_matrix_(),
+    inversed_perspective_matrix_(),
     spv_matrix_(),
-    camera_rotation_matrix_(),
+    initial_quaternion_(Algebraica::quaternionF::from_axis_and_angle(1.0f, 0.0f, 0.0f,
+                                                                     toRADIANS(17.0f))),
+    vertical_quaternion_(Algebraica::quaternionF::from_axis_and_angle(1.0f, 0.0f, 0.0f,
+                                                                      toRADIANS(89.9f))),
+    camera_rotation_quaternion_(initial_quaternion_),
     camera_position_(-position.y(), position.z(), -position.x()),
     camera_target_(-target.y(), target.z(), -target.x()),
     camera_up_(-up.y(), up.z(), -up.x()),
     last_camera_position_(camera_position_),
     last_camera_target_(camera_target_),
+    relative_camera_position_(camera_position_),
+    relative_camera_target_(camera_target_),
     camera_translation_(),
-    pitch_(0.0f),
-    initial_min_pitch_(_PI2 - atan2(position.z() - target.z(), -position.x() + target.x())),
-    initial_max_pitch_(_PI + initial_min_pitch_),
+    pitch_(initial_quaternion_.roll()),
     yaw_(0.0f),
-    roll_(0.0f),
     zoom_(INITIAL_ZOOM),
     width_(DEFAULT_WIDTH),
     height_(DEFAULT_HEIGHT),
@@ -47,6 +53,7 @@ namespace Toreo {
 
   void Camera::set_up(const float x, const float y, const float z){
     camera_up_(x, y, z);
+
     initialize(false);
     update_view();
   }
@@ -75,14 +82,15 @@ namespace Toreo {
     if(previous_zoom != zoom_)
       update_view();
   }
-
+/*
   void Camera::rotate_camera(const float pitch, const float yaw, const float roll){
     set_rotation(&pitch_, pitch, false);
     set_rotation(&yaw_, yaw, false);
     set_rotation(&roll_, roll, false);
 
     camera_rotation_matrix_.to_identity();
-    camera_rotation_matrix_.rotate(pitch_, yaw_, roll_);
+    camera_rotation_matrix_.rotate_y(yaw_);
+    camera_rotation_matrix_.rotate_x(pitch_);
 
     if(pitch_ > initial_min_pitch_ && pitch_ < initial_max_pitch_)
       camera_up_(0.0f, -1.0f, 0.0f);
@@ -90,52 +98,87 @@ namespace Toreo {
       camera_up_(0.0f, 1.0f, 0.0f);
     update_view();
   }
+*/
+  void Camera::rotate_camera(const Algebraica::quaternionF rotation){
+    camera_rotation_quaternion_ = rotation;
+    pitch_ = rotation.roll();
+    update_view();
+  }
 
   void Camera::translate_camera(const float x, const float y, const float z){
     camera_translation_ += Algebraica::vec3f(x, y, z);
     update_view();
   }
-
+/*
   void Camera::modify_camera(const int dx, const int dy, const bool rotate){
     if(rotate){
       set_rotation(&yaw_, rotational_width_factor_ * dx);
       set_rotation(&pitch_, rotational_height_factor_ * dy);
 
       camera_rotation_matrix_.to_identity();
-      camera_rotation_matrix_.rotate(pitch_, yaw_, roll_);
+      camera_rotation_matrix_.rotate_y(yaw_);
+      camera_rotation_matrix_.rotate_x(pitch_);
 
-      if(pitch_ > initial_min_pitch_ && pitch_ < initial_max_pitch_)
-        camera_up_(0.0f, -1.0f, 0.0f);
-      else
-        camera_up_(0.0f, 1.0f, 0.0f);
     }else{
-      camera_translation_ += camera_rotation_matrix_ *
-          Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
-                            dy * translational_height_factor_ * zoom_,
-                            0);
+      if(locked_camera_ && !fixed_view_)
+        camera_translation_ += vehicle_transformation_matrix_->stationary() *
+                               camera_rotation_matrix_ *
+                               Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+                                                 dy * translational_height_factor_ * zoom_,
+                                                 0);
+      else
+        camera_translation_ += camera_rotation_matrix_ *
+                               Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+                                                 dy * translational_height_factor_ * zoom_,
+                                                 0);
+    }
+    update_view();
+
+    std::cout << toDEGREES(pitch_) << " - " << toDEGREES(yaw_) << " - " << toDEGREES(roll_) << std::endl;
+  }
+*/
+  void Camera::modify_camera(const int dx, const int dy, const bool rotate){
+    if(rotate){
+      set_rotation(&yaw_, -rotational_width_factor_ * dx);
+      set_rotation(&pitch_, -rotational_height_factor_ * dy);
+
+      camera_rotation_quaternion_ =
+          Algebraica::quaternionF::from_axis_and_angle(1.0f, 0.0f, 0.0f, pitch_) *
+          Algebraica::quaternionF::from_axis_and_angle(0.0f, 1.0f, 0.0f, yaw_);
+
+    }else{
+      if(locked_camera_ && !fixed_view_)
+        camera_translation_ +=
+            vehicle_transformation_matrix_->stationary() *
+            (camera_rotation_quaternion_ *
+             Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+                               dy * translational_height_factor_ * zoom_, 0.0f));
+      else
+        camera_translation_ +=
+            camera_rotation_quaternion_ *
+            Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+                              dy * translational_height_factor_ * zoom_, 0.0f);
     }
     update_view();
   }
 
   void Camera::top_view(){
-    camera_rotation_matrix_.to_identity();
     camera_position_(0.0f, 0.0f, 45.0f);
     camera_target_(0.0f, 0.0f, 0.0f);
     camera_up_(0.0f, 1.0f, 0.0f);
     initialize();
     zoom_ = 3.75f;
 
-    update_view();
+    rotate_camera(vertical_quaternion_);
   }
 
   void Camera::isometric_view(){
-    camera_rotation_matrix_.to_identity();
-    camera_position_(0.0f, 5.0f, 12.0f);
+    camera_position_(0.0f, 0.0f, 12.0f);
     camera_target_(0.0f, 0.0f, 0.0f);
     camera_up_(0.0f, 1.0f, 0.0f);
     initialize();
 
-    update_view();
+    rotate_camera(initial_quaternion_);
   }
 
   void Camera::fix_view(const bool fix){
@@ -171,23 +214,23 @@ namespace Toreo {
     if(multiply)
       multiply_matrices();
   }
-
+/*
   void Camera::update_view(){
-
     Algebraica::vec3f position, target;
 
+    relative_camera_position_ = camera_rotation_matrix_ * camera_position_;
+    relative_camera_target_ = camera_rotation_matrix_ * camera_target_;
+
     if(fixed_view_){
-      position = camera_rotation_matrix_ * camera_position_ + fixed_camera_translation_;
-      target = camera_rotation_matrix_ * camera_target_ + fixed_camera_translation_;
+      position = relative_camera_position_ + fixed_camera_translation_;
+      target = relative_camera_target_ + fixed_camera_translation_;
     }else{
       if(locked_camera_){
-        position = *vehicle_transformation_matrix_ * camera_rotation_matrix_ * camera_position_;
-        target = *vehicle_transformation_matrix_ * camera_rotation_matrix_ * camera_target_;
+        position = *vehicle_transformation_matrix_ * relative_camera_position_;
+        target = *vehicle_transformation_matrix_ * relative_camera_target_;
       }else{
-        position = vehicle_transformation_matrix_->only_translation() * camera_rotation_matrix_ *
-            camera_position_;
-        target = vehicle_transformation_matrix_->only_translation() * camera_rotation_matrix_ *
-            camera_target_;
+        position = vehicle_transformation_matrix_->only_translation() * relative_camera_position_;
+        target = vehicle_transformation_matrix_->only_translation() * relative_camera_target_;
       }
     }
 
@@ -196,6 +239,52 @@ namespace Toreo {
 
     last_camera_position_ = (position - target) * zoom_ + target;
     last_camera_target_ = target;
+
+    relative_camera_position_ = (relative_camera_position_ - relative_camera_target_) * zoom_
+                                + relative_camera_target_;
+
+    view_matrix_.look_at(last_camera_position_, last_camera_target_, camera_up_);
+    multiply_matrices();
+  }
+*/
+  void Camera::update_view(){
+    Algebraica::vec3f position, target;
+
+    relative_camera_position_ = camera_rotation_quaternion_ * camera_position_;
+    relative_camera_target_ = camera_rotation_quaternion_ * camera_target_;
+
+    if(pitch_ >= _90_DEGREES && pitch_ <= _270_DEGREES)
+      camera_up_(0.0f, -1.0f, 0.0f);
+    else
+      camera_up_(0.0f, 1.0f, 0.0f);
+/*
+    std::cout << std::setprecision(2) << std::fixed << std::showpos
+              << toDEGREES(camera_rotation_quaternion_.pitch()) << ", "
+              << toDEGREES(camera_rotation_quaternion_.yaw()) << ", "
+              << 180 - toDEGREES(camera_rotation_quaternion_.roll()) << ",  "
+              << toDEGREES(pitch_) << std::endl;
+*/
+    if(fixed_view_){
+      position = relative_camera_position_ + fixed_camera_translation_;
+      target = relative_camera_target_ + fixed_camera_translation_;
+    }else{
+      if(locked_camera_){
+        position = *vehicle_transformation_matrix_ * relative_camera_position_;
+        target = *vehicle_transformation_matrix_ * relative_camera_target_;
+      }else{
+        position = vehicle_transformation_matrix_->only_translation() * relative_camera_position_;
+        target = vehicle_transformation_matrix_->only_translation() * relative_camera_target_;
+      }
+    }
+
+    position += camera_translation_;
+    target += camera_translation_;
+
+    last_camera_position_ = (position - target) * zoom_ + target;
+    last_camera_target_ = target;
+
+    relative_camera_position_ = (relative_camera_position_ - relative_camera_target_) * zoom_
+                                + relative_camera_target_;
 
     view_matrix_.look_at(last_camera_position_, last_camera_target_, camera_up_);
     multiply_matrices();
@@ -210,20 +299,40 @@ namespace Toreo {
     return view_matrix_;
   }
 
+  const Algebraica::mat4f &Camera::inversed_view_matrix(){
+    return inversed_view_matrix_;
+  }
+
   const Algebraica::mat4f &Camera::perspective_matrix(){
     return perspective_matrix_;
+  }
+
+  const Algebraica::mat4f &Camera::inversed_perspective_matrix(){
+    return inversed_perspective_matrix_;
   }
 
   const Algebraica::mat4f &Camera::pv_matrix(){
     return pv_matrix_;
   }
 
+  const Algebraica::mat4f &Camera::inversed_pv_matrix(){
+    return inversed_pv_matrix_;
+  }
+
   const Algebraica::mat4f &Camera::static_pv_matrix(){
     return spv_matrix_;
   }
 
+  const Algebraica::mat4f &Camera::inversed_static_pv_matrix(){
+    return inversed_spv_matrix_;
+  }
+
   const Algebraica::vec3f &Camera::camera_position(){
     return last_camera_position_;
+  }
+
+  const Algebraica::vec3f &Camera::relative_camera_position(){
+    return relative_camera_position_;
   }
 
   const Algebraica::vec3f &Camera::camera_target(){
@@ -243,7 +352,7 @@ namespace Toreo {
 
   void Camera::set_rotation(float *variable, float angle, const bool convert){
     if(convert)
-      angle *= toRADIANS;
+      angle = toRADIANS(angle);
 
     angle = *variable + angle;
 
@@ -256,6 +365,8 @@ namespace Toreo {
   }
 
   void Camera::initialize(const bool restart_translation){
+    camera_rotation_quaternion_();
+
     if(restart_translation)
       camera_translation_();
 
@@ -267,10 +378,5 @@ namespace Toreo {
     zoom_ = INITIAL_ZOOM;
     pitch_ = 0.0f;
     yaw_ = 0.0f;
-    roll_ = 0.0f;
-
-    initial_min_pitch_ = _PI2 - atan2(camera_position_.y() - camera_target_.y(),
-                                      camera_position_.z() - camera_target_.z());
-    initial_max_pitch_ = _PI + initial_min_pitch_;
   }
 }

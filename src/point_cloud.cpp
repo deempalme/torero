@@ -1,4 +1,4 @@
-#include "include/point_cloud.h"
+#include "torero/point_cloud.h"
 
 namespace Toreo {
   PointCloud::PointCloud(Shader *shader_program,

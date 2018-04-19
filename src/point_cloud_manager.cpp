@@ -1,5 +1,5 @@
-#include "include/point_cloud_manager.h"
-#include "include/core.h"
+#include "torero/point_cloud_manager.h"
+#include "torero/core.h"
 
 namespace Toreo {
   PointCloudManager::PointCloudManager(Core *core) :
@@ -17,8 +17,8 @@ namespace Toreo {
   }
 
   PointCloudManager::~PointCloudManager(){
-    for(Visualizer::PointCloudElement cloud : point_clouds_)
-      if(cloud.point_cloud != nullptr){
+    for(Visualizer::PointCloudElement &cloud : point_clouds_)
+      if(cloud.point_cloud){
         if(cloud.connection.connected())
           cloud.connection.disconnect();
         delete cloud.point_cloud;
@@ -256,7 +256,7 @@ namespace Toreo {
   }
 
   void PointCloudManager::update_all(){
-    for(Visualizer::PointCloudElement cloud : point_clouds_)
+    for(Visualizer::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud != nullptr && cloud.visibility)
         cloud.point_cloud->update();
   }
@@ -273,7 +273,7 @@ namespace Toreo {
   }
 
   void PointCloudManager::draw_all(){
-    for(Visualizer::PointCloudElement cloud : point_clouds_)
+    for(Visualizer::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud != nullptr && cloud.visibility)
         cloud.point_cloud->draw();
   }
@@ -293,7 +293,7 @@ namespace Toreo {
   }
 
   void PointCloudManager::purge(){
-    for(Visualizer::PointCloudElement cloud : point_clouds_)
+    for(Visualizer::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud != nullptr){
         if(cloud.connection.connected())
           cloud.connection.disconnect();

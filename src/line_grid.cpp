@@ -1,4 +1,4 @@
-#include "include/line_grid.h"
+#include "torero/line_grid.h"
 
 namespace Toreo {
   LineGrid::LineGrid(Shader *line_shader, const float width, const float length,
