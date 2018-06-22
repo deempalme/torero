@@ -13,6 +13,7 @@ uniform mat4 u_secondary_model;
 
 uniform mat4 u_projection;
 uniform mat4 u_view;
+uniform mat4 u_pv;
 uniform int u_fog;
 uniform int u_2D;
 uniform int u_free;
@@ -158,9 +159,11 @@ float calcule_fog(vec4 position, float alpha){
 void main(){
   mat4 model = u_primary_model * u_secondary_model;
   mat4 rotation = mat4(mat3(model));
-  mat4 pv = u_projection * u_view;
 
   vec4 position;
+
+  if(g_color[0].a == 0.0 || (g_color[0].r == 0.0 && g_color[0].g == 0.0 && g_color[0].b == 0.0))
+    return;
 
   if(u_free == 1){
     position = model * vec4(-gl_in[0].gl_Position.z,
@@ -177,7 +180,7 @@ void main(){
   f_color = vec4(g_color[0].xyz, mix(g_color[0].a, calcule_fog(position, g_color[0].a), u_fog));
 
   if(g_height[0] > -0.005 && g_height[0] < 0.005 || u_2D == 1)
-    build_square(rotation, pv, position, mix(vec2(u_width, u_length), g_dimension[0], u_free));
+    build_square(rotation, u_pv, position, mix(vec2(u_width, u_length), g_dimension[0], u_free));
   else
-    build_box(rotation, pv, position, mix(vec2(u_width, u_length), g_dimension[0], u_free));
+    build_box(rotation, u_pv, position, mix(vec2(u_width, u_length), g_dimension[0], u_free));
 }

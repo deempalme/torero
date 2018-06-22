@@ -18,9 +18,9 @@ out vec2 f_uv;
 
 const vec3 normal = vec3(0.0, 1.0, 0.0);
 
-vec3 rotate_z(vec3 vector, float angle){
-  float s = sin(angle);
-  float c = cos(angle);
+vec3 rotate_z(const vec3 vector, const float angle){
+  const float s = sin(angle);
+  const float c = cos(angle);
   vec3 result = vector;
 
   result.x = vector.x * c - vector.y * s;
@@ -65,8 +65,8 @@ void main(void)
   float thickness1 = g_line_width[1]/2.0;
   float thickness2 = g_line_width[2]/2.0;
 
-  float distance1 = g_distance[1];
-  float distance2 = g_distance[2];
+  float distance1 = g_distance[1]/g_line_width[1];
+  float distance2 = g_distance[2]/g_line_width[1];
 
   // determine the length of the miter by projecting it onto normal and then inverse it
   float length_a = thickness1 / dot(miter_a, n1);

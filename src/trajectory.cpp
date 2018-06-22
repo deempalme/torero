@@ -1,4 +1,4 @@
-#include "include/trajectory.h"
+#include "torero/trajectory.h"
 
 namespace Toreo {
   Trajectory::Trajectory(Shader *shader_program,
@@ -52,7 +52,7 @@ namespace Toreo {
 
     if(no_error){
       size_t size{0};
-      for(Visualizer::Trajectory line : *trajectories_)
+      for(const Visualizer::Trajectory &line : *trajectories_)
         if(line.size() > 1)
           size += line.size();
 
@@ -61,31 +61,34 @@ namespace Toreo {
       Visualizer::TrajectoryShader first, second;
       size_t total{0}, last{0}, counter{0};
 
-      for(Visualizer::Trajectory line : *trajectories_){
+      for(const Visualizer::Trajectory &line : *trajectories_){
         if((total = line.size()) > 1){
           last = total - 1;
           counter = -1;
 
-          std::vector<Visualizer::TrajectoryShader> sub_trajectory(total + 2);
+          std::vector<Visualizer::TrajectoryShader> sub_trajectory(total + 3);
 
           // Creating the GL_LINE_STRIP_ADJACENCY
           // Example with a line containing 6 vertices:
           // A A–B-C-D-E–F F
           for(size_t i = 0; i < total; i++){
-            second.color(line.at(i).r, line.at(i).g, line.at(i).b, line.at(i).alpha);
-            second.line_width = line.at(i).line_width;
-            second.position(-line.at(i).y, line.at(i).z, -line.at(i).x);
-            second.angle = line.at(i).angle;
+            second.color(line[i].color.red, line[i].color.green,
+                         line[i].color.blue, line[i].color.alpha);
+            second.line_width = line[i].line_width;
+            second.position(-line[i].position.y, line[i].position.z, -line[i].position.x);
+            second.angle = line[i].angle;
             if(i == 0){
               second.distance = 0;
-              sub_trajectory.at(++counter) = second;
+              sub_trajectory[++counter] = second;
             }else if(i == last){
               second.distance += Algebraica::vec3f::distance(second.position, first.position);
-              sub_trajectory.at(++counter) = second;
+              sub_trajectory[++counter] = second;
+              second.position[2] += 0.1f;
+              sub_trajectory[++counter] = second;
             }else{
               second.distance += Algebraica::vec3f::distance(second.position, first.position);
             }
-            sub_trajectory.at(++counter) = second;
+            sub_trajectory[++counter] = second;
             first = second;
           }
           trajectories.insert(trajectories.end(), sub_trajectory.begin(), sub_trajectory.end());

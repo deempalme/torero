@@ -26,9 +26,11 @@ void main()
   mat4 model = u_scene_model * u_object_model;
   o_position = vec3(model * vec4(i_position, 1.0));
 
-  o_TBN = mat3(normalize(vec3(model * vec4(i_tangent.xyz, 0.0))),
-               normalize(vec3(model * vec4(i_bitangent.xyz, 0.0))),
-               normalize(vec3(model * vec4(i_normal.xyz, 0.0))) );
+  mat4 rotation = mat4(mat3(model));
+
+  o_TBN = mat3(normalize(vec3(rotation * vec4(i_tangent.xyz, 0.0))),
+               normalize(vec3(rotation * vec4(i_bitangent.xyz, 0.0))),
+               normalize(vec3(rotation * vec4(i_normal.xyz, 0.0))) );
 
   gl_Position =  u_projection * u_view * vec4(o_position, 1.0);
 }

@@ -1,197 +1,90 @@
-#include "include/point_cloud.h"
+#include "torero/point_cloud.h"
 
 namespace Toreo {
-  PointCloud::PointCloud(Shader *shader_program,
-                         const std::vector<Visualizer::pointXYZ> *point_cloud,
-                         const Algebraica::vec3f rgb_color, const float point_size,
+  PointCloud::PointCloud(Shader *shader, const float point_size,
                          const float maximum_intensity_value) :
-    shader_(shader_program),
+    shader_(shader),
     buffer_(true),
-    point_cloud_xyz_(point_cloud),
-    point_cloud_xyzi_(nullptr),
-    point_cloud_rgb_(nullptr),
-    point_cloud_rgba_(nullptr),
-    primary_model_(nullptr),
+    point_cloud_(nullptr),
+    identity_matrix_(),
+    primary_model_(&identity_matrix_),
     secondary_model_(),
-    color_mode_(Visualizer::MONOCHROME),
     point_size_(point_size),
     maximum_intensity_value_(maximum_intensity_value),
-    color_palette_{rgb_color},
-    type_(POINT_XYZ),
-    color_size_(1),
-    type_size_(sizeof(Visualizer::pointXYZ)),
+    color_palette_(0),
+    color_size_(4.0f),
+    has_color_(false),
+    has_alpha_(false),
+    has_intensity_(false),
+    type_size_(0),
     data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
-    offset_x2_(offset_ + offset_)
+    offset_small_(sizeof(float)),
+    offset_big_(offset_small_ * 3)
   {
+    color_palette_.push_back(Algebraica::vec3f(0.2f, 0.5f, 0.7f)); // Turquoise
+    color_palette_.push_back(Algebraica::vec3f(0.0f, 1.0f, 0.0f)); // Green
+    color_palette_.push_back(Algebraica::vec3f(1.0f, 1.0f, 0.0f)); // Yellow
+    color_palette_.push_back(Algebraica::vec3f(1.0f, 0.0f, 0.0f)); // Red
+
     initialize();
   }
 
-  PointCloud::PointCloud(Shader *shader_program,
-                         const std::vector<Visualizer::pointXYZI> *point_cloud,
-                         const Visualizer::ColorMode color_mode, const float point_size,
-                         const float maximum_intensity_value) :
-    shader_(shader_program),
-    buffer_(true),
-    point_cloud_xyz_(nullptr),
-    point_cloud_xyzi_(point_cloud),
-    point_cloud_rgb_(nullptr),
-    point_cloud_rgba_(nullptr),
-    primary_model_(nullptr),
-    secondary_model_(),
-    color_mode_(color_mode),
-    point_size_(point_size),
-    maximum_intensity_value_(maximum_intensity_value),
-    color_palette_{Algebraica::vec3f(0.2, 0.5, 0.7), Algebraica::vec3f(0, 1, 0),
-                   Algebraica::vec3f(1, 1, 0), Algebraica::vec3f(1, 0, 0)},
-    type_(POINT_XYZI),
-    color_size_(4),
-    type_size_(sizeof(Visualizer::pointXYZI)),
-    data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
-    offset_x2_(offset_ + offset_)
-  {
-    initialize();
+  bool PointCloud::set_color_palette(const std::vector<Visualizer::ColorRGB> &color_palette){
+    std::size_t color_size{color_palette.size()};
+    const bool bigger{color_size > 10u};
+
+    color_size = (bigger)? 9 : color_size - 1;
+    color_size_ = std::round(color_size);
+
+    color_palette_.clear();
+
+    for(std::size_t i = 0; i <= color_size; ++i)
+      color_palette_.push_back(Algebraica::vec3f(color_palette[i].red,
+                                                 color_palette[i].green,
+                                                 color_palette[i].blue) / 255.0f);
+    return !bigger;
   }
 
-  PointCloud::PointCloud(Shader *shader_program,
-                         const std::vector<Visualizer::pointXYZRGB> *point_cloud,
-                         const float point_size, const float maximum_intensity_value) :
-    shader_(shader_program),
-    buffer_(true),
-    point_cloud_xyz_(nullptr),
-    point_cloud_xyzi_(nullptr),
-    point_cloud_rgb_(point_cloud),
-    point_cloud_rgba_(nullptr),
-    primary_model_(nullptr),
-    secondary_model_(),
-    color_mode_(Visualizer::NONE),
-    point_size_(point_size),
-    maximum_intensity_value_(maximum_intensity_value),
-    color_palette_{},
-    type_(POINT_XYZRGB),
-    color_size_(0),
-    type_size_(sizeof(Visualizer::pointXYZRGB)),
-    data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
-    offset_x2_(offset_ + offset_)
-  {
-    initialize();
-  }
-
-  PointCloud::PointCloud(Shader *shader_program,
-                         const std::vector<Visualizer::pointXYZRGBA> *point_cloud,
-                         const float point_size, const float maximum_intensity_value) :
-    shader_(shader_program),
-    buffer_(true),
-    point_cloud_xyz_(nullptr),
-    point_cloud_xyzi_(nullptr),
-    point_cloud_rgb_(nullptr),
-    point_cloud_rgba_(point_cloud),
-    primary_model_(nullptr),
-    secondary_model_(),
-    color_mode_(Visualizer::NONE),
-    point_size_(point_size),
-    maximum_intensity_value_(maximum_intensity_value),
-    color_palette_{},
-    type_(POINT_XYZRGBA),
-    color_size_(0),
-    type_size_(sizeof(Visualizer::pointXYZRGBA)),
-    data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
-    offset_x2_(offset_ + offset_)
-  {
-    initialize();
-  }
-
-  void PointCloud::change_input(const std::vector<Visualizer::pointXYZ> *point_cloud){
-    point_cloud_xyz_ = point_cloud;
-    if(type_ != POINT_XYZ){
-      point_cloud_xyzi_ = nullptr;
-      point_cloud_rgb_ = nullptr;
-      point_cloud_rgba_ = nullptr;
-      color_mode_ = Visualizer::MONOCHROME;
-      type_ = POINT_XYZ;
-      color_size_ = 1;
-      type_size_ = sizeof(Visualizer::pointXYZ);
-    }
-    data_size_ = 0;
-    restart();
-  }
-
-  void PointCloud::change_input(const std::vector<Visualizer::pointXYZI> *point_cloud){
-    point_cloud_xyzi_ = point_cloud;
-    if(type_ != POINT_XYZI){
-      point_cloud_xyz_ = nullptr;
-      point_cloud_rgb_ = nullptr;
-      point_cloud_rgba_ = nullptr;
-      color_mode_ = Visualizer::VARIABLE;
-      color_palette_[0] = Algebraica::vec3f(0.2, 0.5, 0.7); //grayish blue
-      color_palette_[1] = Algebraica::vec3f(0, 1, 0);       //green
-      color_palette_[2] = Algebraica::vec3f(1, 1, 0);       //yellow
-      color_palette_[3] = Algebraica::vec3f(1, 0, 0);       //red
-      type_ = POINT_XYZI;
-      color_size_ = 4;
-      type_size_ = sizeof(Visualizer::pointXYZI);
-    }
-    data_size_ = 0;
-    restart();
-  }
-
-  void PointCloud::change_input(const std::vector<Visualizer::pointXYZRGB> *point_cloud){
-    point_cloud_rgb_ = point_cloud;
-    if(type_ != POINT_XYZRGB){
-      point_cloud_xyz_ = nullptr;
-      point_cloud_xyzi_ = nullptr;
-      point_cloud_rgba_ = nullptr;
-      color_mode_ = Visualizer::NONE;
-      type_ = POINT_XYZRGB;
-      color_size_ = 0;
-      type_size_ = sizeof(Visualizer::pointXYZRGB);
-    }
-    data_size_ = 0;
-    restart();
-  }
-
-  void PointCloud::change_input(const std::vector<Visualizer::pointXYZRGBA> *point_cloud){
-    point_cloud_rgba_ = point_cloud;
-    if(type_ != POINT_XYZRGBA){
-      point_cloud_xyz_ = nullptr;
-      point_cloud_xyzi_ = nullptr;
-      point_cloud_rgb_ = nullptr;
-      color_mode_ = Visualizer::NONE;
-      type_ = POINT_XYZRGBA;
-      color_size_ = 0;
-      type_size_ = sizeof(Visualizer::pointXYZRGBA);
-    }
-    data_size_ = 0;
-    restart();
-  }
-
-  void PointCloud::set_colormap(const Algebraica::vec3f *colors, const unsigned int quantity){
-    color_size_ = (quantity > 10)? 9 : quantity - 1;
-
-    for(uint i = 0; i < 10; i++)
-      if(i < quantity)
-        color_palette_[i] = Algebraica::vec3f(*(colors + i)) / 255.0f;
-      else
-        color_palette_[i] = Algebraica::vec3f();
+  bool PointCloud::set_color_palette(const Visualizer::ColorRGB color){
+    color_size_ = 1.0f;
+    color_palette_.clear();
+    color_palette_.push_back(Algebraica::vec3f(color.red,
+                                               color.green,
+                                               color.blue) / 255.0f);
+    return true;
   }
 
   void PointCloud::set_color_mode(const Visualizer::ColorMode color_mode){
-    color_mode_ = color_mode;
+    switch(color_mode){
+      case Visualizer::ColorMode::COLORMAP:
+        color_mode_ = 1.0f;
+      break;
+      case Visualizer::ColorMode::SOLID:
+        color_mode_ = 2.0f;
+      break;
+      case Visualizer::ColorMode::DATA:
+        color_mode_ = 3.0f;
+      break;
+      default:
+        color_mode_ = 0.0f;
+      break;
+    }
   }
 
   void PointCloud::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
-    primary_model_ = transformation_matrix;
+    primary_model_ = transformation_matrix ? transformation_matrix : &identity_matrix_;
   }
 
-  void PointCloud::set_point_size(const float point_size){
-    point_size_ = point_size;
+  bool PointCloud::set_point_size(const float point_size){
+    const bool bigger_than_zero{point_size > 0.0f};
+    point_size_ = bigger_than_zero ? point_size : 1.0f;
+    return bigger_than_zero;
   }
 
-  void PointCloud::set_maximum_intensity_value(const float maximum_intensity_value){
-    maximum_intensity_value_ = maximum_intensity_value;
+  bool PointCloud::set_maximum_intensity_value(const float maximum_intensity_value){
+    const bool bigger_than_zero{maximum_intensity_value > 0.0f};
+    maximum_intensity_value_ = bigger_than_zero ? maximum_intensity_value : 1.0f;
+    return bigger_than_zero;
   }
 
   void PointCloud::translate(const float x, const float y, const float z){
@@ -227,45 +120,29 @@ namespace Toreo {
 
     if(no_error){
       buffer_.vertex_bind();
-      switch(type_){
-      case POINT_XYZ:
-        data_size_ = point_cloud_xyz_->size();
-        buffer_.allocate_array(point_cloud_xyz_->data(),
-                               data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        buffer_.enable(i_position_);
-        buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
-        break;
-      case POINT_XYZRGB:
-        data_size_ = point_cloud_rgb_->size();
-        buffer_.allocate_array(point_cloud_rgb_->data(),
-                               data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        buffer_.enable(i_position_);
-        buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
+
+      data_size_ = size();
+      buffer_.allocate_array(data(), data_size_ * type_size_, GL_DYNAMIC_DRAW);
+
+      GLint offset{0};
+      buffer_.enable(i_position_);
+      buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
+      offset += offset_big_;
+      if(has_color_){
         buffer_.enable(i_color_);
-        buffer_.attributte_buffer(i_color_, _3D, offset_, type_size_);
-        buffer_.enable(i_alpha_);
-        break;
-      case POINT_XYZRGBA:
-        data_size_ = point_cloud_rgba_->size();
-        buffer_.allocate_array(point_cloud_rgba_->data(),
-                               data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        buffer_.enable(i_position_);
-        buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
-        buffer_.enable(i_color_);
-        buffer_.attributte_buffer(i_color_, _3D, offset_, type_size_);
-        buffer_.enable(i_alpha_);
-        buffer_.attributte_buffer(i_alpha_, _1D, offset_x2_, type_size_);
-        break;
-      default:
-        data_size_ = point_cloud_xyzi_->size();
-        buffer_.allocate_array(point_cloud_xyzi_->data(),
-                               data_size_ * type_size_, GL_DYNAMIC_DRAW);
-        buffer_.enable(i_position_);
-        buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
-        buffer_.enable(i_intensity_);
-        buffer_.attributte_buffer(i_intensity_, _1D, offset_, type_size_);
-        break;
+        buffer_.attributte_buffer(i_color_, _3D, offset, type_size_);
+        offset += offset_big_;
       }
+      if(has_intensity_){
+        buffer_.enable(i_intensity_);
+        buffer_.attributte_buffer(i_intensity_, _1D, offset, type_size_);
+        offset += offset_small_;
+      }
+      if(has_alpha_){
+        buffer_.enable(i_alpha_);
+        buffer_.attributte_buffer(i_alpha_, _1D, offset, type_size_);
+      }
+
       buffer_.vertex_release();
     }
     return no_error;
@@ -277,25 +154,14 @@ namespace Toreo {
     if(no_error){
       buffer_.vertex_bind();
 
-      if(primary_model_)
-        shader_->set_value(u_primary_model_, *primary_model_);
-      else
-        shader_->set_value(u_primary_model_, identity_matrix_);
-
+      shader_->set_value(u_primary_model_, *primary_model_);
       shader_->set_value(u_secondary_model_, secondary_model_);
-      shader_->set_value(u_color_mode_, static_cast<float>(color_mode_));
+      shader_->set_value(u_color_mode_, color_mode_);
       shader_->set_value(u_intensity_range_, maximum_intensity_value_);
 
-      if(type_ == POINT_XYZ){
-        shader_->set_values(u_palette_, &color_palette_[0], color_size_);
-        shader_->set_value(u_color_size_, static_cast<float>(color_size_));
-      }else if(type_ == POINT_XYZI){
-        shader_->set_values(u_palette_, &color_palette_[0], color_size_);
-        shader_->set_value(u_color_size_, static_cast<float>(color_size_));
-      }else if(type_ == POINT_XYZRGB)
-        shader_->set_value(u_has_alpha_, false);
-      else if(type_ == POINT_XYZRGBA)
-        shader_->set_value(u_has_alpha_, true);
+      shader_->set_values(u_palette_, color_palette_.data(), color_size_);
+      shader_->set_value(u_color_size_, color_size_);
+      shader_->set_value(u_has_alpha_, has_alpha_);
 
       glPointSize(point_size_);
       glDrawArrays(GL_POINTS, 0, data_size_);
@@ -321,17 +187,95 @@ namespace Toreo {
     u_color_mode_       = shader_->uniform_location("u_color_mode");
     u_intensity_range_  = shader_->uniform_location("u_intensity_range");
     u_has_alpha_        = shader_->uniform_location("u_has_alpha");
-
-    update();
   }
 
-  void PointCloud::restart(){
-    shader_->use();
-    buffer_.vertex_bind();
-    buffer_.disable(i_position_);
-    buffer_.disable(i_color_);
-    buffer_.disable(i_intensity_);
-    buffer_.disable(i_alpha_);
-    buffer_.vertex_release();
+  const GLsizei PointCloud::size(){
+    switch(cloud_type_){
+    case Visualizer::PointCloudType::XYZ:
+      return static_cast<GLsizei>(static_cast<const std::vector<Visualizer::PointXYZ>*>
+                                  (point_cloud_)->size());
+    break;
+    case Visualizer::PointCloudType::XYZI:
+      return static_cast<GLsizei>(static_cast<const std::vector<Visualizer::PointXYZI>*>
+                                  (point_cloud_)->size());
+    break;
+    case Visualizer::PointCloudType::XYZRGB:
+      return static_cast<GLsizei>(static_cast<const std::vector<Visualizer::PointXYZRGB>*>
+                                  (point_cloud_)->size());
+    break;
+    case Visualizer::PointCloudType::XYZRGBI:
+      return static_cast<GLsizei>(static_cast<const std::vector<Visualizer::PointXYZRGBI>*>
+                                  (point_cloud_)->size());
+    break;
+    case Visualizer::PointCloudType::XYZRGBA:
+      return static_cast<GLsizei>(static_cast<const std::vector<Visualizer::PointXYZRGBA>*>
+                                  (point_cloud_)->size());
+    break;
+    }
+  }
+
+  const GLvoid *PointCloud::data(){
+    switch(cloud_type_){
+    case Visualizer::PointCloudType::XYZ:
+      return static_cast<const GLvoid*>(static_cast<const std::vector<Visualizer::PointXYZ>*>
+                                  (point_cloud_)->data());
+    break;
+    case Visualizer::PointCloudType::XYZI:
+      return static_cast<const GLvoid*>(static_cast<const std::vector<Visualizer::PointXYZI>*>
+                                  (point_cloud_)->data());
+    break;
+    case Visualizer::PointCloudType::XYZRGB:
+      return static_cast<const GLvoid*>(static_cast<const std::vector<Visualizer::PointXYZRGB>*>
+                                  (point_cloud_)->data());
+    break;
+    case Visualizer::PointCloudType::XYZRGBI:
+      return static_cast<const GLvoid*>(static_cast<const std::vector<Visualizer::PointXYZRGBI>*>
+                                  (point_cloud_)->data());
+    break;
+    case Visualizer::PointCloudType::XYZRGBA:
+      return static_cast<const GLvoid*>(static_cast<const std::vector<Visualizer::PointXYZRGBA>*>
+                                  (point_cloud_)->data());
+    break;
+    }
+  }
+
+  void PointCloud::set_cloud(const std::vector<Visualizer::PointXYZ> *point_cloud){
+    point_cloud_ = point_cloud;
+    cloud_type_ = Visualizer::PointCloudType::XYZ;
+    type_size_ = sizeof(Visualizer::PointXYZ);
+  }
+
+  void PointCloud::set_cloud(const std::vector<Visualizer::PointXYZI> *point_cloud){
+    point_cloud_ = point_cloud;
+    cloud_type_ = Visualizer::PointCloudType::XYZI;
+    type_size_ = sizeof(Visualizer::PointXYZI);
+
+    has_intensity_ = true;
+  }
+
+  void PointCloud::set_cloud(const std::vector<Visualizer::PointXYZRGB> *point_cloud){
+    point_cloud_ = point_cloud;
+    cloud_type_ = Visualizer::PointCloudType::XYZRGB;
+    type_size_ = sizeof(Visualizer::PointXYZRGB);
+
+    has_color_ = true;
+  }
+
+  void PointCloud::set_cloud(const std::vector<Visualizer::PointXYZRGBI> *point_cloud){
+    point_cloud_ = point_cloud;
+    cloud_type_ = Visualizer::PointCloudType::XYZRGBI;
+    type_size_ = sizeof(Visualizer::PointXYZRGBI);
+
+    has_color_ = true;
+    has_intensity_ = true;
+  }
+
+  void PointCloud::set_cloud(const std::vector<Visualizer::PointXYZRGBA> *point_cloud){
+    point_cloud_ = point_cloud;
+    cloud_type_ = Visualizer::PointCloudType::XYZRGBA;
+    type_size_ = sizeof(Visualizer::PointXYZRGBA);
+
+    has_color_ = true;
+    has_alpha_ = true;
   }
 }

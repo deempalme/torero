@@ -1,4 +1,4 @@
-#include "include/objects.h"
+#include "torero/objects.h"
 
 namespace Toreo {
   Objects::Objects(Shader *shader_program, const std::vector<Visualizer::Object> *objects,
@@ -69,21 +69,23 @@ namespace Toreo {
       std::vector<Visualizer::ObjectShaderHollow> hollow_data(0);
       std::vector<Visualizer::ObjectShaderSolid> arrow_data(0);
 
-      for(Visualizer::Object object : *object_){
+      for(const Visualizer::Object &object : *object_){
         if(object.solid){
           Visualizer::ObjectShaderSolid datum;
-          datum.position(-object.y, object.z, -object.x);
-          datum.rotation(object.pitch, object.yaw, object.roll);
-          datum.color(object.r, object.g, object.b, object.alpha);
+          datum.position(-object.position.y, object.position.z, -object.position.x);
+          datum.rotation( object.orientation.y,-object.orientation.z,
+                         -object.orientation.x, object.orientation.w);
+          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
           datum.scale(object.width, object.height, object.length);
           if(type_ == Visualizer::SQUARE || type_ == Visualizer::CIRCLE)
             datum.scale[1] = 1.0f;
           solid_data.push_back(datum);
         }else{
           Visualizer::ObjectShaderHollow datum;
-          datum.position(-object.y, object.z, -object.x);
-          datum.rotation(object.pitch, object.yaw, object.roll);
-          datum.color(object.r, object.g, object.b, object.alpha);
+          datum.position(-object.position.y, object.position.z, -object.position.x);
+          datum.rotation( object.orientation.y,-object.orientation.z,
+                         -object.orientation.x, object.orientation.w);
+          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
           datum.scale(object.width, object.height, object.length);
           if(type_ == Visualizer::SQUARE || type_ == Visualizer::CIRCLE)
             datum.scale[1] = 1.0f;
@@ -91,12 +93,13 @@ namespace Toreo {
           hollow_data.push_back(datum);
         }
 
-        if(object.arrow){
+        if(object.arrow.display){
           Visualizer::ObjectShaderSolid datum;
-          datum.position(-object.y, object.z, -object.x);
-          datum.rotation(object.arrow_pitch, object.arrow_yaw, object.arrow_roll);
-          datum.color(object.r, object.g, object.b, object.alpha);
-          datum.scale(1.0f, 1.0f, object.arrow_length);
+          datum.position(-object.position.y, object.position.z, -object.position.x);
+          datum.rotation( object.orientation.y,-object.orientation.z,
+                         -object.orientation.x, object.orientation.w);
+          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
+          datum.scale(1.0f, 1.0f, object.arrow.length);
           arrow_data.push_back(datum);
         }
       }
@@ -115,10 +118,10 @@ namespace Toreo {
 
         offset += sizeof(Algebraica::vec3f);
         buffer_hollow_.enable(i_rotation_);
-        buffer_hollow_.attributte_buffer(i_rotation_, _3D, offset, hollow_type_size_);
+        buffer_hollow_.attributte_buffer(i_rotation_, _4D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(Algebraica::vec4f);
         buffer_hollow_.enable(i_color_);
         buffer_hollow_.attributte_buffer(i_color_, _4D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_color_, 1);
@@ -168,10 +171,10 @@ namespace Toreo {
 
         offset += sizeof(Algebraica::vec3f);
         buffer_solid_.enable(i_rotation_);
-        buffer_solid_.attributte_buffer(i_rotation_, _3D, offset, solid_type_size_);
+        buffer_solid_.attributte_buffer(i_rotation_, _4D, offset, solid_type_size_);
         buffer_solid_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(Algebraica::vec4f);
         buffer_solid_.enable(i_color_);
         buffer_solid_.attributte_buffer(i_color_, _4D, offset, solid_type_size_);
         buffer_solid_.divisor(i_color_, 1);
@@ -216,10 +219,10 @@ namespace Toreo {
 
         offset += sizeof(Algebraica::vec3f);
         buffer_arrow_.enable(i_rotation_);
-        buffer_arrow_.attributte_buffer(i_rotation_, _3D, offset, solid_type_size_);
+        buffer_arrow_.attributte_buffer(i_rotation_, _4D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(Algebraica::vec4f);
         buffer_arrow_.enable(i_color_);
         buffer_arrow_.attributte_buffer(i_color_, _4D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_color_, 1);
