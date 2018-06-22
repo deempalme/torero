@@ -38,112 +38,88 @@ namespace Toreo {
   }
 
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZ> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZ> *point_cloud,
                                const std::string name,
                                const Algebraica::mat4f *transformation_matrix,
                                const float color_red, const float color_green,
                                const float color_blue, const bool visible,
                                const float point_size, const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
-                                            Algebraica::vec3f(color_red, color_green, color_blue),
-                                            point_size, maximum_intensity_value), name, visible };
-    if(transformation_matrix != nullptr)
-      cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible };
+
+    cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    cloud.point_cloud->set_cloud(point_cloud);
+    cloud.point_cloud->set_color_palette(Visualizer::ColorRGB{color_red, color_green, color_blue});
+    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::SOLID);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZI> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZI> *point_cloud,
                                const std::string name,
                                const Algebraica::mat4f *transformation_matrix,
                                const Visualizer::ColorMode color_mode,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
-                                            color_mode, point_size, maximum_intensity_value),
-                                            name, visible };
-    if(transformation_matrix != nullptr)
-      cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible };
+
+    cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    cloud.point_cloud->set_cloud(point_cloud);
+    cloud.point_cloud->set_color_mode(color_mode);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZRGB> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZRGB> *point_cloud,
                                const std::string name,
                                const Algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
-                                            point_size, maximum_intensity_value), name, visible };
-    if(transformation_matrix != nullptr)
-      cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible };
+
+    cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    cloud.point_cloud->set_cloud(point_cloud);
+    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::DATA);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZRGBA> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZRGBI> *point_cloud,
+                               const std::string name,
+                               const Algebraica::mat4f *transformation_matrix,
+                               const bool visible,
+                               const float point_size,
+                               const float maximum_intensity_value){
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible };
+
+    cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    cloud.point_cloud->set_cloud(point_cloud);
+    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::DATA);
+
+    point_clouds_.push_back(cloud);
+    return point_clouds_.size() - 1;
+  }
+
+  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZRGBA> *point_cloud,
                                const std::string name,
                                const Algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
-                                            point_size, maximum_intensity_value), name, visible };
-    if(transformation_matrix != nullptr)
-      cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible };
+
+    cloud.point_cloud->set_transformation_matrix(transformation_matrix);
+    cloud.point_cloud->set_cloud(point_cloud);
+    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::DATA);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
-  }
-
-  bool PointCloudManager::change_input(PCMid id,
-                                       const std::vector<Visualizer::pointXYZ> *point_cloud){
-    if(point_clouds_.size() > id)
-      if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->change_input(point_cloud);
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  bool PointCloudManager::change_input(PCMid id,
-                                       const std::vector<Visualizer::pointXYZI> *point_cloud){
-    if(point_clouds_.size() > id)
-      if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->change_input(point_cloud);
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  bool PointCloudManager::change_input(PCMid id,
-                                       const std::vector<Visualizer::pointXYZRGB> *point_cloud){
-    if(point_clouds_.size() > id)
-      if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->change_input(point_cloud);
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  bool PointCloudManager::change_input(PCMid id,
-                                       const std::vector<Visualizer::pointXYZRGBA> *point_cloud){
-    if(point_clouds_.size() > id)
-      if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->change_input(point_cloud);
-        return true;
-      }else
-        return false;
-    else
-      return false;
   }
 
   bool PointCloudManager::set_visibility(PCMid id, const bool visible){
@@ -154,11 +130,21 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::set_colormap(PCMid id, const Algebraica::vec3f *colors,
-                                       const unsigned int quantity){
+  bool PointCloudManager::set_colormap(PCMid id, const Visualizer::ColorRGB color){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
-        point_clouds_[id].point_cloud->set_colormap(colors, quantity);
+        point_clouds_[id].point_cloud->set_color_palette(color);
+        return true;
+      }else
+        return false;
+    else
+      return false;
+  }
+
+  bool PointCloudManager::set_colormap(PCMid id, const std::vector<Visualizer::ColorRGB> &colors){
+    if(point_clouds_.size() > id)
+      if(point_clouds_[id].point_cloud != nullptr){
+        point_clouds_[id].point_cloud->set_color_palette(colors);
         return true;
       }else
         return false;

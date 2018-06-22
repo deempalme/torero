@@ -24,8 +24,8 @@ namespace Toreo {
     MultiThreadManager();
 
     void multithread_add_process(boost::function<void ()> run,
-                         boost::function<void ()> ready,
-                         boost::function<bool ()> is_ready);
+                                 boost::function<void ()> ready,
+                                 boost::function<bool ()> is_ready);
     void multithread_update_process();
 
     const bool multithread_finished();

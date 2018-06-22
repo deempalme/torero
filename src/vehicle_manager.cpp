@@ -188,7 +188,7 @@ namespace Toreo {
     float position_z;
 
     if(latitude_ && longitude_){
-      Visualizer::pointXY<float> distance = GPS_.GPS_to_origin();
+      Visualizer::PointXY<float> distance = GPS_.GPS_to_origin();
       position_x = distance.x;
       position_z = -distance.y;
     }else{

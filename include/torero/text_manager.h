@@ -48,13 +48,13 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZRGBA`, each point
+     * This will add a new point cloud with values type `Visualizer::PointXYZRGBA`, each point
      * must include its own **RGB color** and its Alpha value (transparency). It will return
      * the point cloud's **ID**, this will be useful if you want to modify properties or values
      * of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -73,13 +73,13 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZRGBA`, each point
+     * This will add a new point cloud with values type `Visualizer::PointXYZRGBA`, each point
      * must include its own **RGB color** and its Alpha value (transparency). It will return
      * the point cloud's **ID**, this will be useful if you want to modify properties or values
      * of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -96,13 +96,13 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZRGBA`, each point
+     * This will add a new point cloud with values type `Visualizer::PointXYZRGBA`, each point
      * must include its own **RGB color** and its Alpha value (transparency). It will return
      * the point cloud's **ID**, this will be useful if you want to modify properties or values
      * of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -124,7 +124,7 @@ namespace Toreo {
      *
      * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = new address to a 3D point
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = new address to a 3D point
      * cloud's data.
      *
      * **Returns**
@@ -135,13 +135,13 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZRGBA`, each point
+     * This will add a new point cloud with values type `Visualizer::PointXYZRGBA`, each point
      * must include its own **RGB color** and its Alpha value (transparency). It will return
      * the point cloud's **ID**, this will be useful if you want to modify properties or values
      * of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -180,7 +180,7 @@ namespace Toreo {
      *
      * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = new address to a 3D point
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = new address to a 3D point
      * cloud's data.
      *
      * **Returns**

@@ -1,13 +1,13 @@
 #include "torero/text_object.h"
 
 namespace Toreo {
-  TextObject::TextObject(Shader *shader, const Visualizer::TextType dimensions) :
+  TextObject::TextObject(Shader *shader, const Visualizer::Dimensionality dimensions) :
     shader_(shader),
     buffer_(true),
     font_(nullptr),
     type_(Visualizer::Complexity::SIMPLE),
     weight_(Visualizer::TextWeight::NORMAL),
-    is_3D_(dimensions == Visualizer::THREE_DIMENSIONAL),
+    is_3D_(dimensions == Visualizer::Dimensionality::THREE_DIMENSIONAL),
     text_simple_(nullptr),
     text_colored_(nullptr),
     text_origins_(0),
@@ -215,9 +215,9 @@ namespace Toreo {
 //        buffer_data.resize(index);
 
         std::vector<Visualizer::TextColoredShader> buffer_data(1);
-        buffer_data[0].x = 0.0f;
-        buffer_data[0].y = 0.0f;
-        buffer_data[0].z = 0.0f;
+        buffer_data[0].origin.x = 0.0f;
+        buffer_data[0].origin.y = 0.0f;
+        buffer_data[0].origin.z = 0.0f;
 
         data_size_ = buffer_data.size();
         buffer_.vertex_bind();

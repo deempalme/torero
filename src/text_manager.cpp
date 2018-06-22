@@ -128,7 +128,8 @@ namespace Toreo {
                             const bool visible){
     if(fonts_.size() > font)
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_, Visualizer::THREE_DIMENSIONAL),
+        Visualizer::Text text = { new TextObject(shader_,
+                                  Visualizer::Dimensionality::THREE_DIMENSIONAL),
                                   font, name, visible };
         if(transformation_matrix != nullptr)
           text.text->set_transformation_matrix(transformation_matrix);
@@ -152,7 +153,8 @@ namespace Toreo {
                          const bool visible){
     if(fonts_.size() > font)
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_, Visualizer::THREE_DIMENSIONAL),
+        Visualizer::Text text = { new TextObject(shader_,
+                                  Visualizer::Dimensionality::THREE_DIMENSIONAL),
                                   font, name, visible };
         if(transformation_matrix != nullptr)
           text.text->set_transformation_matrix(transformation_matrix);
@@ -175,7 +177,8 @@ namespace Toreo {
                             const std::string name, const bool visible){
     if(fonts_.size() > font)
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_, Visualizer::TWO_DIMENSIONAL),
+        Visualizer::Text text = { new TextObject(shader_,
+                                  Visualizer::Dimensionality::TWO_DIMENSIONAL),
                                   font, name, visible };
 
         text.text->set_font(fonts_[font]);
@@ -196,7 +199,8 @@ namespace Toreo {
                             const std::string name, const bool visible){
     if(fonts_.size() > font)
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_, Visualizer::TWO_DIMENSIONAL),
+        Visualizer::Text text = { new TextObject(shader_,
+                                  Visualizer::Dimensionality::TWO_DIMENSIONAL),
                                   font, name, visible };
 
         text.text->set_font(fonts_[font]);

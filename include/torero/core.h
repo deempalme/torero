@@ -411,7 +411,8 @@ namespace Toreo {
      * This will return error if the window was not created properly.
      *
      */
-    void message_handler(const std::string text, const Visualizer::Message message_type);
+    void message_handler(const std::string message, const Visualizer::Message message_type);
+    void message_handler(const unsigned int message, const Visualizer::Message message_type);
     /*
      * ### Minimize window
      *

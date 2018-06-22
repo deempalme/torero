@@ -164,8 +164,8 @@ namespace Toreo {
             for(float column = 0.0f; column < quantity_width; ++column, ++c){
               u = o + c;
               ground[u].position(column, row, 0.0f);
-              ground[u].color((*ground_2D_)[u].r, (*ground_2D_)[u].g,
-                              (*ground_2D_)[u].b, (*ground_2D_)[u].alpha);
+              ground[u].color((*ground_2D_)[u].color.red, (*ground_2D_)[u].color.green,
+                              (*ground_2D_)[u].color.blue, (*ground_2D_)[u].color.alpha);
             }
           }
           buffer_.vertex_bind();
@@ -198,8 +198,8 @@ namespace Toreo {
             for(float column = 0.0f; column < quantity_width; ++column, ++c){
               u = o + c;
               ground[u].position(column, row, 0.0f);
-              ground[u].color((*ground_3D_)[u].r, (*ground_3D_)[u].g,
-                              (*ground_3D_)[u].b, (*ground_3D_)[u].alpha);
+              ground[u].color((*ground_3D_)[u].color.red, (*ground_3D_)[u].color.green,
+                              (*ground_3D_)[u].color.blue, (*ground_3D_)[u].color.alpha);
               ground[u].height = (*ground_3D_)[u].height;
             }
           }
@@ -411,7 +411,7 @@ namespace Toreo {
     u_position_        = shader_->uniform_location("u_position");
     u_free_            = shader_->uniform_location("u_free");
     u_polar_           = shader_->uniform_location("u_polar");
-    u_grid_           = shader_->uniform_location("u_grid");
+    u_grid_            = shader_->uniform_location("u_grid");
   }
 
   void Ground::restart(){

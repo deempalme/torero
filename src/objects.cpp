@@ -72,20 +72,20 @@ namespace Toreo {
       for(const Visualizer::Object &object : *object_){
         if(object.solid){
           Visualizer::ObjectShaderSolid datum;
-          datum.position(-object.y, object.z, -object.x);
+          datum.position(-object.position.y, object.position.z, -object.position.x);
           datum.rotation( object.orientation.y,-object.orientation.z,
                          -object.orientation.x, object.orientation.w);
-          datum.color(object.r, object.g, object.b, object.alpha);
+          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
           datum.scale(object.width, object.height, object.length);
           if(type_ == Visualizer::SQUARE || type_ == Visualizer::CIRCLE)
             datum.scale[1] = 1.0f;
           solid_data.push_back(datum);
         }else{
           Visualizer::ObjectShaderHollow datum;
-          datum.position(-object.y, object.z, -object.x);
+          datum.position(-object.position.y, object.position.z, -object.position.x);
           datum.rotation( object.orientation.y,-object.orientation.z,
                          -object.orientation.x, object.orientation.w);
-          datum.color(object.r, object.g, object.b, object.alpha);
+          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
           datum.scale(object.width, object.height, object.length);
           if(type_ == Visualizer::SQUARE || type_ == Visualizer::CIRCLE)
             datum.scale[1] = 1.0f;
@@ -93,13 +93,13 @@ namespace Toreo {
           hollow_data.push_back(datum);
         }
 
-        if(object.arrow){
+        if(object.arrow.display){
           Visualizer::ObjectShaderSolid datum;
-          datum.position(-object.y, object.z, -object.x);
+          datum.position(-object.position.y, object.position.z, -object.position.x);
           datum.rotation( object.orientation.y,-object.orientation.z,
                          -object.orientation.x, object.orientation.w);
-          datum.color(object.r, object.g, object.b, object.alpha);
-          datum.scale(1.0f, 1.0f, object.arrow_length);
+          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
+          datum.scale(1.0f, 1.0f, object.arrow.length);
           arrow_data.push_back(datum);
         }
       }

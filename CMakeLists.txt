@@ -19,14 +19,19 @@ if(NOT TARGET ${TORERO_LIB})
   find_package(Boost REQUIRED COMPONENTS system chrono filesystem thread)
   find_package(Threads REQUIRED)
 
+  # Loading GLFW
   find_package(PkgConfig REQUIRED)
   pkg_search_module(GLFW REQUIRED glfw3)
   include_directories(${GLFW_INCLUDE_DIRS})
+  # GLFW requires X11 and some of its components:
+  find_package(X11 REQUIRED COMPONETS xrandr xinerama xxf86vm xcursor)
 
   #header files
   set(HPP_FILES
     include/torero/buffer.h
     include/torero/camera.h
+    include/torero/camera_element.h
+    include/torero/camera_manager.h
     include/torero/core.h
     include/torero/cubemap.h
     include/torero/definitions.h
@@ -58,12 +63,15 @@ if(NOT TARGET ${TORERO_LIB})
     include/torero/trajectory.h
     include/torero/trajectory_manager.h
     include/torero/types.h
+#    include/torero/utilities.h
     include/torero/vehicle_manager.h
   )
 
   #source files
   set(CPP_FILES
     src/camera.cpp
+    src/camera_element.cpp
+    src/camera_manager.cpp
     src/core.cpp
     src/cubemap.cpp
     src/font_loader.cpp
@@ -89,6 +97,7 @@ if(NOT TARGET ${TORERO_LIB})
     src/three_dimensional_model_loader.cpp
     src/trajectory_manager.cpp
     src/trajectory.cpp
+#    src/utilities.cpp
     src/vehicle_manager.cpp
   )
 
@@ -132,18 +141,18 @@ if(NOT TARGET ${TORERO_LIB})
   # ++++++++++++++++++++++++++++++++++++++ GLAD ++++++++++++++++++++++++++++++++++++++
   # adding the root directory of the GLAD source tree to your project
   set(GLAD_FILES
-    lib/GLAD/include/glad/glad.h
-    lib/GLAD/include/KHR/khrplatform.h
-    lib/GLAD/src/glad.c
+    libs/GLAD/include/glad/glad.h
+    libs/GLAD/include/KHR/khrplatform.h
+    libs/GLAD/src/glad.c
   )
 
   # +++++++++++++++++++++++++++++++++++ ALGEBRAICA +++++++++++++++++++++++++++++++++++
   # adding the root directory of algebraica source tree to your project
-  add_subdirectory(lib/algebraica)
+  add_subdirectory(libs/algebraica)
 
   # ++++++++++++++++++++++++++++++ COORDINATE CONVERSOR ++++++++++++++++++++++++++++++
   # adding the root directory of coordinate_conversor source tree to your project
-  add_subdirectory(lib/coordinate_conversor)
+  add_subdirectory(libs/gps_coordinate_conversor)
 
   # ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
   add_definitions(-DSTB_IMAGE_STATIC)
@@ -152,15 +161,15 @@ if(NOT TARGET ${TORERO_LIB})
   add_definitions(-DSTBI_NO_HDR)
   # adding the root directory of the stb library source tree to your project
   set(STB_FILES
-    lib/stb/stb_image.h
-    lib/stb/stb_image_write.h
+    libs/stb/stb_image.h
+    libs/stb/stb_image_write.h
   )
 
   set(TORERO_DIRS_LOCAL
-    lib/GLAD/include
+    libs/GLAD/include
     ${ALGEBRAICA_DIRS}
     ${COORDINATE_DIRS}
-    lib/stb
+    libs/stb
     ${Boost_INCLUDE_DIR}
     include
   )
@@ -170,10 +179,10 @@ if(NOT TARGET ${TORERO_LIB})
   set(TORERO_DIRS
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/lib/GLAD/include
+    ${PROJECT_SOURCE_DIR}/libs/GLAD/include
     ${ALGEBRAICA_DIRS}
     ${COORDINATE_DIRS}
-    ${PROJECT_SOURCE_DIR}/lib/stb
+    ${PROJECT_SOURCE_DIR}/libs/stb
 
     CACHE INTERNAL ""
   )
@@ -199,14 +208,33 @@ if(NOT TARGET ${TORERO_LIB})
     ${RESOURCE_FILES}
   )
 
+  # Including X11 directories
+  include_directories(
+    ${X11_INCLUDE_DIR}
+    ${X11_Xcursor_INCLUDE_PATH}
+    ${X11_Xxf86vm_INCLUDE_PATH}
+    ${X11_Xinerama_INCLUDE_PATH}
+    ${X11_Xrandr_INCLUDE_PATH}
+  )
+
   #indicates which libraries to use in the executable
   target_link_libraries(${TORERO_NAME}
     ${GLFW_LIBRARIES}
     ${ALGEBRAICA_LIB}
     ${COORDINATE_LIB}
-    ${OPENGL_LIBRARIES}
+    # Multithread management library
     Threads::Threads
+    # Boost libraries
     ${Boost_LIBRARIES}
+    # CMake utilities libraries
     ${CMAKE_DL_LIBS}
+    # OpenGL libraries
+    ${OPENGL_LIBRARIES}
+    # X11 libraries
+    ${X11_LIBRARIES}
+    ${X11_Xcursor_LIB}
+    ${X11_Xxf86vm_LIB}
+    ${X11_Xinerama_LIB}
+    ${X11_Xrandr_LIB}
   )
 endif(NOT TARGET ${TORERO_LIB})

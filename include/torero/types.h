@@ -7,6 +7,7 @@
 #include <boost/signals2.hpp>
 
 namespace Toreo {
+  class CameraElement;
   class FontLoader;
   class Ground;
   class GUILoader;
@@ -19,7 +20,7 @@ namespace Toreo {
   class TextObject;
 }
 
-typedef int PCMid, MMid, MMelement, OMid, TMid, GMid, TXMid, FTid, GUIid;
+typedef int PCMid, MMid, MMelement, OMid, TMid, GMid, TXMid, FTid, GUIid, CMid;
 
 namespace Visualizer {  
   // ------------------------------------------------------------------------------------ //
@@ -47,12 +48,33 @@ namespace Visualizer {
     Algebraica::vec2f texture;
   };
 
+#ifndef V_C_M
+#define V_C_M
+  namespace ImageEncoding {
+    const int RED  = 1;
+    const int RG   = 2;
+    const int RGB  = 3;
+    const int BGR  = 3;
+    const int RGBA = 4;
+    const int BGRA = 4;
+  }
+
   struct ImageFile{
+    // Use this in case each data's component is 16 bits long
+    bool is_16bits      = false;
+    // Use this in case the colors are inverted. Example: BGR instead og RGB
+    bool is_inverted    = false;
     int width = 0;
     int height = 0;
     int components_size = 0;
     unsigned char *data = nullptr;
   };
+
+  struct CameraInfo {
+    int height;
+    int width;
+  };
+#endif
   // ------------------------------------------------------------------------------------ //
   // ------------------------------- 3D MODEL MANAGEMENT -------------------------------- //
   // ------------------------------------------------------------------------------------ //
@@ -109,19 +131,19 @@ namespace Visualizer {
 #ifndef P_C_XY_LL
 #define P_C_XY_LL
   template<typename T>
-  union pointLL{
+  union PointXY{
     struct{
-      T latitude;
-      T longitude;
+      T x;
+      T y;
     };
     T data[2];
   };
 
   template<typename T>
-  union pointXY{
+  union PointLL{
     struct{
-      T x;
-      T y;
+      T latitude;
+      T longitude;
     };
     T data[2];
   };
@@ -129,7 +151,7 @@ namespace Visualizer {
 
 #ifndef P_C_XYZ
 #define P_C_XYZ
-  union pointXYZ{
+  union PointXYZ{
     struct{
       float x;
       float y;
@@ -141,7 +163,7 @@ namespace Visualizer {
 
 #ifndef P_C_XYZI
 #define P_C_XYZI
-  union pointXYZI{
+  union PointXYZI{
     struct{
       float x;
       float y;
@@ -154,7 +176,7 @@ namespace Visualizer {
 
 #ifndef P_C_XYZRGB
 #define P_C_XYZRGB
-  union pointXYZRGB{
+  union PointXYZRGB{
     struct{
       float x;
       float y;
@@ -166,7 +188,20 @@ namespace Visualizer {
     float data[6];
   };
 
-  union pointXYZRGBA{
+  union PointXYZRGBI{
+    struct{
+      float x;
+      float y;
+      float z;
+      float r;
+      float g;
+      float b;
+      float intensity;
+    };
+    float data[7];
+  };
+
+  union PointXYZRGBA{
     struct{
       float x;
       float y;
@@ -178,11 +213,12 @@ namespace Visualizer {
     };
     float data[7];
   };
+
 #endif
 
 #ifndef P_C_RI
 #define P_C_RI
-  union pointRI{
+  union PointRI{
     struct{
       // Range data [m] (Note: values < range_min or > range_max should be discarded)
       float range;
@@ -218,6 +254,59 @@ namespace Visualizer {
   };
 #endif
 
+#ifndef O_C_I
+#define O_C_I
+  union CoordinatesLLA{
+    struct{
+      float latitude;
+      float longitude;
+      float altitude;
+    };
+    float data[3];
+  };
+
+  union OrientationPYR{
+    struct{
+      float pitch;
+      float yaw;
+      float roll;
+    };
+    float data[3] = { 0.0f, 0.0f, 0.0f };
+  };
+
+  union OrientationXYZW{
+    struct{
+      float x;
+      float y;
+      float z;
+      float w;
+    };
+    float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+  };
+#endif
+
+#ifndef C_RGB_A
+#define C_RGB_A
+  union ColorRGB{
+    struct{
+      float red;
+      float green;
+      float blue;
+    };
+    float data[3];
+  };
+
+  union ColorRGBA{
+    struct{
+      float red;
+      float green;
+      float blue;
+      float alpha;
+    };
+    float data[4];
+  };
+#endif
+
 #ifndef P_C_DENSE
 #define P_C_DENSE
   enum LaserFieldType : unsigned int {
@@ -247,12 +336,22 @@ namespace Visualizer {
   };
 #endif
 
-  enum ColorMode : unsigned int{
-    GRAYSCALE  = 0u,
-    MONOCHROME = 1u,
-    VARIABLE   = 2u,
-    NONE       = 3u
+  enum class ColorMode : unsigned int{
+    INTENSITY = 0u,
+    COLORMAP  = 1u,
+    SOLID     = 2u,
+    DATA      = 3u
   };
+
+  enum class PointCloudType : unsigned int{
+    XYZ      = 0u,
+    XYZI     = 1u,
+    XYZRGB   = 2u,
+    XYZRGBI  = 3u,
+    XYZRGBA  = 4u,
+    XYZRGBAI = 5u
+  };
+
   // ------------------------------------------------------------------------------------ //
   // -------------------------------- OBJECT MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //
@@ -263,38 +362,58 @@ namespace Visualizer {
     SQUARE   = 3u
   };
 
+#ifndef O_M_A
+#define O_M_A
+  struct Arrow{
+    // Arrow's orientation [quaternion]
+    OrientationXYZW orientation;
+    // Arrow's length in meters
+    float length = 1.0f;
+    // Display the arrow
+    bool display = true;
+  };
+#endif
+
 #ifndef O_M_D
 #define O_M_D
   struct Object{
     // Object position (LOCATED at the object's center)
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
+    PointXYZ position;
     // Object orientation (in radians)
-    struct{
-      float x = 0.0f;
-      float y = 0.0f;
-      float z = 0.0f;
-      float w = 0.0f;
-    } orientation, arrow_orientation;
+    OrientationXYZW orientation;
+    // Object's RGBA color
+    ColorRGBA color = ColorRGBA{ 255.0f, 255.0f, 255.0f, 255.0f };
+    // Arrow's properties:
+    Arrow arrow;
     // Object's size in meters
     float width  = 1.0f;
     float length = 1.0f;
     float height = 1.0f;
-    // Object's color (0 to 255)
-    float r     = 255.0f;
-    float g     = 255.0f;
-    float b     = 255.0f;
-    float alpha = 255.0f;
-    // Arrow's properties:
-    // Arrow's length in meters
-    float arrow_length = 1.0f;
-    // Displays the arrow
-    bool arrow = true;
     // Displays the object as a solid (filled faces)
     bool solid = false;
     // Line width in meters
     float line_width = 0.1f;
+    std::string name;
+  };
+#endif
+
+#ifndef O_M_P
+#define O_M_P
+  struct Polygon{
+    // Object's center position
+    PointXYZ position;
+    // Object polygon shape, the origin is located at **position**
+    std::vector<PointXYZ> points;
+    // Object orientation (in radians)
+    OrientationXYZW orientation;
+    // Object's RGBA color
+    ColorRGBA color = ColorRGBA{ 255.0f, 255.0f, 255.0f, 255.0f };
+    // Arrow's properties:
+    Arrow arrow;
+    // Object's height in meters
+    float height = 1.0f;
+    // Displays the object as a solid (filled faces)
+    bool solid = false;
     std::string name;
   };
 #endif
@@ -341,14 +460,9 @@ namespace Visualizer {
 #define T_M_E
   struct TrajectoryVertex{
     // Object position
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
+    PointXYZ position;
     // Object's color (0 to 255)
-    float r     = 255.0f;
-    float g     = 255.0f;
-    float b     = 255.0f;
-    float alpha = 255.0f;
+    ColorRGBA color = ColorRGBA{ 255.0f, 255.0f, 255.0f, 255.0f };
     // Line width in meters
     float line_width = 1.0f;
     // Rotation angle in radians
@@ -393,10 +507,7 @@ namespace Visualizer {
   union Ground2D{
     struct{
       // RGBA color (range 0.0f to 255.0f)
-      float r;
-      float g;
-      float b;
-      float alpha;
+      ColorRGBA color;
     };
     float data[4] = { 255.0f, 255.0f, 255.0f, 255.0f };
   };
@@ -404,10 +515,7 @@ namespace Visualizer {
   union Ground3D{
     struct{
       // RGBA color (range 0.0f to 255.0f)
-      float r;
-      float g;
-      float b;
-      float alpha;
+      ColorRGBA color;
       // cube's Height in meters
       float height;
     };
@@ -417,14 +525,9 @@ namespace Visualizer {
   union FreeGround2D{
     struct{
       // Position
-      float x;
-      float y;
-      float z;
+      PointXYZ position;
       // RGBA color (range 0.0f to 255.0f)
-      float r;
-      float g;
-      float b;
-      float alpha;
+      ColorRGBA color;
       // Dimensions
       float width;
       float length;
@@ -435,14 +538,9 @@ namespace Visualizer {
   union FreeGround3D{
     struct{
       // Position
-      float x;
-      float y;
-      float z;
+      PointXYZ position;
       // RGBA color (range 0.0f to 255.0f)
-      float r;
-      float g;
-      float b;
-      float alpha;
+      ColorRGBA color;
       // Dimensions
       float width;
       float length;
@@ -458,10 +556,7 @@ namespace Visualizer {
       // Angle
       float angle;
       // RGBA color (range 0.0f to 255.0f)
-      float r;
-      float g;
-      float b;
-      float alpha;
+      ColorRGBA color;
       // Dimensions
       float width;
       float length;
@@ -476,10 +571,7 @@ namespace Visualizer {
       // Angle
       float angle;
       // RGBA color (range 0.0f to 255.0f)
-      float r;
-      float g;
-      float b;
-      float alpha;
+      ColorRGBA color;
       // Dimensions
       float width;
       float length;
@@ -498,16 +590,9 @@ namespace Visualizer {
     // Number of cells through X axis
     unsigned int number_of_elements_through_length = 100u;
     // Map origin
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
+    PointXYZ origin;
     // Map orientation
-    struct {
-      float x = 0.0f;
-      float y = 0.0f;
-      float z = 0.0f;
-      float w = 0.0f;
-    } quaternion;
+    OrientationXYZW quaternion;
   };
 #endif
 
@@ -539,37 +624,9 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
 #ifndef V_M_S
 #define V_M_S
-  union CoordinatesLLA{
-    struct{
-      float latitude;
-      float longitude;
-      float altitude;
-    };
-    float data[3];
-  };
-
-  union OrientationPYR{
-    struct{
-      float pitch;
-      float yaw;
-      float roll;
-    };
-    float data[3];
-  };
-
-  union OrientationXYZW{
-    struct{
-      float x;
-      float y;
-      float z;
-      float w;
-    };
-    float data[4];
-  };
-
   struct Vehicle{
-    CoordinatesLLA position;
-    pointXYZ position_xyz, velocity, acceleration;
+    CoordinatesLLA position = CoordinatesLLA{ 0.0f, 0.0f, 0.0f };
+    PointXYZ position_xyz, velocity, acceleration;
     OrientationXYZW orientation;
     OrientationPYR euler;
 
@@ -631,16 +688,9 @@ namespace Visualizer {
     BOLDER  = 4u
   };
 
-  enum TextType : unsigned int {
-    THREE_DIMENSIONAL = 0u,
-    TWO_DIMENSIONAL   = 1u
-  };
-
   struct TextSimple {
     // Position [meters]
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
+    PointXYZ position;
     // Orientation angle (in the screen's plane) [radians]
     float angle = 0.0f;
     // Text
@@ -649,25 +699,18 @@ namespace Visualizer {
 
   struct TextColored {
     // Position [meters]
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
+    PointXYZ position;
     // Orientation angle (in the screen's plane) [radians]
     float angle = 0.0f;
     // Color (range 0.0f -> 255.0f):
-    float r     = 255.0f;
-    float g     = 255.0f;
-    float b     = 255.0f;
-    float alpha = 255.0f;
+    ColorRGBA color = ColorRGBA{ 255.0f, 255.0f, 255.0f, 255.0f };
     // Text
     std::string text;
   };
 
   struct TextSimpleShader{
     // Origin:
-    float x;
-    float y;
-    float z;
+    PointXYZ origin;
     // Position
     float p_x;
     float p_y;
@@ -687,9 +730,7 @@ namespace Visualizer {
 
   struct TextColoredShader{
     // Origin:
-    float x;
-    float y;
-    float z;
+    PointXYZ origin;
     // Position
 //    float p_x;
 //    float p_y;
@@ -789,17 +830,8 @@ namespace Visualizer {
   struct StreetVertex {
     // Position
     union {
-      struct {
-        float x;
-        float y;
-        float z;
-      };
-      struct {
-        float latitude;
-        float longitude;
-        float altitude;
-      };
-      float position[3] = { 0.0f, 0.0f, 0.0f };
+      PointXYZ position;
+      CoordinatesLLA coordinates = CoordinatesLLA{ 0.0f, 0.0f, 0.0f };
     };
     // Dimension
     float width = 1.0f;
@@ -831,25 +863,11 @@ namespace Visualizer {
   struct Signal {
     // Position
     union {
-      struct {
-        float x;
-        float y;
-        float z;
-      };
-      struct {
-        float latitude;
-        float longitude;
-        float altitude;
-      };
-      float position[3] = { 0.0f, 0.0f, 0.0f };
+      PointXYZ position;
+      CoordinatesLLA coordinates = CoordinatesLLA{ 0.0f, 0.0f, 0.0f };
     };
     // Orientation (in radians)
-    struct{
-      float x = 0.0f;
-      float y = 0.0f;
-      float z = 0.0f;
-      float w = 0.0f;
-    } quaternion;
+    OrientationPYR euler;
     // Type of signal
     SignalType type = SignalType::SpeedLimit;
     // Visibility
@@ -948,9 +966,7 @@ namespace Visualizer {
   struct PBR_GUIShader {
     float angle = 0.0f;
     // Object color
-    float r     = 1.0f;
-    float g     = 1.0f;
-    float b     = 1.0f;
+    ColorRGB color = ColorRGB{ 255.0f, 255.0f, 255.0f };
   };
 
   struct GUITextShader{
@@ -973,6 +989,21 @@ namespace Visualizer {
     float g = 1.0f;
     float b = 1.0f;
     float a = 1.0f;
+  };
+
+  // ------------------------------------------------------------------------------------ //
+  // --------------------------------- CAMERA MANAGEMENT -------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+  struct CameraElement {
+    Toreo::CameraElement *camera = nullptr;
+    std::string name;
+    bool visibility;
+    boost::signals2::connection connection;
+  };
+
+  enum class Dimensionality : unsigned int {
+    THREE_DIMENSIONAL = 0u,
+    TWO_DIMENSIONAL   = 1u
   };
 }
 

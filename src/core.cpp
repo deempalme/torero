@@ -428,7 +428,7 @@ namespace Toreo {
     is_maximized_ = !is_maximized_;
   }
 
-  void Core::message_handler(const std::string text, const Visualizer::Message message_type){
+  void Core::message_handler(const std::string message, const Visualizer::Message message_type){
     switch(message_type){
     case Visualizer::Message::ERROR:
       std::cout << "\n\033[1;41m Error: \033[0;1;38;5;174m ";
@@ -443,7 +443,11 @@ namespace Toreo {
       std::cout << "\n\033[1;30;42m Message received: \033[0;1;38;5;193m ";
       break;
     }
-    std::cout << text << "\033[0m\n" << std::endl;
+    std::cout << message << "\033[0m" << std::endl;
+  }
+
+  void Core::message_handler(const unsigned int message, const Visualizer::Message message_type){
+    message_handler(std::to_string(message), message_type);
   }
 
   void Core::minimize(const bool minimized){

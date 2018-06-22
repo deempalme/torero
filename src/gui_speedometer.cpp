@@ -81,9 +81,9 @@ namespace Toreo {
       for(std::size_t i = 22; i < 30; ++i){
         marker_objects_[i].angle = -_42_DEGREES - _15_DEGREES * (i - 22);
         if(i == 22 || i == 23){
-          marker_objects_[i].r = 0.965f;
-          marker_objects_[i].g = 0.357f;
-          marker_objects_[i].b = 0.463f;
+          marker_objects_[i].color.red = 0.965f;
+          marker_objects_[i].color.green = 0.357f;
+          marker_objects_[i].color.blue = 0.463f;
         }
       }
 
@@ -120,13 +120,13 @@ namespace Toreo {
     if(speed_position != previous_speed_level_){
       for(std::size_t i = 0; i < 22; ++i)
         if(i < speed_position){
-          marker_objects_[i].r = 0.6784f;
-          marker_objects_[i].g = 0.9569f;
-          marker_objects_[i].b = 0.2588f;
+          marker_objects_[i].color.red = 0.6784f;
+          marker_objects_[i].color.green = 0.9569f;
+          marker_objects_[i].color.blue = 0.2588f;
         }else{
-          marker_objects_[i].r = 0.220f;
-          marker_objects_[i].g = 0.855f;
-          marker_objects_[i].b = 1.0f;
+          marker_objects_[i].color.red = 0.220f;
+          marker_objects_[i].color.green = 0.855f;
+          marker_objects_[i].color.blue = 1.0f;
         }
       previous_speed_level_ = speed_position;
       speed_changed = true;
@@ -137,23 +137,23 @@ namespace Toreo {
     if(rpm_position != previous_rpm_level_){
       for(std::size_t i = 22; i < 30; ++i)
         if(rpm_position <= 23){
-          marker_objects_[i].r = 1.0f;
-          marker_objects_[i].g = 0.36f;
-          marker_objects_[i].b = 0.36f;
+          marker_objects_[i].color.red = 1.0f;
+          marker_objects_[i].color.green = 0.36f;
+          marker_objects_[i].color.blue = 0.36f;
         }else if(i < rpm_position){
           if(i == 22 || i == 23){
-            marker_objects_[i].r = 0.965f;
-            marker_objects_[i].g = 0.357f;
-            marker_objects_[i].b = 0.463f;
+            marker_objects_[i].color.red = 0.965f;
+            marker_objects_[i].color.green = 0.357f;
+            marker_objects_[i].color.blue = 0.463f;
           }else{
-            marker_objects_[i].r = 0.220f;
-            marker_objects_[i].g = 0.855f;
-            marker_objects_[i].b = 1.0f;
+            marker_objects_[i].color.red = 0.220f;
+            marker_objects_[i].color.green = 0.855f;
+            marker_objects_[i].color.blue = 1.0f;
           }
         }else{
-          marker_objects_[i].r = 0.9569f;
-          marker_objects_[i].g = 0.6196f;
-          marker_objects_[i].b = 0.2588f;
+          marker_objects_[i].color.red = 0.9569f;
+          marker_objects_[i].color.green = 0.6196f;
+          marker_objects_[i].color.blue = 0.2588f;
         }
       previous_rpm_level_ = rpm_position;
       rpm_changed = true;
