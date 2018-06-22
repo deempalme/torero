@@ -17,7 +17,7 @@ namespace Toreo {
   class TextObject
   {
   public:
-    TextObject(Shader *shader, const Visualizer::TextType dimensions);
+    TextObject(Shader *shader, const Visualizer::Dimensionality dimensions);
 
     void set_input(const std::vector<Visualizer::TextSimple> *text);
     void set_input(const std::vector<Visualizer::TextColored> *text);

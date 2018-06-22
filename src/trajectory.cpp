@@ -72,9 +72,10 @@ namespace Toreo {
           // Example with a line containing 6 vertices:
           // A A–B-C-D-E–F F
           for(size_t i = 0; i < total; i++){
-            second.color(line[i].r, line[i].g, line[i].b, line[i].alpha);
+            second.color(line[i].color.red, line[i].color.green,
+                         line[i].color.blue, line[i].color.alpha);
             second.line_width = line[i].line_width;
-            second.position(-line[i].y, line[i].z, -line[i].x);
+            second.position(-line[i].position.y, line[i].position.z, -line[i].position.x);
             second.angle = line[i].angle;
             if(i == 0){
               second.distance = 0;

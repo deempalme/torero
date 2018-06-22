@@ -106,9 +106,9 @@ namespace Toreo {
 
       for(std::size_t i = 0; i < 13; ++i){
         marker_objects_[i].angle = - _10_DEGREES * i;
-        marker_objects_[i].r = 0.24125f;
-        marker_objects_[i].g = 0.08925f;
-        marker_objects_[i].b = 0.11575f;
+        marker_objects_[i].color.red = 0.24125f;
+        marker_objects_[i].color.green = 0.08925f;
+        marker_objects_[i].color.blue = 0.11575f;
       }
 
       for(std::size_t i = 13; i < 26; ++i)
@@ -157,13 +157,13 @@ namespace Toreo {
 
         for(std::size_t i = 0; i < 13; ++i){
           if(i < brake_level){
-            marker_objects_[i].r = 0.965f;
-            marker_objects_[i].g = 0.357f;
-            marker_objects_[i].b = 0.463f;
+            marker_objects_[i].color.red = 0.965f;
+            marker_objects_[i].color.green = 0.357f;
+            marker_objects_[i].color.blue = 0.463f;
           }else{
-            marker_objects_[i].r = 0.24125f;
-            marker_objects_[i].g = 0.08925f;
-            marker_objects_[i].b = 0.11575f;
+            marker_objects_[i].color.red = 0.24125f;
+            marker_objects_[i].color.green = 0.08925f;
+            marker_objects_[i].color.blue = 0.11575f;
           }
         }
         update_brakes = true;
@@ -174,13 +174,13 @@ namespace Toreo {
 
         for(std::size_t e = 0, i = 13; e < 13; ++e, ++i){
           if(e < gas_level){
-            marker_objects_[i].r = 0.0f;
-            marker_objects_[i].g = 1.0f;
-            marker_objects_[i].b = 0.698f;
+            marker_objects_[i].color.red = 0.0f;
+            marker_objects_[i].color.green = 1.0f;
+            marker_objects_[i].color.blue = 0.698f;
           }else{
-            marker_objects_[i].r = 0.0f;
-            marker_objects_[i].g = 0.25f;
-            marker_objects_[i].b = 0.1745f;
+            marker_objects_[i].color.red = 0.0f;
+            marker_objects_[i].color.green = 0.25f;
+            marker_objects_[i].color.blue = 0.1745f;
           }
         }
         update_gas = true;
@@ -193,9 +193,9 @@ namespace Toreo {
         previous_cloutch_ = clutch;
         const float new_clutch{0.1f + clutch * 0.9f};
 
-        clutch_objects_[0].r = clutch_color_[0] * new_clutch;
-        clutch_objects_[0].g = clutch_color_[1] * new_clutch;
-        clutch_objects_[0].b = clutch_color_[2] * new_clutch;
+        clutch_objects_[0].color.red = clutch_color_[0] * new_clutch;
+        clutch_objects_[0].color.green = clutch_color_[1] * new_clutch;
+        clutch_objects_[0].color.blue = clutch_color_[2] * new_clutch;
 
         update_buffer(&buffer_clutch_, &buffer_clutch_objects_, 1, clutch_objects_);
       }

@@ -3,7 +3,7 @@
 
 // OpenGL loader and core library
 #include "glad/glad.h"
-
+// Torero includes
 #include "torero/definitions.h"
 #include "torero/point_cloud.h"
 #include "torero/shader.h"
@@ -47,12 +47,12 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZ`, you must also
+     * This will add a new point cloud with values type `Visualizer::PointXYZ`, you must also
      * define a **RGB color** to color all the points. It will return the point cloud's **ID**,
      * this will be useful if you want to modify properties or values of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZ>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZ>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -68,7 +68,7 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    PCMid add(const std::vector<Visualizer::pointXYZ> *point_cloud,
+    PCMid add(const std::vector<Visualizer::PointXYZ> *point_cloud,
               const std::string name,
               const Algebraica::mat4f *transformation_matrix = nullptr,
               const float color_red = 255.0f,
@@ -80,13 +80,13 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud with intensity values
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZI`, the intensity
+     * This will add a new point cloud with values type `Visualizer::PointXYZI`, the intensity
      * value is included in the data and you must define the maximum value that the intensity
      * could reach. It will return the point cloud's **ID**, this will be useful if you want
      * to modify properties or values of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZI>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZI>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -100,22 +100,22 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    PCMid add(const std::vector<Visualizer::pointXYZI> *point_cloud,
+    PCMid add(const std::vector<Visualizer::PointXYZI> *point_cloud,
               const std::string name,
               const Algebraica::mat4f *transformation_matrix = nullptr,
-              const Visualizer::ColorMode color_mode = Visualizer::VARIABLE,
+              const Visualizer::ColorMode color_mode = Visualizer::ColorMode::COLORMAP,
               const bool visible = true,
               const float point_size = 1.0f,
               const float maximum_intensity_value = 1.0f);
     /*
      * ### Adding a new 3D point cloud with RGB colors
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZRGB`, each point
+     * This will add a new point cloud with values type `Visualizer::PointXYZRGB`, each point
      * must include its own **RGB color**. It will return the point cloud's **ID**, this will
      * be useful if you want to modify properties or values of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZRGB>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZRGB>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -128,7 +128,13 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    PCMid add(const std::vector<Visualizer::pointXYZRGB> *point_cloud,
+    PCMid add(const std::vector<Visualizer::PointXYZRGB> *point_cloud,
+              const std::string name,
+              const Algebraica::mat4f *transformation_matrix = nullptr,
+              const bool visible = true,
+              const float point_size = 1.0f,
+              const float maximum_intensity_value = 1.0f);
+    PCMid add(const std::vector<Visualizer::PointXYZRGBI> *point_cloud,
               const std::string name,
               const Algebraica::mat4f *transformation_matrix = nullptr,
               const bool visible = true,
@@ -137,13 +143,13 @@ namespace Toreo {
     /*
      * ### Adding a new 3D point cloud with RGB colors and transparency
      *
-     * This will add a new point cloud with values type `Visualizer::pointXYZRGBA`, each point
+     * This will add a new point cloud with values type `Visualizer::PointXYZRGBA`, each point
      * must include its own **RGB color** and its Alpha value (transparency). It will return
      * the point cloud's **ID**, this will be useful if you want to modify properties or values
      * of the created point cloud.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
+     * {const std::vector<Visualizer::PointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
      * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
@@ -156,76 +162,12 @@ namespace Toreo {
      * {PCMid} Point cloud identification number (use it for future modifications)
      *
      */
-    PCMid add(const std::vector<Visualizer::pointXYZRGBA> *point_cloud,
+    PCMid add(const std::vector<Visualizer::PointXYZRGBA> *point_cloud,
               const std::string name,
               const Algebraica::mat4f *transformation_matrix = nullptr,
               const bool visible = true,
               const float point_size = 1.0f,
               const float maximum_intensity_value = 1.0f);
-    /*
-     * ### Changing the point cloud data input: 3D
-     *
-     * This function changes the data input for the three-dimensional **point cloud**
-     * with *identification number* = `id`.
-     *
-     * **Arguments**
-     * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const std::vector<Visualizer::pointXYZ>*} point_cloud = new address to a 3D point cloud's
-     * data.
-     *
-     * **Returns**
-     * {bool} Returns `false` if the point cloud with **id** was **not** found.
-     *
-     */
-    bool change_input(PCMid id, const std::vector<Visualizer::pointXYZ> *point_cloud);
-    /*
-     * ### Changing the point cloud data input: 3D and intensity
-     *
-     * This function changes the data input for the three-dimensional **point cloud**
-     * with *identification number* = `id`.
-     *
-     * **Arguments**
-     * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const std::vector<Visualizer::pointXYZI>*} point_cloud = new address to a 3D point cloud's
-     * data.
-     *
-     * **Returns**
-     * {bool} Returns `false` if the point cloud with **id** was **not** found.
-     *
-     */
-    bool change_input(PCMid id, const std::vector<Visualizer::pointXYZI> *point_cloud);
-    /*
-     * ### Changing the point cloud data input: 3D and RGB colord
-     *
-     * This function changes the data input for the three-dimensional **point cloud**
-     * with *identification number* = `id`.
-     *
-     * **Arguments**
-     * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const std::vector<Visualizer::pointXYZRGB>*} point_cloud = new address to a 3D point
-     * cloud's data.
-     *
-     * **Returns**
-     * {bool} Returns `false` if the point cloud with **id** was **not** found.
-     *
-     */
-    bool change_input(PCMid id, const std::vector<Visualizer::pointXYZRGB> *point_cloud);
-    /*
-     * ### Changing the point cloud data input: 3D and RGBA colors
-     *
-     * This function changes the data input for the three-dimensional **point cloud**
-     * with *identification number* = `id`.
-     *
-     * **Arguments**
-     * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = new address to a 3D point
-     * cloud's data.
-     *
-     * **Returns**
-     * {bool} Returns `false` if the point cloud with **id** was **not** found.
-     *
-     */
-    bool change_input(PCMid id, const std::vector<Visualizer::pointXYZRGBA> *point_cloud);
     /*
      * ### Changing the visibility of a point cloud
      *
@@ -260,12 +202,21 @@ namespace Toreo {
      * in the array `colors`.
      *
      */
-    bool set_colormap(PCMid id, const Algebraica::vec3f *colors, const unsigned int quantity = 1u);
+    bool set_colormap(PCMid id, const Visualizer::ColorRGB color);
+    bool set_colormap(PCMid id, const std::vector<Visualizer::ColorRGB> &colors);
     /*
      * ### Setting the color mode
      *
      * Sets the color mode; it could be *grayscale*, *monochrome*, *variable* or *none*. See
      * **color mode** types for more information.
+     *
+     * Visualizer::ColorMode::INTENSITY -> Colorize points multiplying *intensity* and
+     *                                     first color in *color_palete*
+     * Visualizer::ColorMode::SOLID     -> Colorize all points using only the first color in
+     *                                     *color_palete*
+     * Visualizer::ColorMode::COLORMAP  -> Colorize points interpolating the *color_palete*
+     *                                     using the point intensity
+     * Visualizer::ColorMode::DATA      -> Use this when you specify colors for each point
      *
      * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
@@ -275,11 +226,8 @@ namespace Toreo {
      * {bool} Returns `false` if the point cloud with **id** was **not** found.
      *
      */
-    //  Visualizer::GRAYSCALE  -> draws all the points in grayscale
-    //  Visualizer::MONOCHROME -> draws all the points in one color (the first color in the palette)
-    //  Visualizer::VARIABLE   -> draws all the points within the colormap relative to their intensity
-    //  Visualizer::NONE       -> use this when using RGB or RGBA data
-    bool set_color_mode(PCMid id, const Visualizer::ColorMode color_mode = Visualizer::VARIABLE);
+    bool set_color_mode(PCMid id,
+                        const Visualizer::ColorMode color_mode = Visualizer::ColorMode::COLORMAP);
     /*
      * ### Setting the transformation matrix
      *

@@ -32,7 +32,7 @@ namespace Toreo {
     // ------------------------------------------------------------------------------------ //
     // ------------------------------- OBJECTS MANAGEMENT --------------------------------- //
     // ------------------------------------------------------------------------------------ //
-    // This will add a new point cloud with values Visualizer::pointXYZ, you must also define
+    // This will add a new point cloud with values Visualizer::PointXYZ, you must also define
     // a RGB color. It will return the point cloud's ID, it will be useful if you want to
     // modify properties or values of the created point cloud.
     OMid add_boxes(const std::vector<Visualizer::Object> *objects,
