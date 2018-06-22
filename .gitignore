@@ -32,5 +32,5 @@
 *.app
 
 # Excluding compiled files and folders
-/lib/coordinate_conversor
-CMakeLists.txt
+#/lib/coordinate_conversor
+*.user
