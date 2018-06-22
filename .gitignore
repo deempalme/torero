@@ -33,4 +33,4 @@
 
 # Excluding compiled files and folders
 #/lib/coordinate_conversor
-CMakeLists.txt
+*.user
