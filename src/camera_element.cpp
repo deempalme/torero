@@ -1,12 +1,12 @@
 #include "torero/camera_element.h"
 
-namespace Toreo {
+namespace torero {
   CameraElement::CameraElement(Shader *shader) :
     shader_(shader),
     buffer_(true),
     buffer_plane_(true),
     camera_(nullptr),
-    dimensionality_(Visualizer::Dimensionality::THREE_DIMENSIONAL),
+    dimensionality_(torero::Dimensionality::ThreeDimensional),
     identity_matrix_(),
     primary_model_(&identity_matrix_),
     secondary_model_(),
@@ -26,7 +26,7 @@ namespace Toreo {
     u_secondary_model_  = shader_->uniform_location("u_secondary_model");
   }
 
-  void CameraElement::set_camera(const Visualizer::ImageFile *video_input){
+  void CameraElement::set_camera(const torero::ImageFile *video_input){
     camera_ = video_input;
   }
 
@@ -34,11 +34,11 @@ namespace Toreo {
     curvature_ = curvature;
   }
 
-  void CameraElement::set_dimensions(const Visualizer::Dimensionality number_of_dimensions){
+  void CameraElement::set_dimensions(const torero::Dimensionality number_of_dimensions){
     dimensionality_ = number_of_dimensions;
   }
 
-  void CameraElement::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void CameraElement::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix ? transformation_matrix : &identity_matrix_;
   }
 
@@ -46,7 +46,7 @@ namespace Toreo {
     secondary_model_.translate(x, y, z);
   }
 
-  void CameraElement::translate(const Algebraica::vec3f translation){
+  void CameraElement::translate(const algebraica::vec3f translation){
     secondary_model_.translate(translation.x(), translation.y(), translation.z());
   }
 
@@ -61,7 +61,7 @@ namespace Toreo {
     secondary_model_.rotate(pitch, yaw, roll);
   }
 
-  void CameraElement::rotate(const Algebraica::vec3f rotation){
+  void CameraElement::rotate(const algebraica::vec3f rotation){
     secondary_model_.rotate(rotation.x(), rotation.y(), rotation.z());
   }
 

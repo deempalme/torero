@@ -1,13 +1,13 @@
 #include "torero/text_object.h"
 
-namespace Toreo {
-  TextObject::TextObject(Shader *shader, const Visualizer::Dimensionality dimensions) :
+namespace torero {
+  TextObject::TextObject(Shader *shader, const torero::Dimensionality dimensions) :
     shader_(shader),
     buffer_(true),
     font_(nullptr),
-    type_(Visualizer::Complexity::SIMPLE),
-    weight_(Visualizer::TextWeight::NORMAL),
-    is_3D_(dimensions == Visualizer::Dimensionality::THREE_DIMENSIONAL),
+    type_(torero::Complexity::Simple),
+    weight_(torero::TextWeight::Normal),
+    is_3D_(dimensions == torero::Dimensionality::ThreeDimensional),
     text_simple_(nullptr),
     text_colored_(nullptr),
     text_origins_(0),
@@ -26,9 +26,9 @@ namespace Toreo {
     has_fog_int_(0),
     has_border_int_(0),
     has_color_int_(0),
-    vertical_alignment_(Visualizer::Alignment::TOP),
-    horizontal_alignment_(Visualizer::Alignment::LEFT),
-    type_size_(sizeof(Visualizer::TextSimpleShader)),
+    vertical_alignment_(torero::Alignment::Top),
+    horizontal_alignment_(torero::Alignment::Left),
+    type_size_(sizeof(torero::TextSimpleShader)),
     data_size_(0),
     size_1_(sizeof(float)),
     size_2_(size_1_ * 2),
@@ -38,14 +38,14 @@ namespace Toreo {
     initialize();
   }
 
-  void TextObject::set_input(const std::vector<Visualizer::TextSimple> *text){
-    if(type_ == Visualizer::Complexity::SIMPLE)
+  void TextObject::set_input(const std::vector<torero::TextSimple> *text){
+    if(type_ == torero::Complexity::Simple)
       text_simple_ = text;
     else{
       text_simple_ = text;
       text_colored_ = nullptr;
-      type_ = Visualizer::Complexity::SIMPLE;
-      type_size_ = sizeof(Visualizer::TextSimpleShader);
+      type_ = torero::Complexity::Simple;
+      type_size_ = sizeof(torero::TextSimpleShader);
       data_size_ = 0;
       has_color_ = true;
       has_color_int_ = 1;
@@ -53,14 +53,14 @@ namespace Toreo {
     }
   }
 
-  void TextObject::set_input(const std::vector<Visualizer::TextColored> *text){
-    if(type_ == Visualizer::Complexity::MEDIUM)
+  void TextObject::set_input(const std::vector<torero::TextColored> *text){
+    if(type_ == torero::Complexity::Medium)
       text_colored_ = text;
     else{
       text_simple_ = nullptr;
       text_colored_ = text;
-      type_ = Visualizer::Complexity::MEDIUM;
-      type_size_ = sizeof(Visualizer::TextColoredShader);
+      type_ = torero::Complexity::Medium;
+      type_size_ = sizeof(torero::TextColoredShader);
       data_size_ = 0;
       has_orientation_ = 1.0f;
     }
@@ -82,7 +82,7 @@ namespace Toreo {
   }
 
   void TextObject::set_size(const unsigned int size){
-    size_softness_weight_[0] = FLOAT(size);
+    size_softness_weight_[0] = ToFloat(size);
     set_weight(weight_);
   }
 
@@ -90,28 +90,28 @@ namespace Toreo {
     line_height_ = line_height;
   }
 
-  void TextObject::set_vertical_alignment(const Visualizer::Alignment alignment){
+  void TextObject::set_vertical_alignment(const torero::Alignment alignment){
     vertical_alignment_ = alignment;
   }
 
-  void TextObject::set_horizontal_alignment(const Visualizer::Alignment alignment){
+  void TextObject::set_horizontal_alignment(const torero::Alignment alignment){
     horizontal_alignment_ = alignment;
   }
 
-  void TextObject::set_weight(const Visualizer::TextWeight weight){
+  void TextObject::set_weight(const torero::TextWeight weight){
     weight_ = weight;
     float multiplier;
-    switch(weight){
-    case Visualizer::TextWeight::LIGHTER:
+    switch(static_cast<unsigned int>(weight)){
+    case static_cast<unsigned int>(torero::TextWeight::Lighter):
       multiplier = 0.03f;
     break;
-    case Visualizer::TextWeight::LIGHT:
+    case static_cast<unsigned int>(torero::TextWeight::Light):
       multiplier = 0.06f;
     break;
-    case Visualizer::TextWeight::BOLD:
+    case static_cast<unsigned int>(torero::TextWeight::Bold):
       multiplier = 0.15f;
     break;
-    case Visualizer::TextWeight::BOLDER:
+    case static_cast<unsigned int>(torero::TextWeight::Bolder):
       multiplier = 0.2f;
     break;
     default:
@@ -122,17 +122,17 @@ namespace Toreo {
   }
 
   bool TextObject::set_edge_softness(const unsigned int softness){
-    size_softness_weight_[1] = FLOAT(softness);
+    size_softness_weight_[1] = ToFloat(softness);
   }
 
   bool TextObject::set_border_width(const unsigned int width){
-    border_width_softness_offset_[0] = FLOAT(width);
+    border_width_softness_offset_[0] = ToFloat(width);
     has_border_ = width > 0;
     has_border_int_ = (has_border_)? 1 : 0;
   }
 
   bool TextObject::set_border_softness(const unsigned int softness){
-    border_width_softness_offset_[1] = FLOAT(softness);
+    border_width_softness_offset_[1] = ToFloat(softness);
   }
 
   bool TextObject::set_border_color(const float R, const float G, const float B, const float A){
@@ -140,11 +140,11 @@ namespace Toreo {
   }
 
   bool TextObject::set_border_offset(const unsigned int x, const unsigned int y){
-    border_width_softness_offset_[2] = FLOAT(x);
-    border_width_softness_offset_[3] = FLOAT(y);
+    border_width_softness_offset_[2] = ToFloat(x);
+    border_width_softness_offset_[3] = ToFloat(y);
   }
 
-  void TextObject::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void TextObject::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -172,18 +172,18 @@ namespace Toreo {
     bool no_error{shader_->use() && font_};
 
     if(no_error){
-      if(type_ == Visualizer::Complexity::MEDIUM){
+      if(type_ == torero::Complexity::Medium){
 //        std::size_t counter{0u}, index{0u};
 //        text_origins_.resize(text_colored_->size());
-//        for(const Visualizer::TextColored &text : *text_colored_){
+//        for(const torero::TextColored &text : *text_colored_){
 //          counter += text.text.size();
 //        }
 
-//        std::vector<Visualizer::TextColoredShader> buffer_data(counter);
+//        std::vector<torero::TextColoredShader> buffer_data(counter);
 
-//        for(const Visualizer::TextColored &text : *text_colored_){
+//        for(const torero::TextColored &text : *text_colored_){
 //          std::vector<float> line_start(0);
-//          Algebraica::vec2f offset;
+//          algebraica::vec2f offset;
 //          std::size_t previous_index{index};
 
 //          text_metrics(text.text, &offset, &line_start, &index, nullptr, &buffer_data);
@@ -214,16 +214,16 @@ namespace Toreo {
 //        }
 //        buffer_data.resize(index);
 
-        std::vector<Visualizer::TextColoredShader> buffer_data(1);
-        buffer_data[0].origin.x = 0.0f;
-        buffer_data[0].origin.y = 0.0f;
-        buffer_data[0].origin.z = 0.0f;
+        std::vector<torero::TextColoredShader> buffer_data(1);
+        buffer_data[0].origin.point.x = 0.0f;
+        buffer_data[0].origin.point.y = 0.0f;
+        buffer_data[0].origin.point.z = 0.0f;
 
         data_size_ = buffer_data.size();
         buffer_.vertex_bind();
         buffer_.allocate_array(buffer_data.data(), data_size_ * type_size_, GL_DYNAMIC_DRAW);
 
-        GLint offset{0};
+//        GLint offset{0};
         buffer_.enable(i_origin_);
         buffer_.attributte_buffer(i_origin_, _3D, 0, type_size_);
 
@@ -306,14 +306,14 @@ namespace Toreo {
     u_oriented_         = shader_->uniform_location("u_oriented");
   }
 
-  void TextObject::text_metrics(const std::string &text, Algebraica::vec2f *offset,
+  void TextObject::text_metrics(const std::string &text, algebraica::vec2f *offset,
                                 std::vector<float> *line_starts, std::size_t *last,
-                                std::vector<Visualizer::TextSimpleShader> *simple,
-                                std::vector<Visualizer::TextColoredShader> *colored){
+                                std::vector<torero::TextSimpleShader> *simple,
+                                std::vector<torero::TextColoredShader> *colored){
 //    float maximum_length{0.0f}, counter{0.0f};
 //    float lines{1.0f}, font_size{size_softness_weight_[0]}, line_size{font_size * line_height_};
 //    const std::size_t size{text.size()};
-//    const std::vector<Visualizer::FontCharacter> *font{font_->characters()};
+//    const std::vector<torero::FontCharacter> *font{font_->characters()};
 //    const std::size_t fonts_size{font->size()};
 //    std::size_t e{*last};
 
@@ -334,7 +334,7 @@ namespace Toreo {
 ////        std::cout << text[i] << " - " << index << " - " << (*font)[index].width << std::endl;
 //      }
 //      switch(type_){
-//      case Visualizer::Complexity::MEDIUM:
+//      case torero::Complexity::MEDIUM:
 //        (*colored)[e].p_x = counter - (*font)[index].next + (*font)[index].x;
 //        (*colored)[e].p_y = (lines * line_height_ - (*font)[index].y - (*font)[index].height);
 //        (*colored)[e].width = (*font)[index].width;
@@ -366,12 +366,12 @@ namespace Toreo {
 //    std::size_t lines_size{line_starts->size()};
 
 //    switch(horizontal_alignment_){
-//    case Visualizer::Alignment::CENTER:
+//    case torero::Alignment::CENTER:
 //      for(std::size_t i = 0u; i < lines_size; ++i)
 //        (*line_starts)[i] = (maximum_length - (*line_starts)[i])/2.0f;
 //      (*offset)[0] = maximum_length/2.0f;
 //    break;
-//    case Visualizer::Alignment::RIGHT:
+//    case torero::Alignment::RIGHT:
 //      for(std::size_t i = 0u; i < lines_size; ++i)
 //        (*line_starts)[i] = maximum_length - (*line_starts)[i];
 //      (*offset)[0] = maximum_length;
@@ -384,10 +384,10 @@ namespace Toreo {
 //    }
 
 //    switch(vertical_alignment_){
-//    case Visualizer::Alignment::CENTER:
+//    case torero::Alignment::CENTER:
 //      (*offset)[1] = (lines * line_size)/2.0f;
 //    break;
-//    case Visualizer::Alignment::BOTTOM:
+//    case torero::Alignment::BOTTOM:
 //      (*offset)[1] = lines * line_size;
 //    break;
 //    default:

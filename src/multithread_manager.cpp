@@ -1,6 +1,6 @@
 #include "torero/multithread_manager.h"
 
-namespace Toreo {
+namespace torero {
   MultiThreadManager::MultiThreadManager() :
     active_processes_(0),
     awaiting_processes_(0),
@@ -13,8 +13,8 @@ namespace Toreo {
   }
 
   void MultiThreadManager::multithread_add_process(boost::function<void ()> run,
-                                                   boost::function<void ()> ready,
-                                                   boost::function<bool ()> is_ready){
+                                      boost::function<void ()> ready,
+                                      boost::function<bool ()> is_ready){
     if(active_cores_ >= cores_number_){
       Process new_process = { run, ready, is_ready };
       awaiting_processes_.push_back(new_process);
@@ -29,6 +29,10 @@ namespace Toreo {
 
       ++active_cores_;
     }
+  }
+
+  const bool &MultiThreadManager::multithread_finished(){
+    return finished_;
   }
 
   void MultiThreadManager::multithread_update_process(){
@@ -62,9 +66,5 @@ namespace Toreo {
     if(active_processes_.size() + awaiting_processes_.size() <= 0){
       finished_ = true;
     }
-  }
-
-  const bool MultiThreadManager::multithread_finished(){
-    return finished_;
   }
 }

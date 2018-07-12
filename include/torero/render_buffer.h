@@ -4,11 +4,11 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include <string>
 
-namespace Toreo {
+namespace torero {
   class RenderBuffer
   {
   public:

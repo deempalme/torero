@@ -1,9 +1,9 @@
 #include "torero/objects.h"
 
-namespace Toreo {
-  Objects::Objects(Shader *shader_program, const std::vector<Visualizer::Object> *objects,
+namespace torero {
+  Objects::Objects(Shader *shader_program, const std::vector<torero::Object> *objects,
                    Buffer *hollow, Texture *texture, Buffer *solid, Buffer *arrow,
-                   Texture *arrow_ao, const Visualizer::Shape type) :
+                   Texture *arrow_ao, const torero::Shape type) :
     shader_(shader_program),
     buffer_hollow_data_(hollow),
     buffer_hollow_(true),
@@ -22,14 +22,14 @@ namespace Toreo {
     hollow_data_size_(0),
     solid_data_size_(0),
     arrow_data_size_(0),
-    hollow_type_size_(sizeof(Visualizer::ObjectShaderHollow)),
-    solid_type_size_(sizeof(Visualizer::ObjectShaderSolid)),
-    buffer_size_(sizeof(Visualizer::ObjectBuffer))
+    hollow_type_size_(sizeof(torero::ObjectShaderHollow)),
+    solid_type_size_(sizeof(torero::ObjectShaderSolid)),
+    buffer_size_(sizeof(torero::ObjectBuffer))
   {
     initialize();
   }
 
-  void Objects::change_input(const std::vector<Visualizer::Object> *objects){
+  void Objects::change_input(const std::vector<torero::Object> *objects){
     object_ = objects;
     hollow_data_size_ = 0;
     solid_data_size_ = 0;
@@ -37,7 +37,7 @@ namespace Toreo {
     update();
   }
 
-  void Objects::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void Objects::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -65,40 +65,46 @@ namespace Toreo {
     bool no_error{shader_->use()};
 
     if(no_error){
-      std::vector<Visualizer::ObjectShaderSolid> solid_data(0);
-      std::vector<Visualizer::ObjectShaderHollow> hollow_data(0);
-      std::vector<Visualizer::ObjectShaderSolid> arrow_data(0);
+      std::vector<torero::ObjectShaderSolid> solid_data(0);
+      std::vector<torero::ObjectShaderHollow> hollow_data(0);
+      std::vector<torero::ObjectShaderSolid> arrow_data(0);
 
-      for(const Visualizer::Object &object : *object_){
+      for(const torero::Object &object : *object_){
         if(object.solid){
-          Visualizer::ObjectShaderSolid datum;
-          datum.position(-object.position.y, object.position.z, -object.position.x);
-          datum.rotation( object.orientation.y,-object.orientation.z,
-                         -object.orientation.x, object.orientation.w);
-          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
+          torero::ObjectShaderSolid datum;
+          datum.position(-object.position.point.y, object.position.point.z,
+                         -object.position.point.x);
+          datum.rotation( object.orientation.axes.y,-object.orientation.axes.z,
+                         -object.orientation.axes.x, object.orientation.axes.w);
+          datum.color(object.color.rgba.red, object.color.rgba.green,
+                      object.color.rgba.blue, object.color.rgba.alpha);
           datum.scale(object.width, object.height, object.length);
-          if(type_ == Visualizer::SQUARE || type_ == Visualizer::CIRCLE)
+          if(type_ == torero::Square || type_ == torero::Circle)
             datum.scale[1] = 1.0f;
           solid_data.push_back(datum);
         }else{
-          Visualizer::ObjectShaderHollow datum;
-          datum.position(-object.position.y, object.position.z, -object.position.x);
-          datum.rotation( object.orientation.y,-object.orientation.z,
-                         -object.orientation.x, object.orientation.w);
-          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
+          torero::ObjectShaderHollow datum;
+          datum.position(-object.position.point.y, object.position.point.z,
+                         -object.position.point.x);
+          datum.rotation( object.orientation.axes.y,-object.orientation.axes.z,
+                         -object.orientation.axes.x, object.orientation.axes.w);
+          datum.color(object.color.rgba.red, object.color.rgba.green,
+                      object.color.rgba.blue, object.color.rgba.alpha);
           datum.scale(object.width, object.height, object.length);
-          if(type_ == Visualizer::SQUARE || type_ == Visualizer::CIRCLE)
+          if(type_ == torero::Square || type_ == torero::Circle)
             datum.scale[1] = 1.0f;
           datum.line_width = object.line_width;
           hollow_data.push_back(datum);
         }
 
         if(object.arrow.display){
-          Visualizer::ObjectShaderSolid datum;
-          datum.position(-object.position.y, object.position.z, -object.position.x);
-          datum.rotation( object.orientation.y,-object.orientation.z,
-                         -object.orientation.x, object.orientation.w);
-          datum.color(object.color.red, object.color.green, object.color.blue, object.color.alpha);
+          torero::ObjectShaderSolid datum;
+          datum.position(-object.position.point.y, object.position.point.z,
+                         -object.position.point.x);
+          datum.rotation( object.orientation.axes.y,-object.orientation.axes.z,
+                         -object.orientation.axes.x, object.orientation.axes.w);
+          datum.color(object.color.rgba.red, object.color.rgba.green,
+                      object.color.rgba.blue, object.color.rgba.alpha);
           datum.scale(1.0f, 1.0f, object.arrow.length);
           arrow_data.push_back(datum);
         }
@@ -116,22 +122,22 @@ namespace Toreo {
         buffer_hollow_.attributte_buffer(i_translation_, _3D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_translation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_.enable(i_rotation_);
         buffer_hollow_.attributte_buffer(i_rotation_, _4D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_hollow_.enable(i_color_);
         buffer_hollow_.attributte_buffer(i_color_, _4D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_color_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_hollow_.enable(i_scale_);
         buffer_hollow_.attributte_buffer(i_scale_, _3D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_scale_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_.enable(i_line_width_);
         buffer_hollow_.attributte_buffer(i_line_width_, _1D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_line_width_, 1);
@@ -141,15 +147,15 @@ namespace Toreo {
         buffer_hollow_data_->enable(i_position_);
         buffer_hollow_data_->attributte_buffer(i_position_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_data_->enable(i_normal_);
         buffer_hollow_data_->attributte_buffer(i_normal_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_data_->enable(i_uv_);
         buffer_hollow_data_->attributte_buffer(i_uv_, _2D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_hollow_data_->enable(i_scales_);
         buffer_hollow_data_->attributte_buffer(i_scales_, _3D, offset, buffer_size_);
         buffer_hollow_data_->buffer_release();
@@ -169,17 +175,17 @@ namespace Toreo {
         buffer_solid_.attributte_buffer(i_translation_, _3D, offset, solid_type_size_);
         buffer_solid_.divisor(i_translation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_.enable(i_rotation_);
         buffer_solid_.attributte_buffer(i_rotation_, _4D, offset, solid_type_size_);
         buffer_solid_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_solid_.enable(i_color_);
         buffer_solid_.attributte_buffer(i_color_, _4D, offset, solid_type_size_);
         buffer_solid_.divisor(i_color_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_solid_.enable(i_scale_);
         buffer_solid_.attributte_buffer(i_scale_, _3D, offset, solid_type_size_);
         buffer_solid_.divisor(i_scale_, 1);
@@ -189,15 +195,15 @@ namespace Toreo {
         buffer_solid_data_->enable(i_position_);
         buffer_solid_data_->attributte_buffer(i_position_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_data_->enable(i_normal_);
         buffer_solid_data_->attributte_buffer(i_normal_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_data_->enable(i_uv_);
         buffer_solid_data_->attributte_buffer(i_uv_, _2D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_solid_data_->enable(i_scales_);
         buffer_solid_data_->attributte_buffer(i_scales_, _3D, offset, buffer_size_);
         buffer_solid_data_->buffer_release();
@@ -217,17 +223,17 @@ namespace Toreo {
         buffer_arrow_.attributte_buffer(i_translation_, _3D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_translation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_.enable(i_rotation_);
         buffer_arrow_.attributte_buffer(i_rotation_, _4D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_arrow_.enable(i_color_);
         buffer_arrow_.attributte_buffer(i_color_, _4D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_color_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_arrow_.enable(i_scale_);
         buffer_arrow_.attributte_buffer(i_scale_, _3D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_scale_, 1);
@@ -237,15 +243,15 @@ namespace Toreo {
         buffer_arrow_data_->enable(i_position_);
         buffer_arrow_data_->attributte_buffer(i_position_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_data_->enable(i_normal_);
         buffer_arrow_data_->attributte_buffer(i_normal_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_data_->enable(i_uv_);
         buffer_arrow_data_->attributte_buffer(i_uv_, _2D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_arrow_data_->enable(i_scales_);
         buffer_arrow_data_->attributte_buffer(i_scales_, _3D, offset, buffer_size_);
         buffer_arrow_data_->buffer_release();
@@ -312,22 +318,23 @@ namespace Toreo {
     u_solid_           = shader_->uniform_location("u_solid");
 
     switch(type_){
-    case Visualizer::CYLINDER:
-      type_size_hollow_ = 672;
-      type_size_solid_ = 144;
+      case torero::Cylinder:
+        type_size_hollow_ = 672;
+        type_size_solid_ = 144;
       break;
-    case Visualizer::BOX:
-      type_size_hollow_ = 288;
-      type_size_solid_ = 36;
+      case torero::Box:
+        type_size_hollow_ = 288;
+        type_size_solid_ = 36;
       break;
-    case Visualizer::SQUARE:
-      type_size_hollow_ = 96;
-      type_size_solid_ = 6;
+      case torero::Square:
+        type_size_hollow_ = 96;
+        type_size_solid_ = 6;
       break;
-    case Visualizer::CIRCLE:
-      type_size_hollow_ = 336;
-      type_size_solid_ = 42;
+      case torero::Circle:
+        type_size_hollow_ = 336;
+        type_size_solid_ = 42;
       break;
+      default: break;
     }
 
     update();

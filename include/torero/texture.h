@@ -4,16 +4,16 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include <string>
 
-namespace Toreo{
+namespace torero{
   class Texture
   {
   public:
     Texture(const GLuint active_texture, const GLfloat max_anisotropic_filtering,
-            const Visualizer::ImageFile *texture = nullptr, const bool mipmap = true,
+            const torero::ImageFile *texture = nullptr, const bool mipmap = true,
             const GLsizei width = 0, GLsizei height = 0) :
       id_(0),
       active_texture_(active_texture),
@@ -31,7 +31,7 @@ namespace Toreo{
     }
 
     // Creates the texture object and loads the data. Requires the location's id from shader program
-    bool create(const Visualizer::ImageFile *texture, const GLsizei width, const GLsizei height){
+    bool create(const torero::ImageFile *texture, const GLsizei width, const GLsizei height){
       error_log_.clear();
       if(!is_created_){
         if(texture && texture->data){
@@ -89,7 +89,7 @@ namespace Toreo{
     }
 
     // Updates the actual texture for a new one
-    bool update(const Visualizer::ImageFile *new_texture){
+    bool update(const torero::ImageFile *new_texture){
       if(is_created_){
         use();
         write_data_to_opengl(new_texture, has_mipmap_);
@@ -107,16 +107,16 @@ namespace Toreo{
       return is_created_;
     }
     // returns the program id
-    const GLuint id(){
+    const GLuint &id(){
       return id_;
     }
     // returns the program texture unit
-    const GLuint texture_unit(){
+    const GLuint &texture_unit(){
       return active_texture_;
     }
 
   private:
-    void write_data_to_opengl(const Visualizer::ImageFile *texture, const bool mipmap){
+    void write_data_to_opengl(const torero::ImageFile *texture, const bool mipmap){
       switch(texture->components_size){
       case 1:
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, texture->width,

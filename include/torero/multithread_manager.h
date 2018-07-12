@@ -1,7 +1,7 @@
 #ifndef TORERO_MULTITHREAD_MANAGER_H
 #define TORERO_MULTITHREAD_MANAGER_H
 
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -10,7 +10,7 @@
 #include <boost/thread/thread.hpp>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   struct Process {
     boost::function<void ()> run;
     boost::function<void ()> ready;
@@ -23,12 +23,10 @@ namespace Toreo {
   public:
     MultiThreadManager();
 
-    void multithread_add_process(boost::function<void ()> run,
-                                 boost::function<void ()> ready,
-                                 boost::function<bool ()> is_ready);
+    void multithread_add_process(boost::function<void ()> run, boost::function<void ()> ready,
+                    boost::function<bool ()> is_ready);
+    const bool &multithread_finished();
     void multithread_update_process();
-
-    const bool multithread_finished();
 
   private:
     std::vector<Process> active_processes_;

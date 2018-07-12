@@ -4,10 +4,9 @@
 #include "glad/glad.h"
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 // Linear mathematics
 #include "algebraica/algebraica.h"
 // Boost
@@ -19,7 +18,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class ThreeDimensionalModelLoader
@@ -27,7 +26,7 @@ namespace Toreo {
   public:
     explicit ThreeDimensionalModelLoader(const std::string folder_address,
                                          Shader *shader_program, Core *core);
-    explicit ThreeDimensionalModelLoader(const Visualizer::Models model,
+    explicit ThreeDimensionalModelLoader(const torero::Models model,
                                          Shader *shader_program, Core *core);
     ~ThreeDimensionalModelLoader();
 
@@ -37,7 +36,7 @@ namespace Toreo {
 
     void run();
     void ready();
-    const bool is_ready();
+    bool is_ready();
 
   private:
     bool check_folder();
@@ -51,8 +50,8 @@ namespace Toreo {
     GLint i_position_, i_uv_, i_normal_, i_tangent_, i_bitangent_;
 
     GLsizei data_size_;
-    std::vector<Visualizer::ComplexShaderData> buffer_data_;
-    Visualizer::ImageFile albedo_, normal_, metallic_, roughness_, ao_, emission_;
+    std::vector<torero::ComplexShaderData> buffer_data_;
+    torero::ImageFile albedo_, normal_, metallic_, roughness_, ao_, emission_;
     Texture *t_albedo_, *t_normal_, *t_metallic_, *t_roughness_, *t_ao_, *t_emission_;
 
     boost::mutex protector_;

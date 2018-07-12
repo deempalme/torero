@@ -12,7 +12,7 @@
 #include "torero/render_buffer.h"
 #include "torero/shader.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 // signals and slots
@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
   class Cubemap;
   class ModelManager;
@@ -58,10 +58,10 @@ namespace Toreo {
 
     void menu_visibility(const bool visibility = false);
     bool menu_offset(const int top = 0, const int left = 8);
-    bool menu_alignment(const Visualizer::Alignment vertical = Visualizer::Alignment::CENTER,
-                        const Visualizer::Alignment horizontal = Visualizer::Alignment::LEFT);
-    bool menu_change_button_state(const Visualizer::Menu::ButtonType button_id,
-                                  const Visualizer::Button::State state);
+    bool menu_alignment(const torero::Alignment vertical = torero::Alignment::Center,
+                        const torero::Alignment horizontal = torero::Alignment::Left);
+    bool menu_change_button_state(const torero::Menu::ButtonType button_id,
+                                  const torero::Button::State state);
 
     void title_bar_visibility(const bool visibility = true);
 
@@ -75,7 +75,7 @@ namespace Toreo {
 
     void mouse_eval(const unsigned int red, const unsigned int green, const unsigned int blue);
     void mouse_move(int x, int y);
-    void mouse_event(int x, int y, int mod, Visualizer::Mouse::Event state);
+    void mouse_event(int x, int y, int /*mode*/, torero::Mouse::Event state);
 
     bool *has_changed_, *blocked_;
     std::string folder_address_;
@@ -100,7 +100,7 @@ namespace Toreo {
     Shader *text_shader_;
     GLint u_t_projection_;
 
-    Algebraica::mat4f ortho_;
+    algebraica::mat4f ortho_;
     float window_width_, window_height_;
 
     FrameBuffer frame_buffer_;
@@ -110,7 +110,7 @@ namespace Toreo {
     bool compass_visibility_;
     boost::signals2::connection compass_rotation_signal_, compass_pedals_signal_;
 
-    Visualizer::Menu::Object menu_;
+    torero::Menu::Object menu_;
     Texture *gui_2d_albedo_;
 
     GUISpeedometer *speedometer_;

@@ -1,7 +1,7 @@
 #include "torero/vehicle_manager.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   VehicleManager::VehicleManager(Core *core) :
     core_(core),
     null_(0.0f),
@@ -13,12 +13,16 @@ namespace Toreo {
     pitch_(&null_),
     yaw_(&null_),
     roll_(&null_),
-    velocity_x_(&null_),
-    velocity_y_(&null_),
-    velocity_z_(&null_),
+    x_(&null_),
+    y_(&null_),
+    z_(&null_),
+    w_(&null_),
     acceleration_x_(&null_),
     acceleration_y_(&null_),
     acceleration_z_(&null_),
+    velocity_x_(&null_),
+    velocity_y_(&null_),
+    velocity_z_(&null_),
     steering_angle_(&null_),
     ratio_(3.0f),
     is_quaternion_(false),
@@ -161,19 +165,19 @@ namespace Toreo {
     ratio_ = ratio;
   }
 
-  void VehicleManager::set_vehicle_frame(Algebraica::mat4f *vehicle_frame){
+  void VehicleManager::set_vehicle_frame(algebraica::mat4f *vehicle_frame){
     vehicle_frame_ = vehicle_frame;
   }
 
-  void VehicleManager::set_vehicle_frame_yaw(Algebraica::mat4f *vehicle_frame_yaw){
+  void VehicleManager::set_vehicle_frame_yaw(algebraica::mat4f *vehicle_frame_yaw){
     vehicle_frame_yaw_ = vehicle_frame_yaw;
   }
 
-  void VehicleManager::set_navigation_frame(Algebraica::mat4f *navigation_frame){
+  void VehicleManager::set_navigation_frame(algebraica::mat4f *navigation_frame){
     navigation_frame_ = navigation_frame;
   }
 
-  void VehicleManager::set_navigation_plus_frame(Algebraica::mat4f *navigation_plus_frame){
+  void VehicleManager::set_navigation_plus_frame(algebraica::mat4f *navigation_plus_frame){
     navigation_plus_frame_ = navigation_plus_frame;
   }
 
@@ -188,9 +192,9 @@ namespace Toreo {
     float position_z;
 
     if(latitude_ && longitude_){
-      Visualizer::PointXY<float> distance = GPS_.GPS_to_origin();
-      position_x = distance.x;
-      position_z = -distance.y;
+      torero::PointXY<float> distance = GPS_.GPS_to_origin();
+      position_x = distance.point.x;
+      position_z = -distance.point.y;
     }else{
       position_x = -*position_y_;
       position_z = -*position_x_;
@@ -199,34 +203,40 @@ namespace Toreo {
     vehicle_frame_->to_identity();
     vehicle_frame_->translate(position_x, *altitude_, position_z);
     *vehicle_frame_yaw_ = *vehicle_frame_;
-    if(is_quaternion_)
-      vehicle_frame_->rotate(*y_, -*z_, -*x_, *w_);
-    else
-      vehicle_frame_->rotate(-*pitch_, *yaw_, -*roll_);
+    if(is_quaternion_){
+      vehicle_frame_->rotate(*y_, -*z_, *x_, *w_);
+      core_->message_handler(std::to_string(*x_) + ", "
+                             + std::to_string(*y_) + ", "
+                             + std::to_string(*z_) + ", "
+                             + std::to_string(*w_), torero::Message::Attention);
+    }else{
+      vehicle_frame_->rotate(*pitch_, -*yaw_, *roll_);
+      core_->message_handler(std::to_string(*yaw_), torero::Message::Normal);
+    }
 
     vehicle_frame_yaw_->rotate(0.0f, *yaw_, 0.0f);
 
     *navigation_frame_ = vehicle_frame_->only_translation();
     *navigation_plus_frame_ = *navigation_frame_;
     if(pitch_ && roll_)
-        navigation_plus_frame_->rotate(-*pitch_ * std::cos(*yaw_),
+        navigation_plus_frame_->rotate(*pitch_ * std::cos(-*yaw_),
                                        0.0f,
-                                       -*roll_ * std::cos(*yaw_));
+                                       *roll_ * std::cos(-*yaw_));
   }
 
-  const Algebraica::mat4f *VehicleManager::navigation_frame() const{
+  const algebraica::mat4f *VehicleManager::navigation_frame() const{
     return navigation_frame_;
   }
 
-  const Algebraica::mat4f *VehicleManager::navigation_plus_frame() const{
+  const algebraica::mat4f *VehicleManager::navigation_plus_frame() const{
     return navigation_plus_frame_;
   }
 
-  const Algebraica::mat4f *VehicleManager::vehicle_frame() const{
+  const algebraica::mat4f *VehicleManager::vehicle_frame() const{
     return vehicle_frame_;
   }
 
-  const Algebraica::mat4f *VehicleManager::vehicle_frame_yaw() const{
+  const algebraica::mat4f *VehicleManager::vehicle_frame_yaw() const{
     return vehicle_frame_yaw_;
   }
 }

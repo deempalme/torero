@@ -3,7 +3,7 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   ObjectManager::ObjectManager(Core *core) :
     core_(core),
     shader_(new Shader("resources/shaders/objects.vert",
@@ -21,9 +21,9 @@ namespace Toreo {
     u_camera_position_(shader_->uniform_location("u_camera_position")),
     u_point_light_(shader_->uniform_location("u_point_light")),
     u_point_light_color_(shader_->uniform_location("u_point_light_color")),
+    u_ao_(shader_->uniform_location("u_ao")),
     u_directional_light_(shader_->uniform_location("u_directional_light")),
     u_directional_light_color_(shader_->uniform_location("u_directional_light_color")),
-    u_ao_(shader_->uniform_location("u_ao")),
     objects_(0),
     ao_cylinder_(nullptr),
     ao_box_(nullptr),
@@ -32,7 +32,7 @@ namespace Toreo {
     ao_arrow_(nullptr),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&ObjectManager::updated_camera, this))),
-    signal_draw_all_(core->syncronize(Visualizer::OBJECTS)->
+    signal_draw_all_(core->syncronize(torero::Order::Objects)->
                      connect(boost::bind(&ObjectManager::draw_all, this)))
   {
     if(!shader_->use())
@@ -43,20 +43,20 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f,-10.0f),
+      algebraica::vec3f( 10.0f, 10.0f,-10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(1.0f, 0.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 0.0f, 1.0f)
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 0.0f),
+      algebraica::vec3f(1.0f, 0.0f, 0.0f),
+      algebraica::vec3f(0.0f, 1.0f, 0.0f),
+      algebraica::vec3f(0.0f, 0.0f, 1.0f)
     };
 
-    Algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
+    algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
 
     shader_->set_value(u_directional_light_, sun_direction);
     shader_->set_value(u_directional_light_color_, sun_color);
@@ -75,7 +75,7 @@ namespace Toreo {
   }
 
   ObjectManager::~ObjectManager(){
-    for(Visualizer::ObjectElement &object : objects_)
+    for(torero::ObjectElement &object : objects_)
       if(object.object != nullptr){
         if(object.connection.connected())
           object.connection.disconnect();
@@ -111,13 +111,14 @@ namespace Toreo {
       delete shader_;
   }
 
-  OMid ObjectManager::add_boxes(const std::vector<Visualizer::Object> *objects,
+  OMid ObjectManager::add_boxes(const std::vector<torero::Object> *objects,
                                 const std::string name,
-                                const Algebraica::mat4f *transformation_matrix,
+                                const algebraica::mat4f *transformation_matrix,
                                 const bool visible){
-    Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_box_,
-                                         ao_box_, solid_box_, solid_arrow_, ao_arrow_,
-                                         Visualizer::BOX), name, visible };
+    torero::ObjectElement object = { new Objects(shader_, objects, hollow_box_,
+                                     ao_box_, solid_box_, solid_arrow_, ao_arrow_,
+                                     torero::Box), name, visible,
+                                     boost::signals2::connection() };
     if(transformation_matrix != nullptr)
       object.object->set_transformation_matrix(transformation_matrix);
 
@@ -125,13 +126,14 @@ namespace Toreo {
     return objects_.size() - 1;
   }
 
-  OMid ObjectManager::add_circles(const std::vector<Visualizer::Object> *objects,
+  OMid ObjectManager::add_circles(const std::vector<torero::Object> *objects,
                                   const std::string name,
-                                  const Algebraica::mat4f *transformation_matrix,
+                                  const algebraica::mat4f *transformation_matrix,
                                   const bool visible){
-    Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_circle_,
-                                         ao_circle_, solid_circle_, solid_arrow_, ao_arrow_,
-                                         Visualizer::CIRCLE), name, visible };
+    torero::ObjectElement object = { new Objects(shader_, objects, hollow_circle_,
+                                     ao_circle_, solid_circle_, solid_arrow_, ao_arrow_,
+                                     torero::Circle), name, visible,
+                                     boost::signals2::connection() };
     if(transformation_matrix != nullptr)
       object.object->set_transformation_matrix(transformation_matrix);
 
@@ -139,13 +141,14 @@ namespace Toreo {
     return objects_.size() - 1;
   }
 
-  OMid ObjectManager::add_cylinders(const std::vector<Visualizer::Object> *objects,
+  OMid ObjectManager::add_cylinders(const std::vector<torero::Object> *objects,
                                     const std::string name,
-                                    const Algebraica::mat4f *transformation_matrix,
+                                    const algebraica::mat4f *transformation_matrix,
                                     const bool visible){
-    Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_cylinder_,
-                                         ao_cylinder_, solid_cylinder_, solid_arrow_, ao_arrow_,
-                                         Visualizer::CYLINDER), name, visible };
+    torero::ObjectElement object = { new Objects(shader_, objects, hollow_cylinder_,
+                                     ao_cylinder_, solid_cylinder_, solid_arrow_, ao_arrow_,
+                                     torero::Cylinder), name, visible,
+                                     boost::signals2::connection() };
     if(transformation_matrix != nullptr)
       object.object->set_transformation_matrix(transformation_matrix);
 
@@ -153,13 +156,14 @@ namespace Toreo {
     return objects_.size() - 1;
   }
 
-  OMid ObjectManager::add_squares(const std::vector<Visualizer::Object> *objects,
+  OMid ObjectManager::add_squares(const std::vector<torero::Object> *objects,
                                   const std::string name,
-                                  const Algebraica::mat4f *transformation_matrix,
+                                  const algebraica::mat4f *transformation_matrix,
                                   const bool visible){
-    Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_square_,
-                                         ao_square_, solid_square_, solid_arrow_, ao_arrow_,
-                                         Visualizer::SQUARE), name, visible };
+    torero::ObjectElement object = { new Objects(shader_, objects, hollow_square_,
+                                     ao_square_, solid_square_, solid_arrow_, ao_arrow_,
+                                     torero::Square), name, visible,
+                                     boost::signals2::connection() };
     if(transformation_matrix != nullptr)
       object.object->set_transformation_matrix(transformation_matrix);
 
@@ -167,7 +171,7 @@ namespace Toreo {
     return objects_.size() - 1;
   }
 
-  bool ObjectManager::change_input(OMid id, const std::vector<Visualizer::Object> *objects){
+  bool ObjectManager::change_input(OMid id, const std::vector<torero::Object> *objects){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
         objects_[id].object->change_input(objects);
@@ -179,7 +183,7 @@ namespace Toreo {
   }
 
   bool ObjectManager::set_transformation_matrix(OMid id,
-                                                const Algebraica::mat4f *transformation_matrix){
+                                                const algebraica::mat4f *transformation_matrix){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
         objects_[id].object->set_transformation_matrix(transformation_matrix);
@@ -265,7 +269,7 @@ namespace Toreo {
   }
 
   void ObjectManager::update_all(){
-    for(Visualizer::ObjectElement &object : objects_)
+    for(torero::ObjectElement &object : objects_)
       if(object.object != nullptr && object.visibility)
         object.object->update();
   }
@@ -282,7 +286,7 @@ namespace Toreo {
   }
 
   void ObjectManager::draw_all(){
-    for(Visualizer::ObjectElement &object : objects_)
+    for(torero::ObjectElement &object : objects_)
       if(object.object != nullptr && object.visibility)
         object.object->draw();
   }
@@ -302,7 +306,7 @@ namespace Toreo {
   }
 
   void ObjectManager::purge(){
-    for(Visualizer::ObjectElement &object : objects_)
+    for(torero::ObjectElement &object : objects_)
       if(object.object != nullptr){
         if(object.connection.connected())
           object.connection.disconnect();
@@ -332,7 +336,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_hollow_cylinder(){
-    Visualizer::ObjectBuffer data[672] = {
+    torero::ObjectBuffer data[672] = {
       //  position x, y, z...          normal x, y, z...      uv coordinates...   scales..
       { +0.129410, +0.500, -0.482963, +0.500, +0.000, -0.866, 0.394732, 0.723810, 0, 0, 0 },
       { +0.353553, +0.400, -0.353553, +0.500, +0.000, -0.866, 0.526162, 0.774591, 0, 1, 0 },
@@ -1011,7 +1015,7 @@ namespace Toreo {
     hollow_cylinder_->allocate_array(&data, sizeof(data));
 
     stbi_set_flip_vertically_on_load(true);
-    Visualizer::ImageFile ao_hollow_cylinder;
+    torero::ImageFile ao_hollow_cylinder;
     ao_hollow_cylinder.data = stbi_load(std::string("resources/models3D/cylinder/ao.png").c_str(),
                                         &ao_hollow_cylinder.width, &ao_hollow_cylinder.height,
                                         &ao_hollow_cylinder.components_size, 0);
@@ -1023,7 +1027,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_solid_cylinder(){
-    Visualizer::ObjectBuffer data[144]{
+    torero::ObjectBuffer data[144]{
       { +0.000, -0.500, +0.000, +0.0000, -1.000, +0.0000, 0.750000, 0.250000, 0, 0, 0 },
       { +0.000, -0.500, -0.500, +0.0000, -1.000, +0.0000, 0.750000, 0.490000, 0, 0, 0 },
       { +0.250, -0.500, -0.433, +0.0000, -1.000, +0.0000, 0.870000, 0.457846, 0, 0, 0 },
@@ -1174,7 +1178,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_hollow_box(){
-    Visualizer::ObjectBuffer data[288] = {
+    torero::ObjectBuffer data[288] = {
       { +0.50, +0.40, +0.40, +1.00, +0.00, +0.00, 0.176285, 0.565193, 0, 1, 1 },
       { +0.50, +0.50, +0.50, +1.00, +0.00, +0.00, 0.133198, 0.608280, 0, 0, 0 },
       { +0.50, -0.50, +0.50, +1.00, +0.00, +0.00, 0.133198, 0.177410, 0, 0, 0 },
@@ -1467,7 +1471,7 @@ namespace Toreo {
     hollow_box_->allocate_array(&data, sizeof(data));
 
     stbi_set_flip_vertically_on_load(true);
-    Visualizer::ImageFile ao_hollow_box;
+    torero::ImageFile ao_hollow_box;
     ao_hollow_box.data = stbi_load(std::string("resources/models3D/box/ao.png").c_str(),
                                         &ao_hollow_box.width, &ao_hollow_box.height,
                                         &ao_hollow_box.components_size, 0);
@@ -1476,7 +1480,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_solid_box(){
-    Visualizer::ObjectBuffer data[36] = {
+    torero::ObjectBuffer data[36] = {
       { -0.50, +0.50, +0.50, -1.00, +0.00, +0.00, 0.333134, 0.000200, 0, 0, 0 },
       { -0.50, -0.50, -0.50, -1.00, +0.00, +0.00, 0.000200, 0.333134, 0, 0, 0 },
       { -0.50, -0.50, +0.50, -1.00, +0.00, +0.00, 0.000200, 0.000200, 0, 0, 0 },
@@ -1519,7 +1523,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_hollow_square(){
-    Visualizer::ObjectBuffer data[96] = {
+    torero::ObjectBuffer data[96] = {
       { +0.40, -0.05, +0.40, +0.00, -1.00, +0.00, 0.252461, 0.562115, 1, 0, 1 },
       { +0.50, -0.05, -0.50, +0.00, -1.00, +0.00, 0.314884, 0.000308, 0, 0, 0 },
       { +0.50, -0.05, +0.50, +0.00, -1.00, +0.00, 0.314884, 0.624538, 0, 0, 0 },
@@ -1621,7 +1625,7 @@ namespace Toreo {
     hollow_square_->allocate_array(&data, sizeof(data));
 
     stbi_set_flip_vertically_on_load(true);
-    Visualizer::ImageFile ao_hollow_square;
+    torero::ImageFile ao_hollow_square;
     ao_hollow_square.data = stbi_load(std::string("resources/models3D/square/ao.png").c_str(),
                                         &ao_hollow_square.width, &ao_hollow_square.height,
                                         &ao_hollow_square.components_size, 0);
@@ -1630,7 +1634,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepate_solid_square(){
-    Visualizer::ObjectBuffer data[6] = {
+    torero::ObjectBuffer data[6] = {
       { +0.50, +0.00, +0.50, +0.00, +1.00, +0.00, 1.00, 0.00, 0, 0, 0 },
       { -0.50, +0.00, -0.50, +0.00, +1.00, +0.00, 0.00, 1.00, 0, 0, 0 },
       { -0.50, +0.00, +0.50, +0.00, +1.00, +0.00, 0.00, 0.00, 0, 0, 0 },
@@ -1642,7 +1646,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_hollow_circle(){
-    Visualizer::ObjectBuffer data[336] = {
+    torero::ObjectBuffer data[336] = {
       { +0.000000, +0.05, -0.500000, +0.2225, +0.00, -0.9749, 0.428203, 0.870811, 0, 0, 0 },
       { +0.216942, -0.05, -0.450484, +0.2225, +0.00, -0.9749, 0.570827, 0.934906, 0, 0, 0 },
       { +0.000000, -0.05, -0.500000, +0.2225, +0.00, -0.9749, 0.428203, 0.934906, 0, 0, 0 },
@@ -1984,7 +1988,7 @@ namespace Toreo {
     hollow_circle_->allocate_array(&data, sizeof(data));
 
     stbi_set_flip_vertically_on_load(true);
-    Visualizer::ImageFile ao_hollow_circle;
+    torero::ImageFile ao_hollow_circle;
     ao_hollow_circle.data = stbi_load(std::string("resources/models3D/circle/ao.png").c_str(),
                                         &ao_hollow_circle.width, &ao_hollow_circle.height,
                                         &ao_hollow_circle.components_size, 0);
@@ -1993,7 +1997,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_solid_circle(){
-    Visualizer::ObjectBuffer data[42] = {
+    torero::ObjectBuffer data[42] = {
       { +0.000000, +0.00, +0.000000, +0.00, +1.00, +0.00, 0.500000, 0.500000, 0, 0, 0 },
       { +0.000000, +0.00, -0.500000, +0.00, +1.00, +0.00, 0.500000, 1.000000, 0, 0, 0 },
       { -0.216942, +0.00, -0.450484, +0.00, +1.00, +0.00, 0.283058, 0.950484, 0, 0, 0 },
@@ -2041,7 +2045,7 @@ namespace Toreo {
   }
 
   void ObjectManager::prepare_arrow(){
-    Visualizer::ObjectBuffer data[66] = {
+    torero::ObjectBuffer data[66] = {
       //  position x, y, z...            normal x, y, z...          uv coordinates...   scales..
       { -0.000000, +0.070711, -0.184615, +0.7071, +0.7071, -0.0000, 0.000270, 0.240723, 0, 0, 0 },
       { +0.070711, +0.000000, +0.515385, +0.7071, +0.7071, -0.0000, 0.839961, 0.360679, 0, 0, 0 },
@@ -2114,7 +2118,7 @@ namespace Toreo {
     solid_arrow_->allocate_array(&data, sizeof(data));
 
     stbi_set_flip_vertically_on_load(true);
-    Visualizer::ImageFile ao_solid_arrow;
+    torero::ImageFile ao_solid_arrow;
     ao_solid_arrow.data = stbi_load(std::string("resources/models3D/arrow/ao.png").c_str(),
                                         &ao_solid_arrow.width, &ao_solid_arrow.height,
                                         &ao_solid_arrow.components_size, 0);

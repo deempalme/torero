@@ -34,7 +34,8 @@ if(NOT TARGET ${TORERO_LIB})
     include/torero/camera_manager.h
     include/torero/core.h
     include/torero/cubemap.h
-    include/torero/definitions.h
+    include/torero/constant_expressions.h
+    include/torero/enumerators.h
     include/torero/font_loader.h
     include/torero/frame_buffer.h
     include/torero/gui_compass.h
@@ -60,9 +61,9 @@ if(NOT TARGET ${TORERO_LIB})
     include/torero/text_object.h
     include/torero/texture.h
     include/torero/three_dimensional_model_loader.h
-    include/torero/trajectory.h
+    include/torero/trajectories.h
     include/torero/trajectory_manager.h
-    include/torero/types.h
+    include/torero/type_definitions.h
 #    include/torero/utilities.h
     include/torero/vehicle_manager.h
   )
@@ -95,8 +96,8 @@ if(NOT TARGET ${TORERO_LIB})
     src/text_manager.cpp
     src/text_object.cpp
     src/three_dimensional_model_loader.cpp
+    src/trajectories.cpp
     src/trajectory_manager.cpp
-    src/trajectory.cpp
 #    src/utilities.cpp
     src/vehicle_manager.cpp
   )
@@ -141,18 +142,18 @@ if(NOT TARGET ${TORERO_LIB})
   # ++++++++++++++++++++++++++++++++++++++ GLAD ++++++++++++++++++++++++++++++++++++++
   # adding the root directory of the GLAD source tree to your project
   set(GLAD_FILES
-    libs/GLAD/include/glad/glad.h
-    libs/GLAD/include/KHR/khrplatform.h
-    libs/GLAD/src/glad.c
+    lib/GLAD/include/glad/glad.h
+    lib/GLAD/include/KHR/khrplatform.h
+    lib/GLAD/src/glad.c
   )
 
   # +++++++++++++++++++++++++++++++++++ ALGEBRAICA +++++++++++++++++++++++++++++++++++
   # adding the root directory of algebraica source tree to your project
-  add_subdirectory(libs/algebraica)
+  add_subdirectory(lib/algebraica)
 
   # ++++++++++++++++++++++++++++++ COORDINATE CONVERSOR ++++++++++++++++++++++++++++++
   # adding the root directory of coordinate_conversor source tree to your project
-  add_subdirectory(libs/gps_coordinate_conversor)
+  add_subdirectory(lib/gps_coordinate_conversor)
 
   # ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
   add_definitions(-DSTB_IMAGE_STATIC)
@@ -161,15 +162,15 @@ if(NOT TARGET ${TORERO_LIB})
   add_definitions(-DSTBI_NO_HDR)
   # adding the root directory of the stb library source tree to your project
   set(STB_FILES
-    libs/stb/stb_image.h
-    libs/stb/stb_image_write.h
+    lib/stb/stb_image.h
+    lib/stb/stb_image_write.h
   )
 
   set(TORERO_DIRS_LOCAL
-    libs/GLAD/include
+    lib/GLAD/include
     ${ALGEBRAICA_DIRS}
     ${COORDINATE_DIRS}
-    libs/stb
+    lib/stb
     ${Boost_INCLUDE_DIR}
     include
   )
@@ -179,10 +180,10 @@ if(NOT TARGET ${TORERO_LIB})
   set(TORERO_DIRS
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/libs/GLAD/include
+    ${PROJECT_SOURCE_DIR}/lib/GLAD/include
     ${ALGEBRAICA_DIRS}
     ${COORDINATE_DIRS}
-    ${PROJECT_SOURCE_DIR}/libs/stb
+    ${PROJECT_SOURCE_DIR}/lib/stb
 
     CACHE INTERNAL ""
   )
@@ -237,4 +238,9 @@ if(NOT TARGET ${TORERO_LIB})
     ${X11_Xinerama_LIB}
     ${X11_Xrandr_LIB}
   )
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-function -pedantic")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunreachable-code -Wno-ignored-qualifiers")
+
 endif(NOT TARGET ${TORERO_LIB})

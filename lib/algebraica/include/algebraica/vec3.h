@@ -14,7 +14,7 @@
  | ----------------------------------- three-dimensional vector ---------------------------------- |
  +–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––+
 */
-namespace Algebraica {
+namespace algebraica {
   ALGTEM class quaternion;
 
   ALGTEM class vec3

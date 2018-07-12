@@ -10,7 +10,7 @@
  | -------------------------------------- linear operations -------------------------------------- |
  +–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––+
 */
-namespace Algebraica {
+namespace algebraica {
   template<typename T> class linear
   {
   public:

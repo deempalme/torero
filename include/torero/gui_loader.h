@@ -5,7 +5,7 @@
 
 #include "torero/buffer.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 #include <boost/bind.hpp>
@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class GUILoader
@@ -43,7 +43,7 @@ namespace Toreo {
     GLint i_position_, i_uv_, i_normal_, i_tangent_, i_bitangent_;
 
     GLsizei data_size_;
-    std::vector<Visualizer::ComplexShaderData> buffer_data_;
+    std::vector<torero::ComplexShaderData> buffer_data_;
 
     boost::mutex protector_;
     boost::thread runner_;

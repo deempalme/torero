@@ -4,11 +4,11 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include <string>
 
-namespace Toreo {
+namespace torero {
   class FrameBuffer
   {
   public:
@@ -88,12 +88,12 @@ namespace Toreo {
     }
 
     // Returning the status of this frame buffer
-    const GLenum framebuffer_status(){
+    GLenum framebuffer_status(){
       return glCheckFramebufferStatus(GL_FRAMEBUFFER);
     }
 
     // Returns the attachment type
-    const GLenum attachment(){
+    const GLenum &attachment(){
       return attachment_;
     }
 
@@ -106,7 +106,7 @@ namespace Toreo {
     }
 
     // returns the frame buffer id
-    const GLuint id(){
+    const GLuint &id(){
       return id_;
     }
 

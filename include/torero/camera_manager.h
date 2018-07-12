@@ -5,9 +5,8 @@
 #include "glad/glad.h"
 // Torero includes
 #include "torero/camera_element.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 // Linear mathematics
 #include "algebraica/algebraica.h"
 // signals and slots
@@ -18,7 +17,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class CameraManager
@@ -31,11 +30,11 @@ namespace Toreo {
     // --------------------------------- CAMERA MANAGEMENT -------------------------------- //
     // ------------------------------------------------------------------------------------ //
 
-    CMid add(const Visualizer::ImageFile *video_input,
+    CMid add(const torero::ImageFile *video_input,
              const std::string name,
-             const Visualizer::Dimensionality number_of_dimensions
-                = Visualizer::Dimensionality::THREE_DIMENSIONAL,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const torero::Dimensionality number_of_dimensions
+                = torero::Dimensionality::ThreeDimensional,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool visible = true);
 
     bool set_visibility(const CMid id, const bool visible = true);
@@ -43,7 +42,7 @@ namespace Toreo {
     bool set_camera_curvature(const CMid id, const float curvature = 1.0f);
 
     bool set_transformation_matrix(const CMid id,
-                                   const Algebraica::mat4f *transformation_matrix);
+                                   const algebraica::mat4f *transformation_matrix);
 
     bool translate(const CMid id, const float x = 0.0f,
                    const float y = 0.0f, const float z = 0.0f);
@@ -83,7 +82,7 @@ namespace Toreo {
 
     Shader *shader_;
     GLint u_pv_;
-    std::vector<Visualizer::CameraElement> cameras_;
+    std::vector<torero::CameraComponent> cameras_;
 
     boost::signals2::connection signal_updated_camera_, signal_draw_all_;
     boost::signals2::connection signal_updated_all_;

@@ -3,13 +3,13 @@
 
 #include "torero/buffer.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class GUITitleBar
@@ -18,12 +18,12 @@ namespace Toreo {
     GUITitleBar(Core *core, Shader *color_shader, Shader *id_shader,
                 bool *screen_changer, bool *blocker);
 
-    void change_button_state(const Visualizer::Title::ButtonType button_id,
-                             const Visualizer::Button::State state);
+    void change_button_state(const torero::Title::ButtonType button_id,
+                             const torero::Button::State state);
     void restart_buttons();
 
-    void click_event(const Visualizer::Title::ButtonType button_id,
-                     const Visualizer::Mouse::Event event);
+    void click_event(const torero::Title::ButtonType button_id,
+                     const torero::Mouse::Event event);
 
     void draw();
     void draw_id();
@@ -43,9 +43,9 @@ namespace Toreo {
     GLint color_u_offset_, color_u_alignment_, id_u_offset_, id_u_alignment_;
     GLint i_position_, i_texture_, i_size_, i_id_, i_element_;
 
-    Algebraica::vec2f zero_;
+    algebraica::vec2f zero_;
 
-    std::vector<Visualizer::Button::Button> buttons_;
+    std::vector<torero::Button::Button> buttons_;
 
   };
 }

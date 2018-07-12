@@ -1,7 +1,7 @@
 
 #include "algebraica/mat3.h"
 
-namespace Algebraica{
+namespace algebraica{
   ALGTEM mat3<T>& mat3<T>::to_identity(){
     m_[0][0] = 1, m_[0][1] = 0, m_[0][2] = 0;
     m_[1][0] = 0, m_[1][1] = 1, m_[1][2] = 0;

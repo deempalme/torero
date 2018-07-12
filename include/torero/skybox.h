@@ -5,9 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 // Linear mathematics
 #include "algebraica/algebraica.h"
 // Boost
@@ -17,7 +16,7 @@
 #include <fstream>
 #include <string>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class Skybox
@@ -34,13 +33,13 @@ namespace Toreo {
     // Multithread functions
     void run();
     void ready();
-    const bool is_ready();
+    bool is_ready();
 
   private:
-    const bool check_path(std::string *path);
+    bool check_path(std::string *path);
     void update_camera();
 
-    void write_data_opengl(Visualizer::ImageFile *image, const int level);
+    void write_data_opengl(torero::ImageFile *image, const int level);
 
     void prepare_cube();
 
@@ -54,7 +53,7 @@ namespace Toreo {
 
     Buffer *buffer_cube_;
 
-    Visualizer::ImageFile up_, down_, left_, right_, front_, back_;
+    torero::ImageFile up_, down_, left_, right_, front_, back_;
 
     boost::mutex protector_;
 

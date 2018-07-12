@@ -4,15 +4,14 @@
 #include "glad/glad.h"
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class LineGrid
   {
   public:
@@ -26,7 +25,7 @@ namespace Toreo {
                     const unsigned int line_quantity_through_length);
     void rotate(const float pitch, const float yaw, const float roll);
     void translate(const float x, const float y, const float z);
-    void transformation_matrix(const Algebraica::mat4f *transformation_matrix);
+    void transformation_matrix(const algebraica::mat4f *transformation_matrix);
 
     void draw();
 
@@ -34,9 +33,9 @@ namespace Toreo {
     Shader *shader_;
     Buffer buffer_;
 
-    Algebraica::vec4f color_;
-    const Algebraica::mat4f *primary_model_, identity_matrix_;
-    Algebraica::mat4f secondary_model_;
+    algebraica::vec4f color_;
+    const algebraica::mat4f *primary_model_, identity_matrix_;
+    algebraica::mat4f secondary_model_;
     GLsizei data_size_;
 
     GLint i_position_;

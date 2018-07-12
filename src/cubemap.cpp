@@ -3,7 +3,7 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   Cubemap::Cubemap(const char *folder_path, const char *file_extension, Core *core) :
     folder_path_(folder_path),
     file_extension_(file_extension),
@@ -31,19 +31,19 @@ namespace Toreo {
 
       if(!boost::filesystem::exists(boost::filesystem::path(folder_path_))){
         core_->message_handler("The file: " + first_path + " was not found.\n" +
-                               "  Neither: " + folder_path_ + "\n", Visualizer::Message::ERROR);
+                               "  Neither: " + folder_path_ + "\n", torero::Message::Error);
         folder_exist_ = false;
       }
     }
     // Irradiance shader
     // -----------------
     if(!irradiance_shader_->use())
-      core_->message_handler(irradiance_shader_->error_log(), Visualizer::Message::ERROR);
+      core_->message_handler(irradiance_shader_->error_log(), torero::Message::Error);
 
     // Prefilter shader
     // ----------------
     if(!prefilter_shader_->use())
-      core_->message_handler(prefilter_shader_->error_log(), Visualizer::Message::ERROR);
+      core_->message_handler(prefilter_shader_->error_log(), torero::Message::Error);
   }
 
   Cubemap::~Cubemap(){
@@ -64,7 +64,7 @@ namespace Toreo {
     }
   }
 
-  const bool Cubemap::is_ready(){
+  bool Cubemap::is_ready(){
     if(is_loaded_){
       return is_ready_;
     }else{
@@ -149,27 +149,27 @@ namespace Toreo {
 
       // pbr: set up projection and view matrices for capturing data onto the 6 cubemap faces
       // ------------------------------------------------------------------------------------
-      Algebraica::mat4f capture_projection;
+      algebraica::mat4f capture_projection;
       capture_projection.perspective(_PI2, 1.0f, 0.1f, 10.0f);
-      Algebraica::mat4f capture_views[] = {
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-        Algebraica::vec3f(1.0f,  0.0f,  0.0f),
-        Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-        Algebraica::vec3f(-1.0f,  0.0f,  0.0f),
-        Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-        Algebraica::vec3f(0.0f,  1.0f,  0.0f),
-        Algebraica::vec3f(0.0f,  0.0f,  1.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f,  0.0f),
-        Algebraica::vec3f(0.0f, -1.0f,  0.0f),
-        Algebraica::vec3f(0.0f,  0.0f, -1.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-        Algebraica::vec3f(0.0f,  0.0f,  1.0f),
-        Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-        Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-        Algebraica::vec3f(0.0f,  0.0f, -1.0f),
-        Algebraica::vec3f(0.0f, -1.0f,  0.0f))
+      algebraica::mat4f capture_views[] = {
+        algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+        algebraica::vec3f(1.0f,  0.0f,  0.0f),
+        algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+        algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+        algebraica::vec3f(-1.0f,  0.0f,  0.0f),
+        algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+        algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+        algebraica::vec3f(0.0f,  1.0f,  0.0f),
+        algebraica::vec3f(0.0f,  0.0f,  1.0f)),
+        algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f,  0.0f),
+        algebraica::vec3f(0.0f, -1.0f,  0.0f),
+        algebraica::vec3f(0.0f,  0.0f, -1.0f)),
+        algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+        algebraica::vec3f(0.0f,  0.0f,  1.0f),
+        algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+        algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+        algebraica::vec3f(0.0f,  0.0f, -1.0f),
+        algebraica::vec3f(0.0f, -1.0f,  0.0f))
       };
 
       // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
@@ -319,7 +319,7 @@ namespace Toreo {
     }
   }
 
-  void Cubemap::write_data_opengl(Visualizer::ImageFile *image, const int level){
+  void Cubemap::write_data_opengl(torero::ImageFile *image, const int level){
     switch(image->components_size){
     case 1:
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + level, 0, GL_RED, image->width,

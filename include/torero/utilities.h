@@ -5,7 +5,7 @@
 // Boost libraries
 #include <boost/filesystem.hpp>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class Utilities

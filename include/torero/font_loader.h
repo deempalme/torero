@@ -3,9 +3,8 @@
 
 #include "glad/glad.h"
 
-#include "torero/definitions.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 // Boost
 #include <boost/filesystem.hpp>
 #include <boost/thread/mutex.hpp>
@@ -15,7 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class FontLoader
@@ -27,11 +26,11 @@ namespace Toreo {
     ~FontLoader();
 
     void use();
-    const std::vector<Visualizer::FontCharacter> *characters() const;
+    const std::vector<torero::FontCharacter> *characters() const;
 
     void run();
     void ready();
-    const bool is_ready();
+    bool is_ready();
 
   private:
     bool check_path(std::string *path);
@@ -41,9 +40,9 @@ namespace Toreo {
     bool file_exists_, is_ready_, is_loaded_;
 
     Core *core_;
-    Visualizer::ImageFile distance_;
+    torero::ImageFile distance_;
     Texture *t_distance_;
-    std::vector<Visualizer::FontCharacter> characters_;
+    std::vector<torero::FontCharacter> characters_;
 
     boost::mutex protector_;
 

@@ -1,5 +1,5 @@
-#ifndef GUI_MENU_H
-#define GUI_MENU_H
+#ifndef GUI_OPTIONS_H
+#define GUI_OPTIONS_H
 
 #include "torero/buffer.h"
 #include "torero/shader.h"
@@ -12,11 +12,11 @@
 namespace torero {
   class Core;
 
-  class GUIMenu
+  class GUIOptions
   {
   public:
-    GUIMenu(Core *core, Shader *color_shader, Shader *id_shader,
-            bool *screen_changer, bool *blocker);
+    GUIOptions(Core *core, Shader *color_shader, Shader *id_shader,
+               bool *screen_changer, bool *blocker);
 
     void change_button_state(const torero::Menu::ButtonType button_id,
                              const torero::Button::State state);
@@ -49,4 +49,4 @@ namespace torero {
   };
 }
 
-#endif // GUI_MENU_H
+#endif // GUI_OPTIONS_H

@@ -1,9 +1,9 @@
-#include "torero/gui_menu.h"
+#include "torero/gui_options.h"
 #include "torero/core.h"
 
 namespace torero {
-  GUIMenu::GUIMenu(Core *core, Shader *color_shader, Shader *id_shader,
-                   bool *screen_changer, bool *blocker) :
+  GUIOptions::GUIOptions(Core *core, Shader *color_shader, Shader *id_shader,
+                         bool *screen_changer, bool *blocker) :
     core_(core),
     color_shader_(color_shader),
     id_shader_(id_shader),
@@ -56,7 +56,7 @@ namespace torero {
     set_buffer();
   }
 
-  void GUIMenu::change_button_state(const torero::Menu::ButtonType button_id,
+  void GUIOptions::change_button_state(const torero::Menu::ButtonType button_id,
                                     const torero::Button::State state){
     const std::size_t id{static_cast<std::size_t>(button_id)};
     const float width{kMenuButtonWidth}, height{kMenuButtonHeight};
@@ -121,14 +121,14 @@ namespace torero {
     }
   }
 
-  void GUIMenu::restart_buttons(){
+  void GUIOptions::restart_buttons(){
     for(torero::Button::Button &button : buttons_)
       if(button.state != torero::Button::Normal)
         change_button_state(static_cast<torero::Menu::ButtonType>(button.id),
                             torero::Button::Normal);
   }
 
-  void GUIMenu::click_event(const torero::Menu::ButtonType button_id){
+  void GUIOptions::click_event(const torero::Menu::ButtonType button_id){
     switch(button_id){
       case torero::Menu::ZoomIn:
         core_->camera_zoom_in();
@@ -146,15 +146,15 @@ namespace torero {
     }
   }
 
-  void GUIMenu::set_offset(const int top, const int left){
+  void GUIOptions::set_offset(const int top, const int left){
     menu_offset_(static_cast<float>(top), static_cast<float>(left));
   }
 
-  void GUIMenu::set_alignment(const float top, const float left){
+  void GUIOptions::set_alignment(const float top, const float left){
     menu_alignment_(top, left);
   }
 
-  void GUIMenu::draw(){
+  void GUIOptions::draw(){
     color_shader_->set_value(color_u_offset_, menu_offset_);
     color_shader_->set_value(color_u_alignment_, menu_alignment_);
 
@@ -166,7 +166,7 @@ namespace torero {
     buffer_.vertex_release();
   }
 
-  void GUIMenu::draw_id(){
+  void GUIOptions::draw_id(){
     id_shader_->set_value(id_u_offset_, menu_offset_);
     id_shader_->set_value(id_u_alignment_, menu_alignment_);
 
@@ -175,7 +175,7 @@ namespace torero {
     buffer_.vertex_release();
   }
 
-  void GUIMenu::set_buffer(){
+  void GUIOptions::set_buffer(){
     const float width{kMenuButtonWidth}, height{kMenuButtonHeight};
     const float p{static_cast<float>(torero::GUIid::Menu)};
 
