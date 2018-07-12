@@ -5,9 +5,8 @@
 #include <GLFW/glfw3.h>
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 // Linear mathematics
 #include "algebraica/algebraica.h"
 // Boost
@@ -17,7 +16,7 @@
 #include <fstream>
 #include <string>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class Cubemap
@@ -30,10 +29,10 @@ namespace Toreo {
 
     void run();
     void ready();
-    const bool is_ready();
+    bool is_ready();
 
   private:
-    void write_data_opengl(Visualizer::ImageFile *image, const int level);
+    void write_data_opengl(torero::ImageFile *image, const int level);
 
     void prepare_cube();
     void prepare_quad();
@@ -58,7 +57,7 @@ namespace Toreo {
     Buffer *buffer_cube_, *buffer_squad_;
     GLint i_position_, i_normal_, i_uv_;
 
-    Visualizer::ImageFile up_, down_, left_, right_, front_, back_, brdf_;
+    torero::ImageFile up_, down_, left_, right_, front_, back_, brdf_;
 
     boost::mutex protector_;
   };

@@ -1,7 +1,7 @@
 #include "torero/gui_title_bar.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   GUITitleBar::GUITitleBar(Core *core, Shader *color_shader,
                            Shader *id_shader, bool *screen_changer, bool *blocker) :
     core_(core),
@@ -12,7 +12,7 @@ namespace Toreo {
     blocked_(blocker),
     window_mover_(core->mover()),
     buffer_(true),
-    type_size_(sizeof(Visualizer::ButtonShader)),
+    type_size_(sizeof(torero::ButtonShader)),
     color_u_offset_(color_shader_->uniform_location("u_offset")),
     color_u_alignment_(color_shader_->uniform_location("u_alignment")),
     id_u_offset_(id_shader_->uniform_location("u_offset")),
@@ -25,45 +25,45 @@ namespace Toreo {
     zero_(),
     buttons_(5)
   {
-    Visualizer::Button::Button button;
+    torero::Button::Button button;
 
     button.left = 30.0f;
     button.top = 0.0f;
     button.u = 8.0f;
     button.v = 1515.0f;
     button.width = -120.0f;
-    button.height = TITLE_HEIGHT;
-    button.id = static_cast<float>(Visualizer::Title::TITLE);
+    button.height = kTitleHeight;
+    button.id = static_cast<float>(torero::Title::Title);
     buttons_[0] = button;
 
     button.left = -0.001f;
     button.top = 0.0f;
     button.u = 8.0f;
     button.v = 1485.0f;
-    button.width = TITLE_BUTTON_WIDTH;
-    button.id = static_cast<float>(Visualizer::Title::CLOSE);
+    button.width = kTitleButtonWidth;
+    button.id = static_cast<float>(torero::Title::Close);
     buttons_[1] = button;
 
     button.left = -30.0f;
     button.v = 1455.0f;
-    button.id = static_cast<float>(Visualizer::Title::MAXIMIZE);
+    button.id = static_cast<float>(torero::Title::Maximize);
     buttons_[2] = button;
 
     button.left = -60.0f;
     button.v = 1425.0f;
-    button.id = static_cast<float>(Visualizer::Title::MINIMIZE);
+    button.id = static_cast<float>(torero::Title::Minimize);
     buttons_[3] = button;
 
     button.left = 0.0f;
     button.v = 1395.0f;
-    button.id = static_cast<float>(Visualizer::Title::OPTIONS);
+    button.id = static_cast<float>(torero::Title::Options);
     buttons_[4] = button;
 
     set_buffer();
   }
 
-  void GUITitleBar::change_button_state(const Visualizer::Title::ButtonType button_id,
-                                        const Visualizer::Button::State state){
+  void GUITitleBar::change_button_state(const torero::Title::ButtonType button_id,
+                                        const torero::Button::State state){
     const std::size_t id{static_cast<std::size_t>(button_id)};
 
     if(buttons_[id].state != state){
@@ -71,16 +71,16 @@ namespace Toreo {
 
       const float width{buttons_[id].width}, height{buttons_[id].height};
       const float width2 = (width <= 0.0f)? *window_width_ + width : width;
-      const float plus{static_cast<float>(state) * TITLE_BUTTON_WIDTH};
+      const float plus{static_cast<float>(state) * kTitleButtonWidth};
 
       const float top{buttons_[id].top}, top_plus{height + top};
       const float left = (buttons_[id].left < 0.0f)? -width2 + buttons_[id].left : buttons_[id].left;
       const float left_plus = (buttons_[id].left < 0.0f)? buttons_[id].left : width2 + left;
-      const float u{buttons_[id].u + plus}, u_plus{u + TITLE_BUTTON_WIDTH};
+      const float u{buttons_[id].u + plus}, u_plus{u + kTitleButtonWidth};
       const float v{buttons_[id].v}, v_plus{height + v};
-      const float i{buttons_[id].id}, p{static_cast<float>(Visualizer::GUIid::TITLE_BAR)};
+      const float i{buttons_[id].id}, p{static_cast<float>(torero::GUIid::TitleBar)};
 
-      const Visualizer::ButtonShader button[6] = {
+      const torero::ButtonShader button[6] = {
         {      top,      left,      u, v_plus, width, height, i, p }, // top-left corner
         {      top,      left,      u, v_plus, width, height, i, p }, // top-left corner
         { top_plus,      left,      u,      v, width, height, i, p }, // bottom-left corner
@@ -117,47 +117,47 @@ namespace Toreo {
       buffer_.vertex_release();
 
       *has_changed_ = true;
-      if(state == Visualizer::Button::CLICK)
+      if(state == torero::Button::Click)
         *blocked_ = true;
       else
         *blocked_ = false;
 
-      if(state == Visualizer::Button::HOVER || state == Visualizer::Button::CLICK)
-        if(button_id == Visualizer::Title::TITLE)
-          core_->set_cursor(Visualizer::Cursor::MOVE);
+      if(state == torero::Button::Hover || state == torero::Button::Click)
+        if(button_id == torero::Title::Title)
+          core_->set_cursor(torero::Cursor::Move);
         else
-          core_->set_cursor(Visualizer::Cursor::HAND);
+          core_->set_cursor(torero::Cursor::Hand);
       else
-        core_->set_cursor(Visualizer::Cursor::NORMAL);
+        core_->set_cursor(torero::Cursor::Normal);
     }
   }
 
   void GUITitleBar::restart_buttons(){
-    for(Visualizer::Button::Button &button : buttons_)
-      if(button.state != Visualizer::Button::NORMAL)
-        change_button_state(static_cast<Visualizer::Title::ButtonType>(button.id),
-                            Visualizer::Button::NORMAL);
+    for(torero::Button::Button &button : buttons_)
+      if(button.state != torero::Button::Normal)
+        change_button_state(static_cast<torero::Title::ButtonType>(button.id),
+                            torero::Button::Normal);
   }
 
-  void GUITitleBar::click_event(const Visualizer::Title::ButtonType button_id,
-                                const Visualizer::Mouse::Event event){
-    if(event == Visualizer::Mouse::CLICK)
-      if(button_id == Visualizer::Title::TITLE)
+  void GUITitleBar::click_event(const torero::Title::ButtonType button_id,
+                                const torero::Mouse::Event event){
+    if(event == torero::Mouse::Click){
+      if(button_id == torero::Title::Title)
         *window_mover_ = true;
-    else
-      switch(button_id){
-      case Visualizer::Title::CLOSE:
-        core_->close();
-      break;
-      case Visualizer::Title::MAXIMIZE:
-        core_->maximize();
-      break;
-      case Visualizer::Title::MINIMIZE:
-        core_->minimize();
-      break;
-      case Visualizer::Title::OPTIONS:
-        core_->camera_view_top();
-      break;
+    }else
+      switch(static_cast<unsigned int>(button_id)){
+        case static_cast<unsigned int>(torero::Title::Close):
+          core_->close();
+        break;
+        case static_cast<unsigned int>(torero::Title::Maximize):
+          core_->maximize();
+        break;
+        case static_cast<unsigned int>(torero::Title::Minimize):
+          core_->minimize();
+        break;
+        case static_cast<unsigned int>(torero::Title::Options):
+          core_->camera_view_top();
+        break;
       }
   }
 
@@ -180,8 +180,8 @@ namespace Toreo {
   }
 
   void GUITitleBar::set_buffer(){
-    const float width{TITLE_BUTTON_WIDTH}, height{TITLE_HEIGHT};
-    const float p{static_cast<float>(Visualizer::GUIid::TITLE_BAR)};
+    const float width{torero::kTitleButtonWidth}, height{torero::kTitleHeight};
+    const float p{static_cast<float>(torero::GUIid::TitleBar)};
 
     const float top_plus[5] = { height + buttons_[0].top,
                                 height + buttons_[1].top,
@@ -207,7 +207,7 @@ namespace Toreo {
                               height + buttons_[3].v,
                               height + buttons_[4].v };
 
-    const Visualizer::ButtonShader buttons[30] = {
+    const torero::ButtonShader buttons[30] = {
       // Title button:
       { buttons_[0].top, buttons_[0].left, buttons_[0].u,     v_plus[0], width, height, buttons_[0].id, p }, // top-left corner
       { buttons_[0].top, buttons_[0].left, buttons_[0].u,     v_plus[0], width, height, buttons_[0].id, p }, // top-left corner

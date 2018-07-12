@@ -1,7 +1,7 @@
 
 #include "algebraica/mat4.h"
 
-namespace Algebraica {
+namespace algebraica {
   ALGTEM mat4<T>& mat4<T>::to_identity(){
     m_[0] = vec4<T>(1, 0, 0, 0);
     m_[1] = vec4<T>(0, 1, 0, 0);

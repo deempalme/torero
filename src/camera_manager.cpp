@@ -1,7 +1,7 @@
 #include "torero/camera_manager.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   CameraManager::CameraManager(Core *core) :
     core_(core),
     shader_(new Shader("resources/shaders/camera.vert",
@@ -10,14 +10,14 @@ namespace Toreo {
     cameras_(0),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&CameraManager::update_camera, this))),
-    signal_draw_all_(core->syncronize(Visualizer::CAMERA)->
+    signal_draw_all_(core->syncronize(torero::Order::Camera)->
                      connect(boost::bind(&CameraManager::draw_all, this)))
   {
     shader_->set_value(u_pv_, core->camera_matrix_perspective_view());
   }
 
   CameraManager::~CameraManager(){
-    for(Visualizer::CameraElement &camera : cameras_)
+    for(torero::CameraComponent &camera : cameras_)
       if(camera.camera){
         if(camera.connection.connected())
           camera.connection.disconnect();
@@ -37,11 +37,12 @@ namespace Toreo {
       delete shader_;
   }
 
-  CMid CameraManager::add(const Visualizer::ImageFile *video_input,
+  CMid CameraManager::add(const torero::ImageFile *video_input,
                           const std::string name,
-                          const Visualizer::Dimensionality number_of_dimensions,
-                          const Algebraica::mat4f *transformation_matrix, const bool visible){
-    Visualizer::CameraElement camera = { new CameraElement(shader_), name, visible };
+                          const torero::Dimensionality number_of_dimensions,
+                          const algebraica::mat4f *transformation_matrix, const bool visible){
+    torero::CameraComponent camera = { new CameraElement(shader_), name, visible,
+                                       boost::signals2::connection() };
 
     camera.camera->set_camera(video_input);
     camera.camera->set_dimensions(number_of_dimensions);
@@ -68,7 +69,7 @@ namespace Toreo {
   }
 
   bool CameraManager::set_transformation_matrix(const CMid id,
-                                                const Algebraica::mat4f *transformation_matrix){
+                                                const algebraica::mat4f *transformation_matrix){
     if(cameras_.size() > id)
       if(cameras_[id].camera != nullptr){
         cameras_[id].camera->set_transformation_matrix(transformation_matrix);
@@ -157,7 +158,7 @@ namespace Toreo {
   }
 
   void CameraManager::update_all(){
-    for(Visualizer::CameraElement &camera : cameras_)
+    for(torero::CameraComponent &camera : cameras_)
       if(camera.camera != nullptr && camera.visibility)
         camera.camera->update();
   }
@@ -174,7 +175,7 @@ namespace Toreo {
   }
 
   void CameraManager::draw_all(){
-    for(Visualizer::CameraElement &camera : cameras_)
+    for(torero::CameraComponent &camera : cameras_)
       if(camera.camera != nullptr && camera.visibility)
         camera.camera->draw();
   }
@@ -194,7 +195,7 @@ namespace Toreo {
   }
 
   void CameraManager::purge(){
-    for(Visualizer::CameraElement &camera : cameras_)
+    for(torero::CameraComponent &camera : cameras_)
       if(camera.camera != nullptr){
         if(camera.connection.connected())
           camera.connection.disconnect();
@@ -229,6 +230,5 @@ namespace Toreo {
   }
 
   bool CameraManager::load_3d_model(){
-
   }
 }

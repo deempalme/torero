@@ -4,29 +4,28 @@
 #include "glad/glad.h"
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Ground
   {
   public:
     Ground(Shader *ground_shader);
 
-    void change_input(const std::vector<Visualizer::Ground2D> *ground);
-    void change_input(const std::vector<Visualizer::Ground3D> *ground);
-    void change_input(const std::vector<Visualizer::GroundGrid> *ground);
-    void change_input(const std::vector<Visualizer::FreeGround2D> *ground);
-    void change_input(const std::vector<Visualizer::FreeGround3D> *ground);
-    void change_input(const std::vector<Visualizer::FreePolarGround2D> *ground);
-    void change_input(const std::vector<Visualizer::FreePolarGround3D> *ground);
+    void change_input(const std::vector<torero::Ground2D> *ground);
+    void change_input(const std::vector<torero::Ground3D> *ground);
+    void change_input(const std::vector<torero::GroundGrid> *ground);
+    void change_input(const std::vector<torero::FreeGround2D> *ground);
+    void change_input(const std::vector<torero::FreeGround3D> *ground);
+    void change_input(const std::vector<torero::FreePolarGround2D> *ground);
+    void change_input(const std::vector<torero::FreePolarGround3D> *ground);
 
-    void set_transformation_matrix(const Algebraica::mat4f *transformation_matrix);
+    void set_transformation_matrix(const algebraica::mat4f *transformation_matrix);
 
     void calculate_height(const bool calculate = false, const float maximum_height = 1.0f);
 
@@ -38,9 +37,9 @@ namespace Toreo {
     void fog_visibility(const bool visible = true);
 
     void translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
-    void translate(const Algebraica::vec3f translation);
+    void translate(const algebraica::vec3f translation);
     void rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
-    void rotate(const Algebraica::vec3f rotation);
+    void rotate(const algebraica::vec3f rotation);
     void rotate_in_x(const float angle);
     void rotate_in_y(const float angle);
     void rotate_in_z(const float angle);
@@ -59,18 +58,18 @@ namespace Toreo {
     unsigned int quantity_width_, quantity_length_;
     bool calculate_height_;
     int fog_visibility_, is_free_, is_polar_, is_grid_, has_height_, is_2D_;
-    Algebraica::vec3f ground_position_;
+    algebraica::vec3f ground_position_;
 
-    const std::vector<Visualizer::Ground2D> *ground_2D_;
-    const std::vector<Visualizer::Ground3D> *ground_3D_;
-    const std::vector<Visualizer::GroundGrid> *ground_grid_;
-    const std::vector<Visualizer::FreeGround2D> *free_ground_2D_;
-    const std::vector<Visualizer::FreeGround3D> *free_ground_3D_;
-    const std::vector<Visualizer::FreePolarGround2D> *polar_ground_2D_;
-    const std::vector<Visualizer::FreePolarGround3D> *polar_ground_3D_;
+    const std::vector<torero::Ground2D> *ground_2D_;
+    const std::vector<torero::Ground3D> *ground_3D_;
+    const std::vector<torero::GroundGrid> *ground_grid_;
+    const std::vector<torero::FreeGround2D> *free_ground_2D_;
+    const std::vector<torero::FreeGround3D> *free_ground_3D_;
+    const std::vector<torero::FreePolarGround2D> *polar_ground_2D_;
+    const std::vector<torero::FreePolarGround3D> *polar_ground_3D_;
 
-    const Algebraica::mat4f *primary_model_;
-    Algebraica::mat4f secondary_model_, identity_matrix_;
+    const algebraica::mat4f *primary_model_;
+    algebraica::mat4f secondary_model_, identity_matrix_;
 
     GLsizei type_size_, data_size_;
 

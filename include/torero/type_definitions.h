@@ -1,12 +1,15 @@
-#ifndef TORERO_TYPES_H
-#define TORERO_TYPES_H
+#ifndef TORERO_TYPE_DEFINITIONS_H
+#define TORERO_TYPE_DEFINITIONS_H
 
-#include "torero/definitions.h"
+#include "torero/constant_expressions.h"
+#include "torero/enumerators.h"
 
 #include "algebraica/algebraica.h"
 #include <boost/signals2.hpp>
 
-namespace Toreo {
+typedef std::size_t PCMid, MMid, MMelement, OMid, TMid, GMid, TXMid, FTid, GUIid, CMid;
+
+namespace torero {
   class CameraElement;
   class FontLoader;
   class Ground;
@@ -15,50 +18,37 @@ namespace Toreo {
   class GUITitleBar;
   class Objects;
   class PointCloud;
-  class Trajectory;
+  class Trajectories;
   class ThreeDimensionalModelLoader;
   class TextObject;
-}
 
-typedef int PCMid, MMid, MMelement, OMid, TMid, GMid, TXMid, FTid, GUIid, CMid;
-
-namespace Visualizer {  
   // ------------------------------------------------------------------------------------ //
   // ----------------------------------- SHADER DATA ------------------------------------ //
   // ------------------------------------------------------------------------------------ //
   struct ComplexShaderData{
     // vertex position
-    Algebraica::vec3f position;
+    algebraica::vec3f position;
     // vertex normals
-    Algebraica::vec3f normal;
+    algebraica::vec3f normal;
     // vertex tangents
-    Algebraica::vec3f tangent;
+    algebraica::vec3f tangent;
     // vertex tangents
-    Algebraica::vec3f bitangent;
+    algebraica::vec3f bitangent;
     // vertex texture coordinates
-    Algebraica::vec2f texture;
+    algebraica::vec2f texture;
   };
 
   struct SimpleShaderData{
     // vertex position
-    Algebraica::vec3f position;
+    algebraica::vec3f position;
     // vertex normals
-    Algebraica::vec3f normal;
+    algebraica::vec3f normal;
     // vertex texture coordinates
-    Algebraica::vec2f texture;
+    algebraica::vec2f texture;
   };
 
-#ifndef V_C_M
-#define V_C_M
-  namespace ImageEncoding {
-    const int RED  = 1;
-    const int RG   = 2;
-    const int RGB  = 3;
-    const int BGR  = 3;
-    const int RGBA = 4;
-    const int BGRA = 4;
-  }
-
+#ifndef V_C_M_T
+#define V_C_M_T
   struct ImageFile{
     // Use this in case each data's component is 16 bits long
     bool is_16bits      = false;
@@ -79,8 +69,8 @@ namespace Visualizer {
   // ------------------------------- 3D MODEL MANAGEMENT -------------------------------- //
   // ------------------------------------------------------------------------------------ //
   struct Model3DElement{
-    const Algebraica::mat4f *main = nullptr;
-    Algebraica::mat4f secondary;
+    const algebraica::mat4f *main = nullptr;
+    algebraica::mat4f secondary;
     bool visibility = true;
     bool colorize = false;
     float R = 0.0f;
@@ -96,33 +86,16 @@ namespace Visualizer {
     bool pbr = true;
   };
 
-  enum Models : unsigned int {
-    EMPTY             = 0u,
-    DB5_BODY          = 1u,
-    DB5_WINDOWS       = 2u,
-    DB5_ACCESSORIES   = 3u,
-    DB5_INTERIOR      = 4u,
-    CHASSIS           = 5u,
-    AXIS              = 6u,
-    STEERING          = 7u,
-    TIRE              = 8u,
-    COORDINATE_SYSTEM = 9u,
-    DB5               = 10u,
-    SHUTTLE_BODY      = 11u,
-    SHUTTLE_WINDOWS   = 12u,
-    SHUTTLE           = 13u
-  };
-
   struct Model3D{
-    Toreo::ThreeDimensionalModelLoader *model;
+    torero::ThreeDimensionalModelLoader *model;
     std::vector<Model3DElement> elements;
-    Models type = EMPTY;
+    Models type = torero::Empty;
   };
   // ------------------------------------------------------------------------------------ //
   // ----------------------------- POINT CLOUD MANAGEMENT ------------------------------- //
   // ------------------------------------------------------------------------------------ //
   struct PointCloudElement{
-    Toreo::PointCloud *point_cloud = nullptr;
+    torero::PointCloud *point_cloud = nullptr;
     std::string name;
     bool visibility;
     boost::signals2::connection connection;
@@ -132,19 +105,19 @@ namespace Visualizer {
 #define P_C_XY_LL
   template<typename T>
   union PointXY{
-    struct{
+    struct XY{
       T x;
       T y;
-    };
+    } point;
     T data[2];
   };
 
   template<typename T>
   union PointLL{
-    struct{
+    struct LL{
       T latitude;
       T longitude;
-    };
+    } coordinates;
     T data[2];
   };
 #endif
@@ -152,11 +125,11 @@ namespace Visualizer {
 #ifndef P_C_XYZ
 #define P_C_XYZ
   union PointXYZ{
-    struct{
+    struct XYZ{
       float x;
       float y;
       float z;
-    };
+    } point;
     float data[3];
   };
 #endif
@@ -164,12 +137,12 @@ namespace Visualizer {
 #ifndef P_C_XYZI
 #define P_C_XYZI
   union PointXYZI{
-    struct{
+    struct XYZI{
       float x;
       float y;
       float z;
       float intensity;
-    };
+    } point;
     float data[4];
   };
 #endif
@@ -177,19 +150,19 @@ namespace Visualizer {
 #ifndef P_C_XYZRGB
 #define P_C_XYZRGB
   union PointXYZRGB{
-    struct{
+    struct XYZRGB{
       float x;
       float y;
       float z;
       float r;
       float g;
       float b;
-    };
+    } point;
     float data[6];
   };
 
   union PointXYZRGBI{
-    struct{
+    struct XYZRGBI{
       float x;
       float y;
       float z;
@@ -197,12 +170,12 @@ namespace Visualizer {
       float g;
       float b;
       float intensity;
-    };
+    } point;
     float data[7];
   };
 
   union PointXYZRGBA{
-    struct{
+    struct XYZRGBA {
       float x;
       float y;
       float z;
@@ -210,7 +183,7 @@ namespace Visualizer {
       float g;
       float b;
       float a;
-    };
+    } point;
     float data[7];
   };
 
@@ -219,18 +192,18 @@ namespace Visualizer {
 #ifndef P_C_RI
 #define P_C_RI
   union PointRI{
-    struct{
+    struct RI{
       // Range data [m] (Note: values < range_min or > range_max should be discarded)
       float range;
       // Intensity data [device-specific units].  If your device does not provide
       // intensities, please do not set the value (it should be 1.0f as default).
       float intensity;
-    };
+    } point;
     float data[2] = { 0.0f, 1.0f };
   };
 
   union SensorRI{
-    struct{
+    struct Info{
       // Start angle of the scan [rad]
       float angle_min;
       // End angle of the scan [rad]
@@ -249,7 +222,7 @@ namespace Visualizer {
       float range_min;
       // Maximum range value [m]
       float range_max;
-    };
+    } properties;
     float data[7] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, };
   };
 #endif
@@ -257,30 +230,30 @@ namespace Visualizer {
 #ifndef O_C_I
 #define O_C_I
   union CoordinatesLLA{
-    struct{
+    struct LLA{
       float latitude;
       float longitude;
       float altitude;
-    };
+    } coordinates;
     float data[3];
   };
 
   union OrientationPYR{
-    struct{
+    struct PYR {
       float pitch;
       float yaw;
       float roll;
-    };
+    } angles;
     float data[3] = { 0.0f, 0.0f, 0.0f };
   };
 
   union OrientationXYZW{
-    struct{
+    struct XYZW{
       float x;
       float y;
       float z;
       float w;
-    };
+    } axes;
     float data[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
   };
 #endif
@@ -288,38 +261,27 @@ namespace Visualizer {
 #ifndef C_RGB_A
 #define C_RGB_A
   union ColorRGB{
-    struct{
+    struct RGB {
       float red;
       float green;
       float blue;
-    };
+    } rgb;
     float data[3];
   };
 
   union ColorRGBA{
-    struct{
+    struct RGBA{
       float red;
       float green;
       float blue;
       float alpha;
-    };
+    } rgba;
     float data[4];
   };
 #endif
 
-#ifndef P_C_DENSE
-#define P_C_DENSE
-  enum LaserFieldType : unsigned int {
-    tI    = 0u,
-    tX    = 1u,
-    tXY   = 2u,
-    tXYZ  = 3u,
-    tRGB  = 4u,
-    tRGBA = 5u,
-    tGRAY = 6u,
-    tMONO = 7u
-  };
-
+#ifndef P_C_DENSE_T
+#define P_C_DENSE_T
   struct PointFields{
     LaserFieldType type;
     unsigned int offset;
@@ -336,31 +298,9 @@ namespace Visualizer {
   };
 #endif
 
-  enum class ColorMode : unsigned int{
-    INTENSITY = 0u,
-    COLORMAP  = 1u,
-    SOLID     = 2u,
-    DATA      = 3u
-  };
-
-  enum class PointCloudType : unsigned int{
-    XYZ      = 0u,
-    XYZI     = 1u,
-    XYZRGB   = 2u,
-    XYZRGBI  = 3u,
-    XYZRGBA  = 4u,
-    XYZRGBAI = 5u
-  };
-
   // ------------------------------------------------------------------------------------ //
   // -------------------------------- OBJECT MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  enum Shape : unsigned int{
-    BOX      = 0u,
-    CYLINDER = 1u,
-    CIRCLE   = 2u,
-    SQUARE   = 3u
-  };
 
 #ifndef O_M_A
 #define O_M_A
@@ -419,25 +359,25 @@ namespace Visualizer {
 #endif
 
   struct ObjectElement{
-    Toreo::Objects *object = nullptr;
+    torero::Objects *object = nullptr;
     std::string name;
     bool visibility;
     boost::signals2::connection connection;
   };
 
   struct ObjectShaderHollow{
-    Algebraica::vec3f position;
-    Algebraica::vec4f rotation;
-    Algebraica::vec4f color;
-    Algebraica::vec3f scale;
+    algebraica::vec3f position;
+    algebraica::vec4f rotation;
+    algebraica::vec4f color;
+    algebraica::vec3f scale;
     float line_width;
   };
 
   struct ObjectShaderSolid{
-    Algebraica::vec3f position;
-    Algebraica::vec4f rotation;
-    Algebraica::vec4f color;
-    Algebraica::vec3f scale;
+    algebraica::vec3f position;
+    algebraica::vec4f rotation;
+    algebraica::vec4f color;
+    algebraica::vec3f scale;
   };
 
   struct ObjectBuffer{
@@ -449,12 +389,6 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
   // ------------------------------ TRAJECTORY MANAGEMENT ------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  enum LineType : unsigned int {
-    SOLID          = 0u,
-    DOTTED         = 1u,
-    DASHED         = 2u,
-    ARROWED        = 3u
-  };
 
 #ifndef T_M_E
 #define T_M_E
@@ -475,16 +409,16 @@ namespace Visualizer {
 #endif
 
   struct TrajectoryElement{
-    Toreo::Trajectory *trajectory = nullptr;
-    Visualizer::LineType type;
+    torero::Trajectories *trajectory = nullptr;
+    LineType type;
     std::string name;
     bool visibility;
     boost::signals2::connection connection;
   };
 
   struct TrajectoryShader{
-    Algebraica::vec3f position;
-    Algebraica::vec4f color;
+    algebraica::vec3f position;
+    algebraica::vec4f color;
     float line_width;
     float distance;
     float angle;
@@ -495,35 +429,33 @@ namespace Visualizer {
 #ifndef G_M_E
 #define G_M_E
   union GroundGrid{
-    struct{
+    struct PH {
       // Probability if occupied (-1.0f if unknown)
       float probability;
       // Box height
       float height;
-    };
+    } ground;
     float data[2] = {-1.0f, 0.0f};
   };
 
   union Ground2D{
-    struct{
-      // RGBA color (range 0.0f to 255.0f)
-      ColorRGBA color;
-    };
+    // RGBA color (range 0.0f to 255.0f)
+    ColorRGBA color;
     float data[4] = { 255.0f, 255.0f, 255.0f, 255.0f };
   };
 
   union Ground3D{
-    struct{
+    struct RGBAH {
       // RGBA color (range 0.0f to 255.0f)
       ColorRGBA color;
       // cube's Height in meters
       float height;
-    };
+    } ground;
     float data[5] = { 255.0f, 255.0f, 255.0f, 255.0f, 0.0f };
   };
 
   union FreeGround2D{
-    struct{
+    struct XYZRGBAWL {
       // Position
       PointXYZ position;
       // RGBA color (range 0.0f to 255.0f)
@@ -531,12 +463,12 @@ namespace Visualizer {
       // Dimensions
       float width;
       float length;
-    };
+    } ground;
     float data[9] = { 0.0f, 0.0f, 0.0f, 255.0f, 255.0f, 255.0f, 255.0f, 1.0f, 1.0f };
   };
 
   union FreeGround3D{
-    struct{
+    struct XYZRGBAWLH {
       // Position
       PointXYZ position;
       // RGBA color (range 0.0f to 255.0f)
@@ -545,12 +477,12 @@ namespace Visualizer {
       float width;
       float length;
       float height;
-    };
+    } ground;
     float data[10] = { 0.0f, 0.0f, 0.0f, 255.0f, 255.0f, 255.0f, 255.0f, 1.0f, 1.0f, 1.0f };
   };
 
   union FreePolarGround2D{
-    struct{
+    struct DARGBAWL {
       // Distance
       float distance;
       // Angle
@@ -560,12 +492,12 @@ namespace Visualizer {
       // Dimensions
       float width;
       float length;
-    };
+    } ground;
     float data[8] = { 0.0f, 0.0f, 255.0f, 255.0f, 255.0f, 255.0f, 1.0f, 1.0f };
   };
 
   union FreePolarGround3D{
-    struct{
+    struct DARGBAWLH {
       // Distance
       float distance;
       // Angle
@@ -576,7 +508,7 @@ namespace Visualizer {
       float width;
       float length;
       float height;
-    };
+    } ground;
     float data[9] = { 0.0f, 0.0f, 255.0f, 255.0f, 255.0f, 255.0f, 1.0f, 1.0f, 1.0f };
   };
 
@@ -597,23 +529,23 @@ namespace Visualizer {
 #endif
 
   struct Ground2DShader{
-    Algebraica::vec3f position;
-    Algebraica::vec4f color;
+    algebraica::vec3f position;
+    algebraica::vec4f color;
   };
 
   struct Ground3DShader{
-    Algebraica::vec3f position;
-    Algebraica::vec4f color;
+    algebraica::vec3f position;
+    algebraica::vec4f color;
     float height;
   };
 
   struct GroundGridShader{
-    Algebraica::vec3f position;
+    algebraica::vec3f position;
     float probability;
   };
 
   struct GroundElement{
-    Toreo::Ground *ground = nullptr;
+    torero::Ground *ground = nullptr;
     std::string name;
     bool visibility;
     boost::signals2::connection connection;
@@ -645,49 +577,8 @@ namespace Visualizer {
 #endif
 
   // ------------------------------------------------------------------------------------ //
-  // -------------------------------- WINDOW MANAGEMENT --------------------------------- //
-  // ------------------------------------------------------------------------------------ //
-  enum Order : int {
-    POINT_CLOUDS = 0,
-    OBJECTS      = 1,
-    SKYBOX       = 2,
-    GROUND       = 3,
-    STREETS      = 4,
-    MODELS       = 5,
-    TRAJECTORIES = 6,
-    TEXT         = 7,
-    CAMERA       = 8,
-    GUI          = 9
-  };
-
-  constexpr int DRAWING_ELEMENTS{10};
-
-  enum class Message : unsigned int {
-    ERROR      = 0u,
-    WARNING    = 1u,
-    ATTENTION  = 2u,
-    NORMAL     = 3u
-  };
-
-  // ------------------------------------------------------------------------------------ //
   // ---------------------------------- TEXT MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  enum class Alignment : unsigned int {
-    LEFT   = 0u,
-    CENTER = 1u,
-    RIGHT  = 2u,
-    TOP    = 3u,
-    BOTTOM = 4u
-  };
-
-  enum class TextWeight : unsigned int {
-    LIGHTER = 0u,
-    LIGHT   = 1u,
-    NORMAL  = 2u,
-    BOLD    = 3u,
-    BOLDER  = 4u
-  };
-
   struct TextSimple {
     // Position [meters]
     PointXYZ position;
@@ -755,8 +646,8 @@ namespace Visualizer {
 
   struct FontCharacter {
     unsigned int ascii = 0;
-    union {
-      struct {
+    union Texture {
+      struct WHUV {
         // Dimensions
         float width;
         float height;
@@ -765,23 +656,23 @@ namespace Visualizer {
         float v1;
         float u2;
         float v2;
-      };
+      } map;
       float data[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-    };
-    union {
-      struct {
+    } texture;
+    union Position {
+      struct XYN {
         // Offset
         float x;
         float y;
         // Next character position
         float next;
-      };
-      float offset[3] = { 0.0f, 0.0f, 0.0f };
-    };
+      } offset;
+      float data[3] = { 0.0f, 0.0f, 0.0f };
+    } position;
   };
 
   struct Text {
-    Toreo::TextObject *text = nullptr;
+    torero::TextObject *text = nullptr;
     FTid font;
     std::string name;
     bool visibility;
@@ -794,39 +685,11 @@ namespace Visualizer {
     bool exist = true;
   };
 
-  enum class Complexity : unsigned int {
-    SIMPLE  = 0u,
-    MEDIUM  = 1u,
-    COMPLEX = 2u
-  };
-
   // ------------------------------------------------------------------------------------ //
   // --------------------------------- STREETS MANAGEMENT ------------------------------- //
   // ------------------------------------------------------------------------------------ //
-#ifndef S_M_S
-#define S_M_S
-  enum class StreetLineType : unsigned int {
-    // Solid lines:
-    SingleSolidWhiteLine   = 0u,
-    SingleSolidYellowLine  = 1u,
-    DoubleSolidWhiteLine   = 2u,
-    DoubleSolidYellowLine  = 3u,
-    // Dashed lines:
-    SingleDashedWhiteLine  = 4u,
-    SingleDashedYellowLine = 5u,
-    DoubleDashedWhiteLine  = 6u,
-    DoubleDashedYellowLine = 7u,
-    // No line
-    NoLine                 = 8u
-  };
-
-  enum class StreetSidewalkType : unsigned int {
-    RightSidewalk  = 0u,
-    LeftSidewalk   = 1u,
-    DoubleSidewalk = 2u,
-    NoSidewalk     = 3u
-  };
-
+#ifndef S_M_S_T
+#define S_M_S_T
   struct StreetVertex {
     // Position
     union {
@@ -853,13 +716,6 @@ namespace Visualizer {
     std::vector<StreetVertex> data;
   };
 
-  enum class SignalType : unsigned int {
-    Semaphore,
-    SpeedLimit,
-    Stop,
-    TrafficCone
-  };
-
   struct Signal {
     // Position
     union {
@@ -879,34 +735,13 @@ namespace Visualizer {
   // ----------------------------------- GUI MANAGEMENT --------------------------------- //
   // ------------------------------------------------------------------------------------ //
 
-  namespace GUIid {
-    enum Id : unsigned int {
-      MENU = 1u,
-      TITLE_BAR = 2u
-    };
-  }
-
-  namespace Mouse {
-    enum Event : unsigned int {
-      MOVE    = 0u,
-      CLICK   = 1u,
-      RELEASE = 2u
-    };
-  }
-
   namespace Button {
-    enum State : unsigned int {
-      NORMAL = 0u,
-      HOVER  = 1u,
-      CLICK  = 2u
-    };
-
     struct Button {
       float top    = 0.0f;
       float left   = 0.0f;
       float u      = 0.0f;
       float v      = 0.0f;
-      State state  = State::NORMAL;
+      State state  = State::Normal;
       float width  = 0.0f;
       float height = 0.0f;
       float id     = 0u;
@@ -915,42 +750,15 @@ namespace Visualizer {
   }
 
   namespace Menu {
-    enum ButtonType : unsigned int{
-      ZOOM_IN        = 0u,
-      ISOMETRIC_VIEW = 1u,
-      TOP_VIEW       = 2u,
-      ZOOM_OUT       = 3u,
-      PEM_LOGO       = 4u
-    };
-
     struct Object {
-      Toreo::GUIMenu *object = nullptr;
-      Alignment vertical     = Alignment::CENTER;
-      Alignment horizontal   = Alignment::LEFT;
-      float width            = MENU_WIDTH;
-      float height           = MENU_HEIGHT;
+      torero::GUIMenu *object = nullptr;
+      Alignment vertical     = Alignment::Center;
+      Alignment horizontal   = Alignment::Left;
+      float width            = kMenuWidth;
+      float height           = kMenuHeight;
       bool visibility        = false;
     };
   }
-
-  namespace Title {
-    enum ButtonType : unsigned int {
-      TITLE    = 0u,
-      CLOSE    = 1u,
-      MAXIMIZE = 2u,
-      MINIMIZE = 3u,
-      OPTIONS  = 4u
-    };
-  }
-
-  enum class Cursor : unsigned int {
-    NORMAL    = 0u,
-    HAND      = 1u,
-    TEXT      = 2u,
-    CROSSHAIR = 3u,
-    MOVE      = 4u,
-    HIDDEN    = 5u
-  };
 
   struct ButtonShader{
     float top;
@@ -994,17 +802,12 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
   // --------------------------------- CAMERA MANAGEMENT -------------------------------- //
   // ------------------------------------------------------------------------------------ //
-  struct CameraElement {
-    Toreo::CameraElement *camera = nullptr;
+  struct CameraComponent {
+    torero::CameraElement *camera = nullptr;
     std::string name;
     bool visibility;
     boost::signals2::connection connection;
   };
-
-  enum class Dimensionality : unsigned int {
-    THREE_DIMENSIONAL = 0u,
-    TWO_DIMENSIONAL   = 1u
-  };
 }
 
-#endif // TORERO_TYPES_H
+#endif // TORERO_TYPE_DEFINITIONS_H

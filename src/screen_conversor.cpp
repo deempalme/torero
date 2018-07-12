@@ -1,6 +1,6 @@
 #include "torero/screen_conversor.h"
 
-namespace Toreo {
+namespace torero {
   ScreenConversor::ScreenConversor() :
     vehicle_frame_(nullptr),
     view_matrix_(nullptr),
@@ -12,10 +12,10 @@ namespace Toreo {
 
   }
 
-  const Algebraica::vec3f ScreenConversor::to_screen(const Algebraica::vec3f position,
-                                                     const Algebraica::mat4f *model_matrix){
-    Algebraica::vec4f result(position, 1.0f);
-    float width{FLOAT(*width_)}, height(FLOAT(*height_));
+  const algebraica::vec3f ScreenConversor::to_screen(const algebraica::vec3f position,
+                                                     const algebraica::mat4f *model_matrix){
+    algebraica::vec4f result(position, 1.0f);
+    float width{ToFloat(*width_)}, height(ToFloat(*height_));
     if(model_matrix)
       result = *model_matrix * result;
 
@@ -30,36 +30,36 @@ namespace Toreo {
 
     result /= result.w();
 
-    return Algebraica::vec3f((width )? result[0] * width  : result[0],
-                             (height)? result[1] * height : result[1],
+    return algebraica::vec3f(FloatEqualization(width)? result[0] * width  : result[0],
+                             FloatEqualization(height)? result[1] * height : result[1],
                              result[2]);
   }
 
-  const Algebraica::vec3f ScreenConversor::to_3d_world(const Algebraica::vec3f position){
+  const algebraica::vec3f ScreenConversor::to_3d_world(const algebraica::vec3f position){
     return position;
   }
 
-  void ScreenConversor::set_vehicle_frame(const Algebraica::mat4f *vehicle_frame){
+  void ScreenConversor::set_vehicle_frame(const algebraica::mat4f *vehicle_frame){
     vehicle_frame_ = vehicle_frame;
   }
 
-  void ScreenConversor::set_inverse_vehicle_frame(const Algebraica::mat4f *inverse_vehicle_frame){
+  void ScreenConversor::set_inverse_vehicle_frame(const algebraica::mat4f *inverse_vehicle_frame){
     inverse_vehicle_frame_ = inverse_vehicle_frame;
   }
 
-  void ScreenConversor::set_view_matrix(const Algebraica::mat4f *view_matrix){
+  void ScreenConversor::set_view_matrix(const algebraica::mat4f *view_matrix){
     view_matrix_ = view_matrix;
   }
 
-  void ScreenConversor::set_inverse_view_matrix(const Algebraica::mat4f *inverse_view_matrix){
+  void ScreenConversor::set_inverse_view_matrix(const algebraica::mat4f *inverse_view_matrix){
     inverse_view_matrix_ = inverse_view_matrix;
   }
 
-  void ScreenConversor::set_perspective_matrix(const Algebraica::mat4f *perspective_matrix){
+  void ScreenConversor::set_perspective_matrix(const algebraica::mat4f *perspective_matrix){
     perspective_matrix_ = perspective_matrix;
   }
 
-  void ScreenConversor::set_inverse_perspective_matrix(const Algebraica::mat4f
+  void ScreenConversor::set_inverse_perspective_matrix(const algebraica::mat4f
                                                        *inverse_perspective_matrix){
     inverse_perspective_matrix_ = inverse_perspective_matrix;
   }

@@ -1,6 +1,6 @@
 #include "torero/line_grid.h"
 
-namespace Toreo {
+namespace torero {
   LineGrid::LineGrid(Shader *line_shader, const float width, const float length,
                      const unsigned int quantity_width, const unsigned int quantity_length) :
     shader_(line_shader),
@@ -32,7 +32,7 @@ namespace Toreo {
                             const unsigned int line_quantity_through_width,
                             const unsigned int line_quantity_through_length){
     if(shader_->use()){
-      GLsizei type_size{sizeof(Algebraica::vec3f)};
+      GLsizei type_size{sizeof(algebraica::vec3f)};
       float half_width{width/2.0f};
       float half_length{length/2.0f};
 
@@ -40,15 +40,15 @@ namespace Toreo {
       float length_separation{length/line_quantity_through_length};
 
       data_size_ = (line_quantity_through_width + line_quantity_through_length + 2) * 2;
-      Algebraica::vec3f line_points[data_size_];
+      algebraica::vec3f line_points[data_size_];
 
       int e{-1};
-      for(int i = 0; i <= line_quantity_through_width; ++i){
+      for(unsigned int i = 0; i <= line_quantity_through_width; ++i){
         line_points[++e](i * width_separation - half_width, 0, -half_length);
         line_points[++e](i * width_separation - half_width, 0,  half_length);
       }
 
-      for(int i = 0; i <= line_quantity_through_length; ++i){
+      for(unsigned int i = 0; i <= line_quantity_through_length; ++i){
         line_points[++e](-half_width, 0, i * length_separation - half_length);
         line_points[++e]( half_width, 0, i * length_separation - half_length);
       }
@@ -70,7 +70,7 @@ namespace Toreo {
     secondary_model_.translate(x, y, z);
   }
 
-  void LineGrid::transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void LineGrid::transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 

@@ -1,7 +1,7 @@
 
 #include "algebraica/quaternion.h"
 
-namespace Algebraica {
+namespace algebraica {
   ALGTEM T& quaternion<T>::operator[](const unsigned int index){
     assert(index >= 0 && index < 4);
     return values_[index];

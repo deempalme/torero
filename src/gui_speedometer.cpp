@@ -3,9 +3,9 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   GUISpeedometer::GUISpeedometer(Core *core, Shader *pbr, Shader *emission, Shader *text,
-                                 const std::vector<Visualizer::FontCharacter> *characters,
+                                 const std::vector<torero::FontCharacter> *characters,
                                  const std::string folder_path, bool *changer) :
     core_(core),
     folder_path_(folder_path),
@@ -37,8 +37,8 @@ namespace Toreo {
     t_ao_(nullptr),
     t_emission_(nullptr),
 
-    data_stride_size_(sizeof(Visualizer::ComplexShaderData)),
-    object_stride_size_(sizeof(Visualizer::PBR_GUIShader)),
+    data_stride_size_(sizeof(torero::ComplexShaderData)),
+    object_stride_size_(sizeof(torero::PBR_GUIShader)),
 
     buffer_background_(true),
     buffer_background_objects_(true),
@@ -63,11 +63,11 @@ namespace Toreo {
     u_t_translation_(text_->uniform_location("u_translation")),
     buffer_text_(true),
     text_data_size_(0u),
-    text_stride_size_(sizeof(Visualizer::GUITextShader)),
+    text_stride_size_(sizeof(torero::GUITextShader)),
     characters_(characters),
 
     previous_rotation_(0.0f),
-    rotation_(Algebraica::quaternionF::euler_to_quaternion(0.0f, toRADIANS(5.0f), toRADIANS(18.0f))),
+    rotation_(algebraica::quaternionF::euler_to_quaternion(0.0f, ToRadians(5.0f), ToRadians(18.0f))),
     translation_(3.5f),
     light_color_(0.799f, 0.076f, 0.014f),
     light_(0.0f, 1.0f, 0.0f)
@@ -76,18 +76,18 @@ namespace Toreo {
       folder_exist_ = true;
 
       for(std::size_t i = 0; i < 22; ++i)
-        marker_objects_[i].angle = _190_DEGREES - _10_DEGREES * i;
+        marker_objects_[i].angle = k190degrees - k10degrees * i;
 
       for(std::size_t i = 22; i < 30; ++i){
-        marker_objects_[i].angle = -_42_DEGREES - _15_DEGREES * (i - 22);
+        marker_objects_[i].angle = -k42degrees - k15degrees * (i - 22);
         if(i == 22 || i == 23){
-          marker_objects_[i].color.red = 0.965f;
-          marker_objects_[i].color.green = 0.357f;
-          marker_objects_[i].color.blue = 0.463f;
+          marker_objects_[i].color.rgb.red = 0.965f;
+          marker_objects_[i].color.rgb.green = 0.357f;
+          marker_objects_[i].color.rgb.blue = 0.463f;
         }
       }
 
-      needle_objects_[1].angle = _22_DEGREES;
+      needle_objects_[1].angle = k22degrees;
     }
   }
 
@@ -111,8 +111,8 @@ namespace Toreo {
     speed /= 210.0f;
     rpm /= 7000.0f;
 
-    needle_objects_[0].angle = -speed * _210_DEGREES;
-    needle_objects_[1].angle = _22_DEGREES + rpm * _105_DEGREES;
+    needle_objects_[0].angle = -speed * k210degrees;
+    needle_objects_[1].angle = k22degrees + rpm * k105degrees;
     update_buffer(&buffer_needle_, &buffer_needle_objects_, 2, needle_objects_);
 
     const std::size_t speed_position {static_cast<std::size_t>(std::floor(speed * 21.0f) + 1.0f)};
@@ -120,13 +120,13 @@ namespace Toreo {
     if(speed_position != previous_speed_level_){
       for(std::size_t i = 0; i < 22; ++i)
         if(i < speed_position){
-          marker_objects_[i].color.red = 0.6784f;
-          marker_objects_[i].color.green = 0.9569f;
-          marker_objects_[i].color.blue = 0.2588f;
+          marker_objects_[i].color.rgb.red = 0.6784f;
+          marker_objects_[i].color.rgb.green = 0.9569f;
+          marker_objects_[i].color.rgb.blue = 0.2588f;
         }else{
-          marker_objects_[i].color.red = 0.220f;
-          marker_objects_[i].color.green = 0.855f;
-          marker_objects_[i].color.blue = 1.0f;
+          marker_objects_[i].color.rgb.red = 0.220f;
+          marker_objects_[i].color.rgb.green = 0.855f;
+          marker_objects_[i].color.rgb.blue = 1.0f;
         }
       previous_speed_level_ = speed_position;
       speed_changed = true;
@@ -137,23 +137,23 @@ namespace Toreo {
     if(rpm_position != previous_rpm_level_){
       for(std::size_t i = 22; i < 30; ++i)
         if(rpm_position <= 23){
-          marker_objects_[i].color.red = 1.0f;
-          marker_objects_[i].color.green = 0.36f;
-          marker_objects_[i].color.blue = 0.36f;
+          marker_objects_[i].color.rgb.red = 1.0f;
+          marker_objects_[i].color.rgb.green = 0.36f;
+          marker_objects_[i].color.rgb.blue = 0.36f;
         }else if(i < rpm_position){
           if(i == 22 || i == 23){
-            marker_objects_[i].color.red = 0.965f;
-            marker_objects_[i].color.green = 0.357f;
-            marker_objects_[i].color.blue = 0.463f;
+            marker_objects_[i].color.rgb.red = 0.965f;
+            marker_objects_[i].color.rgb.green = 0.357f;
+            marker_objects_[i].color.rgb.blue = 0.463f;
           }else{
-            marker_objects_[i].color.red = 0.220f;
-            marker_objects_[i].color.green = 0.855f;
-            marker_objects_[i].color.blue = 1.0f;
+            marker_objects_[i].color.rgb.red = 0.220f;
+            marker_objects_[i].color.rgb.green = 0.855f;
+            marker_objects_[i].color.rgb.blue = 1.0f;
           }
         }else{
-          marker_objects_[i].color.red = 0.9569f;
-          marker_objects_[i].color.green = 0.6196f;
-          marker_objects_[i].color.blue = 0.2588f;
+          marker_objects_[i].color.rgb.red = 0.9569f;
+          marker_objects_[i].color.rgb.green = 0.6196f;
+          marker_objects_[i].color.rgb.blue = 0.2588f;
         }
       previous_rpm_level_ = rpm_position;
       rpm_changed = true;
@@ -166,17 +166,18 @@ namespace Toreo {
   void GUISpeedometer::rotate(const float factor){
     float reduction{0.0f};
 
-    if(factor > 0.7f)
+    if(factor > 0.7f){
       if(factor > 1.1f)
         reduction = 48.0f;
       else
         reduction = (factor - 0.7f) * 120.0f;
+    }
 
-    if(reduction != previous_rotation_){
+    if(FloatDifferentiation(reduction, previous_rotation_)){
       previous_rotation_ = reduction;
 
       const float angle{18.0f - reduction};
-      rotation_.from_euler(0.0f, toRADIANS(5.0f), toRADIANS(angle));
+      rotation_.from_euler(0.0f, ToRadians(5.0f), ToRadians(angle));
 
       *has_changed_ = true;
     }
@@ -241,7 +242,7 @@ namespace Toreo {
       if(!boost::filesystem::exists(boost::filesystem::path(folder_path_))){
         core_->message_handler("*** GUI Speedometer loader: ***\n The folder: " + first_path +
                                " was not found.\n  Neither: " + folder_path_ + "\n",
-                               Visualizer::Message::ERROR);
+                               torero::Message::Error);
         return false;
       }
     }
@@ -324,7 +325,7 @@ namespace Toreo {
     }
   }
 
-  const bool GUISpeedometer::is_ready(){
+  bool GUISpeedometer::is_ready(){
     if(is_loaded_){
       return is_ready_;
     }else{
@@ -336,12 +337,12 @@ namespace Toreo {
     }
   }
 
-  void GUISpeedometer::calculate_model(std::vector<Visualizer::ComplexShaderData> *buffer_data,
+  void GUISpeedometer::calculate_model(std::vector<torero::ComplexShaderData> *buffer_data,
                                        const std::string subfolder){
-    std::vector<Algebraica::vec3f> position, normal;
-    std::vector<Algebraica::vec2f> texture;
-    Algebraica::vec3f tvector;
-    Algebraica::vec2f ttexture;
+    std::vector<algebraica::vec3f> position, normal;
+    std::vector<algebraica::vec2f> texture;
+    algebraica::vec3f tvector;
+    algebraica::vec2f ttexture;
     std::vector<unsigned int> vertex_indices, texture_indices, normal_indices;
     unsigned int vertex_index[3], texture_index[3], normal_index[3];
     std::string line;
@@ -380,8 +381,8 @@ namespace Toreo {
       }
       file.close();
 
-      Algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
-      Algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
+      algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
+      algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
       int e{0};
 
       std::size_t total{vertex_indices.size()};
@@ -393,7 +394,7 @@ namespace Toreo {
         if(texture_indices[i] > 0)
           (*buffer_data)[i].texture = texture[texture_indices[i] - 1];
         else
-          (*buffer_data)[i].texture = Algebraica::vec2f();
+          (*buffer_data)[i].texture = algebraica::vec2f();
 
         v2 = v1;
         v1 = v0;
@@ -427,7 +428,7 @@ namespace Toreo {
       }
     }else
       core_->message_handler("File \"model.obj\" not found at:" + folder_path_ + "...\n",
-                             Visualizer::Message::ERROR);
+                             torero::Message::Error);
   }
 
   void GUISpeedometer::update_text(const float speed, const float rpm){
@@ -444,29 +445,29 @@ namespace Toreo {
         static_cast<std::size_t>(std::sprintf(rpm_str, "%.0f", rpm));
 
     const std::size_t total{speed_length + rpm_length};
-    std::vector<Visualizer::GUITextShader> characters(total);
+    std::vector<torero::GUITextShader> characters(total);
     float next_position{0.0f};
     std::size_t i{0u};
 
-    for(i; i < speed_length; ++i){
+    for(/*i*/; i < speed_length; ++i){
       const std::size_t character{static_cast<std::size_t>(speed_str[i])};
-      const Visualizer::FontCharacter chr{(*characters_)[character]};
+      const torero::FontCharacter &chr{(*characters_)[character]};
 
       // Position
-      characters[i].x = next_position + chr.x * font_size_speed;
-      next_position += chr.next * font_size_speed * 0.9f;
-      characters[i].y = offset_speed - chr.y * font_size_speed;
+      characters[i].x = next_position + chr.position.offset.x * font_size_speed;
+      next_position += chr.position.offset.next * font_size_speed * 0.9f;
+      characters[i].y = offset_speed - chr.position.offset.y * font_size_speed;
       characters[i].z = 0.110f;
 
       // Dimension
-      characters[i].width = chr.width * font_size_speed;
-      characters[i].height = chr.height * font_size_speed;
+      characters[i].width = chr.texture.map.width * font_size_speed;
+      characters[i].height = chr.texture.map.height * font_size_speed;
 
       // Texture
-      characters[i].u1 = chr.u1;
-      characters[i].v1 = chr.v1;
-      characters[i].u2 = chr.u2;
-      characters[i].v2 = chr.v2;
+      characters[i].u1 = chr.texture.map.u1;
+      characters[i].v1 = chr.texture.map.v1;
+      characters[i].u2 = chr.texture.map.u2;
+      characters[i].v2 = chr.texture.map.v2;
     }
     speed_offset_x = next_position / 2.1f;
 
@@ -477,23 +478,23 @@ namespace Toreo {
 
     for(std::size_t e = 0u; e < rpm_length; ++e, ++i){
       const std::size_t character{static_cast<std::size_t>(rpm_str[e])};
-      const Visualizer::FontCharacter chr{(*characters_)[character]};
+      const torero::FontCharacter &chr{(*characters_)[character]};
 
       // Position
-      characters[i].x = next_position + chr.x * font_size_rpm;
-      next_position += chr.next * font_size_rpm;
-      characters[i].y = offset_rpm + chr.y * font_size_rpm;
+      characters[i].x = next_position + chr.position.offset.x * font_size_rpm;
+      next_position += chr.position.offset.next * font_size_rpm;
+      characters[i].y = offset_rpm + chr.position.offset.y * font_size_rpm;
       characters[i].z = 0.110f;
 
       // Dimension
-      characters[i].width = chr.width * font_size_rpm;
-      characters[i].height = chr.height * font_size_rpm;
+      characters[i].width = chr.texture.map.width * font_size_rpm;
+      characters[i].height = chr.texture.map.height * font_size_rpm;
 
       // Texture
-      characters[i].u1 = chr.u1;
-      characters[i].v1 = chr.v1;
-      characters[i].u2 = chr.u2;
-      characters[i].v2 = chr.v2;
+      characters[i].u1 = chr.texture.map.u1;
+      characters[i].v1 = chr.texture.map.v1;
+      characters[i].u2 = chr.texture.map.u2;
+      characters[i].v2 = chr.texture.map.v2;
     }
     rpm_offset_x = next_position / 2.0f;
 
@@ -510,15 +511,15 @@ namespace Toreo {
     buffer_text_.enable(i_position_);
     buffer_text_.attributte_buffer(i_position_, _3D, offset, text_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer_text_.enable(i_size_);
     buffer_text_.attributte_buffer(i_size_, _2D, offset, text_stride_size_);
 
-    offset += sizeof(Algebraica::vec2f);
+    offset += sizeof(algebraica::vec2f);
     buffer_text_.enable(i_uv_);
     buffer_text_.attributte_buffer(i_uv_, _4D, offset, text_stride_size_);
 
-    offset += sizeof(Algebraica::vec4f);
+    offset += sizeof(algebraica::vec4f);
     buffer_text_.enable(i_color_);
     buffer_text_.attributte_buffer(i_color_, _4D, offset, text_stride_size_);
 
@@ -526,8 +527,8 @@ namespace Toreo {
   }
 
   void GUISpeedometer::load_buffer(Buffer *buffer, Buffer *objects, const GLsizei size,
-                                   const std::vector<Visualizer::PBR_GUIShader> &object_data,
-                                   std::vector<Visualizer::ComplexShaderData> *buffer_data,
+                                   const std::vector<torero::PBR_GUIShader> &object_data,
+                                   std::vector<torero::ComplexShaderData> *buffer_data,
                                    GLsizei *data_size){
     // Data size of main model
     *data_size = static_cast<GLsizei>(buffer_data->size());
@@ -541,7 +542,7 @@ namespace Toreo {
   }
 
   void GUISpeedometer::update_buffer(Buffer *buffer, Buffer *objects, const GLsizei size,
-                                     const std::vector<Visualizer::PBR_GUIShader> &object_data){
+                                     const std::vector<torero::PBR_GUIShader> &object_data){
     // Sending repetitions data to OpenGL buffer
     objects->vertex_bind();
     objects->allocate_array(object_data.data(), size * object_stride_size_, GL_DYNAMIC_DRAW);
@@ -560,19 +561,19 @@ namespace Toreo {
     buffer->enable(i_position_);
     buffer->attributte_buffer(i_position_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_normal_);
     buffer->attributte_buffer(i_normal_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_tangent_);
     buffer->attributte_buffer(i_tangent_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_bitangent_);
     buffer->attributte_buffer(i_bitangent_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_uv_);
     buffer->attributte_buffer(i_uv_, _2D, offset, data_stride_size_);
     buffer->buffer_release();

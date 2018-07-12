@@ -1,7 +1,7 @@
 
 #include "algebraica/vec4.h"
 
-namespace Algebraica {
+namespace algebraica {
   ALGTEM T& vec4<T>::operator[](const unsigned int index){
     assert(index >= 0 && index < 4);
     return values_[index];

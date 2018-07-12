@@ -3,9 +3,9 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   GUICompass::GUICompass(Core *core, Shader *pbr, Shader *emission, Shader *text,
-                         const std::vector<Visualizer::FontCharacter> *characters,
+                         const std::vector<torero::FontCharacter> *characters,
                          const std::string folder_path, bool *changer) :
     core_(core),
     folder_path_(folder_path),
@@ -37,8 +37,8 @@ namespace Toreo {
     t_ao_(nullptr),
     t_emission_(nullptr),
 
-    data_stride_size_(sizeof(Visualizer::ComplexShaderData)),
-    object_stride_size_(sizeof(Visualizer::PBR_GUIShader)),
+    data_stride_size_(sizeof(torero::ComplexShaderData)),
+    object_stride_size_(sizeof(torero::PBR_GUIShader)),
 
     buffer_background_(true),
     buffer_background_objects_(true),
@@ -84,7 +84,7 @@ namespace Toreo {
     u_t_translation_(text_->uniform_location("u_translation")),
     buffer_text_(true),
     text_data_size_(0u),
-    text_stride_size_(sizeof(Visualizer::GUITextShader)),
+    text_stride_size_(sizeof(torero::GUITextShader)),
     characters_(characters),
     previous_gear_("P"),
 
@@ -96,7 +96,7 @@ namespace Toreo {
     data_needle_(0),
 
     previous_rotation_(0.0f),
-    rotation_(Algebraica::quaternionF::euler_to_quaternion(0.0f, toRADIANS(5.0f), toRADIANS(-18.0f))),
+    rotation_(algebraica::quaternionF::euler_to_quaternion(0.0f, ToRadians(5.0f), ToRadians(-18.0f))),
     translation_(-3.5f),
     light_color_(0.799f, 0.076f, 0.014f),
     light_(0.0f, 1.0f, 0.0f)
@@ -105,14 +105,14 @@ namespace Toreo {
       file_exists_ = true;
 
       for(std::size_t i = 0; i < 13; ++i){
-        marker_objects_[i].angle = - _10_DEGREES * i;
-        marker_objects_[i].color.red = 0.24125f;
-        marker_objects_[i].color.green = 0.08925f;
-        marker_objects_[i].color.blue = 0.11575f;
+        marker_objects_[i].angle = - k10degrees * i;
+        marker_objects_[i].color.rgb.red = 0.24125f;
+        marker_objects_[i].color.rgb.green = 0.08925f;
+        marker_objects_[i].color.rgb.blue = 0.11575f;
       }
 
       for(std::size_t i = 13; i < 26; ++i)
-        marker_objects_[i].angle = _90_DEGREES + _10_DEGREES * (i - 13);
+        marker_objects_[i].angle = k90degrees + k10degrees * (i - 13);
     }
   }
 
@@ -127,14 +127,14 @@ namespace Toreo {
 
   void GUICompass::update_rotation(const float compass_angle, const float steering_angle){
     if(is_loaded_){
-      if(compass_angle != previous_compass_angle_){
+      if(FloatDifferentiation(compass_angle, previous_compass_angle_)){
         previous_compass_angle_ = compass_angle;
 
         compass_objects_[0].angle = -compass_angle;
         update_buffer(&buffer_compass_, &buffer_compass_objects_, 1, compass_objects_);
       }
 
-      if(steering_angle != previous_steering_angle_){
+      if(FloatDifferentiation(steering_angle, previous_steering_angle_)){
         previous_steering_angle_ = steering_angle;
 
         steering_objects_[0].angle = steering_angle;
@@ -157,13 +157,13 @@ namespace Toreo {
 
         for(std::size_t i = 0; i < 13; ++i){
           if(i < brake_level){
-            marker_objects_[i].color.red = 0.965f;
-            marker_objects_[i].color.green = 0.357f;
-            marker_objects_[i].color.blue = 0.463f;
+            marker_objects_[i].color.rgb.red = 0.965f;
+            marker_objects_[i].color.rgb.green = 0.357f;
+            marker_objects_[i].color.rgb.blue = 0.463f;
           }else{
-            marker_objects_[i].color.red = 0.24125f;
-            marker_objects_[i].color.green = 0.08925f;
-            marker_objects_[i].color.blue = 0.11575f;
+            marker_objects_[i].color.rgb.red = 0.24125f;
+            marker_objects_[i].color.rgb.green = 0.08925f;
+            marker_objects_[i].color.rgb.blue = 0.11575f;
           }
         }
         update_brakes = true;
@@ -174,13 +174,13 @@ namespace Toreo {
 
         for(std::size_t e = 0, i = 13; e < 13; ++e, ++i){
           if(e < gas_level){
-            marker_objects_[i].color.red = 0.0f;
-            marker_objects_[i].color.green = 1.0f;
-            marker_objects_[i].color.blue = 0.698f;
+            marker_objects_[i].color.rgb.red = 0.0f;
+            marker_objects_[i].color.rgb.green = 1.0f;
+            marker_objects_[i].color.rgb.blue = 0.698f;
           }else{
-            marker_objects_[i].color.red = 0.0f;
-            marker_objects_[i].color.green = 0.25f;
-            marker_objects_[i].color.blue = 0.1745f;
+            marker_objects_[i].color.rgb.red = 0.0f;
+            marker_objects_[i].color.rgb.green = 0.25f;
+            marker_objects_[i].color.rgb.blue = 0.1745f;
           }
         }
         update_gas = true;
@@ -189,13 +189,13 @@ namespace Toreo {
       if(update_brakes || update_gas)
         update_buffer(&buffer_marker_, &buffer_marker_objects_, 26, marker_objects_);
 
-      if(clutch != previous_cloutch_){
+      if(FloatDifferentiation(clutch, previous_cloutch_)){
         previous_cloutch_ = clutch;
         const float new_clutch{0.1f + clutch * 0.9f};
 
-        clutch_objects_[0].color.red = clutch_color_[0] * new_clutch;
-        clutch_objects_[0].color.green = clutch_color_[1] * new_clutch;
-        clutch_objects_[0].color.blue = clutch_color_[2] * new_clutch;
+        clutch_objects_[0].color.rgb.red   = clutch_color_[0] * new_clutch;
+        clutch_objects_[0].color.rgb.green = clutch_color_[1] * new_clutch;
+        clutch_objects_[0].color.rgb.blue  = clutch_color_[2] * new_clutch;
 
         update_buffer(&buffer_clutch_, &buffer_clutch_objects_, 1, clutch_objects_);
       }
@@ -210,17 +210,18 @@ namespace Toreo {
   void GUICompass::rotate(const float factor){
     float reduction{0.0f};
 
-    if(factor < 0.3f)
+    if(factor < 0.3f){
       if(factor < -0.1f)
         reduction = 48.0f;
       else
         reduction = (0.3f - factor) * 120.0f;
+    }
 
-    if(reduction != previous_rotation_){
+    if(FloatDifferentiation(reduction, previous_rotation_)){
       previous_rotation_ = reduction;
 
       const float angle{-18.0f + reduction};
-      rotation_.from_euler(0.0f, toRADIANS(5.0f), toRADIANS(angle));
+      rotation_.from_euler(0.0f, ToRadians(5.0f), ToRadians(angle));
 
       *has_changed_ = true;
     }
@@ -294,7 +295,7 @@ namespace Toreo {
       if(!boost::filesystem::exists(boost::filesystem::path(folder_path_))){
         core_->message_handler("*** GUI Compass loader: ***\n The folder: " + first_path +
                                " was not found.\n  Neither: " + folder_path_ + "\n",
-                               Visualizer::Message::ERROR);
+                               torero::Message::Error);
         return false;
       }
     }
@@ -386,7 +387,7 @@ namespace Toreo {
     }
   }
 
-  const bool GUICompass::is_ready(){
+  bool GUICompass::is_ready(){
     if(is_loaded_){
       return is_ready_;
     }else{
@@ -398,12 +399,12 @@ namespace Toreo {
     }
   }
 
-  void GUICompass::calculate_model(std::vector<Visualizer::ComplexShaderData> *buffer_data,
+  void GUICompass::calculate_model(std::vector<torero::ComplexShaderData> *buffer_data,
                                    const std::string subfolder){
-    std::vector<Algebraica::vec3f> position, normal;
-    std::vector<Algebraica::vec2f> texture;
-    Algebraica::vec3f tvector;
-    Algebraica::vec2f ttexture;
+    std::vector<algebraica::vec3f> position, normal;
+    std::vector<algebraica::vec2f> texture;
+    algebraica::vec3f tvector;
+    algebraica::vec2f ttexture;
     std::vector<unsigned int> vertex_indices, texture_indices, normal_indices;
     unsigned int vertex_index[3], texture_index[3], normal_index[3];
     std::string line;
@@ -442,8 +443,8 @@ namespace Toreo {
       }
       file.close();
 
-      Algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
-      Algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
+      algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
+      algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
       int e{0};
 
       std::size_t total{vertex_indices.size()};
@@ -455,7 +456,7 @@ namespace Toreo {
         if(texture_indices[i] > 0)
           (*buffer_data)[i].texture = texture[texture_indices[i] - 1];
         else
-          (*buffer_data)[i].texture = Algebraica::vec2f();
+          (*buffer_data)[i].texture = algebraica::vec2f();
 
         v2 = v1;
         v1 = v0;
@@ -489,12 +490,12 @@ namespace Toreo {
       }
     }else
       core_->message_handler("File \"model.obj\" not found at:" + folder_path_ + "...\n",
-                             Visualizer::Message::ERROR);
+                             torero::Message::Error);
   }
 
   void GUICompass::update_text(const float steering, const std::string gear){
     char steering_str[5];
-    const float steering_deg{std::round(toDEGREES(steering))};
+    const float steering_deg{std::round(ToDegrees(steering))};
 
     const float font_size_steering{0.2f}, font_size_gear{0.2f};
     const float offset_steering{0.15f}, offset_gear{-0.07f};
@@ -503,29 +504,29 @@ namespace Toreo {
     const std::size_t steering_length =
         static_cast<std::size_t>(std::sprintf(steering_str, "%+.0f", steering_deg));
 
-    std::vector<Visualizer::GUITextShader> characters(steering_length + 1);
+    std::vector<torero::GUITextShader> characters(steering_length + 1);
     float next_position{0.0f};
     std::size_t i{0u};
 
-    for(i; i < steering_length; ++i){
+    for(; i < steering_length; ++i){
       const std::size_t character{static_cast<std::size_t>(steering_str[i])};
-      const Visualizer::FontCharacter chr{(*characters_)[character]};
+      const torero::FontCharacter chr{(*characters_)[character]};
 
       // Position
-      characters[i].x = next_position + chr.x * font_size_steering;
-      next_position += chr.next * font_size_steering * 0.9f;
-      characters[i].y = offset_steering - chr.y * font_size_steering;
+      characters[i].x = next_position + chr.position.offset.x * font_size_steering;
+      next_position += chr.position.offset.next * font_size_steering * 0.9f;
+      characters[i].y = offset_steering - chr.position.offset.y * font_size_steering;
       characters[i].z = 0.110f;
 
       // Dimension
-      characters[i].width = chr.width * font_size_steering;
-      characters[i].height = chr.height * font_size_steering;
+      characters[i].width  = chr.texture.map.width * font_size_steering;
+      characters[i].height = chr.texture.map.height * font_size_steering;
 
       // Texture
-      characters[i].u1 = chr.u1;
-      characters[i].v1 = chr.v1;
-      characters[i].u2 = chr.u2;
-      characters[i].v2 = chr.v2;
+      characters[i].u1 = chr.texture.map.u1;
+      characters[i].v1 = chr.texture.map.v1;
+      characters[i].u2 = chr.texture.map.u2;
+      characters[i].v2 = chr.texture.map.v2;
     }
     steering_offset_x = next_position / 2.1f;
 
@@ -534,22 +535,23 @@ namespace Toreo {
 
     // Gear text description
     const std::size_t character{static_cast<std::size_t>(gear[0])};
-    const Visualizer::FontCharacter chr{(*characters_)[character]};
+    const torero::FontCharacter &chr{(*characters_)[character]};
 
     // Position
-    characters[i].x = chr.x * font_size_gear - (chr.next * font_size_gear) * 0.35f;
-    characters[i].y = offset_gear + chr.y * font_size_gear;
+    characters[i].x = chr.position.offset.x * font_size_gear
+                      - (chr.position.offset.next * font_size_gear) * 0.35f;
+    characters[i].y = offset_gear + chr.position.offset.y * font_size_gear;
     characters[i].z = 0.110f;
 
     // Dimension
-    characters[i].width = chr.width * font_size_gear;
-    characters[i].height = chr.height * font_size_gear;
+    characters[i].width  = chr.texture.map.width * font_size_gear;
+    characters[i].height = chr.texture.map.height * font_size_gear;
 
     // Texture
-    characters[i].u1 = chr.u1;
-    characters[i].v1 = chr.v1;
-    characters[i].u2 = chr.u2;
-    characters[i].v2 = chr.v2;
+    characters[i].u1 = chr.texture.map.u1;
+    characters[i].v1 = chr.texture.map.v1;
+    characters[i].u2 = chr.texture.map.u2;
+    characters[i].v2 = chr.texture.map.v2;
     // End gear text description
 
     text_data_size_ = steering_length + 1;
@@ -562,15 +564,15 @@ namespace Toreo {
     buffer_text_.enable(i_position_);
     buffer_text_.attributte_buffer(i_position_, _3D, offset, text_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer_text_.enable(i_size_);
     buffer_text_.attributte_buffer(i_size_, _2D, offset, text_stride_size_);
 
-    offset += sizeof(Algebraica::vec2f);
+    offset += sizeof(algebraica::vec2f);
     buffer_text_.enable(i_uv_);
     buffer_text_.attributte_buffer(i_uv_, _4D, offset, text_stride_size_);
 
-    offset += sizeof(Algebraica::vec4f);
+    offset += sizeof(algebraica::vec4f);
     buffer_text_.enable(i_color_);
     buffer_text_.attributte_buffer(i_color_, _4D, offset, text_stride_size_);
 
@@ -578,8 +580,8 @@ namespace Toreo {
   }
 
   void GUICompass::load_buffer(Buffer *buffer, Buffer *objects, const GLsizei size,
-                               const std::vector<Visualizer::PBR_GUIShader> &object_data,
-                               std::vector<Visualizer::ComplexShaderData> *buffer_data,
+                               const std::vector<torero::PBR_GUIShader> &object_data,
+                               std::vector<torero::ComplexShaderData> *buffer_data,
                                GLsizei *data_size){
     // Data size of main model
     *data_size = static_cast<GLsizei>(buffer_data->size());
@@ -593,7 +595,7 @@ namespace Toreo {
   }
 
   void GUICompass::update_buffer(Buffer *buffer, Buffer *objects, const GLsizei size,
-                                 const std::vector<Visualizer::PBR_GUIShader> &object_data){
+                                 const std::vector<torero::PBR_GUIShader> &object_data){
     // Sending repetitions data to OpenGL buffer
     objects->vertex_bind();
     objects->allocate_array(object_data.data(), size * object_stride_size_, GL_DYNAMIC_DRAW);
@@ -612,19 +614,19 @@ namespace Toreo {
     buffer->enable(i_position_);
     buffer->attributte_buffer(i_position_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_normal_);
     buffer->attributte_buffer(i_normal_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_tangent_);
     buffer->attributte_buffer(i_tangent_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_bitangent_);
     buffer->attributte_buffer(i_bitangent_, _3D, offset, data_stride_size_);
 
-    offset += sizeof(Algebraica::vec3f);
+    offset += sizeof(algebraica::vec3f);
     buffer->enable(i_uv_);
     buffer->attributte_buffer(i_uv_, _2D, offset, data_stride_size_);
     buffer->buffer_release();

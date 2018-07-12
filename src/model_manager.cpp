@@ -1,7 +1,7 @@
 #include "torero/model_manager.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   ModelManager::ModelManager(Core *core) :
     core_(core),
     model_shader_(new Shader("resources/shaders/PBR.vert",
@@ -33,8 +33,8 @@ namespace Toreo {
     sun_color_(1.0f, 1.0f, 1.0f)
   {
     core->multithread_add_process(boost::bind(&Cubemap::run, cubemap_),
-                                  boost::bind(&Cubemap::ready, cubemap_),
-                                  boost::bind(&Cubemap::is_ready, cubemap_));
+                                boost::bind(&Cubemap::ready, cubemap_),
+                                boost::bind(&Cubemap::is_ready, cubemap_));
 
     if(!model_shader_->use())
       std::cout << model_shader_->error_log() << std::endl;
@@ -57,23 +57,23 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f, -10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, -10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f)
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f, -10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, -10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f)
     };
-//    Algebraica::vec3f lightColors[4] = {
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f)
+//    algebraica::vec3f lightColors[4] = {
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f)
 //    };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f
     };
 
     model_shader_->set_values(m_u_light_, &lightPositions[0], 4);
@@ -82,12 +82,12 @@ namespace Toreo {
 
     signal_updated_camera_ = core->signal_updated_camera()
                              ->connect(boost::bind(&ModelManager::update_camera, this));
-    signal_draw_all_ = core->syncronize(Visualizer::MODELS)
+    signal_draw_all_ = core->syncronize(torero::Order::Models)
                        ->connect(boost::bind(&ModelManager::draw_all, this));
   }
 
   ModelManager::~ModelManager(){
-    for(Visualizer::Model3D &model : models_)
+    for(torero::Model3D &model : models_)
       if(model.model)
         delete model.model;
 
@@ -103,7 +103,7 @@ namespace Toreo {
   }
 
   MMid ModelManager::load_new_model(const std::string folder_address){
-    Visualizer::Model3D new_model;
+    torero::Model3D new_model;
     new_model.model = new ThreeDimensionalModelLoader(folder_address, model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
@@ -113,13 +113,13 @@ namespace Toreo {
     return models_.size() - 1;
   }
 
-  MMid ModelManager::load_new_model(const Visualizer::Models model){
-    if(model == Visualizer::DB5){
+  MMid ModelManager::load_new_model(const torero::Models model){
+    if(model == torero::DB5){
       return load_db5();
-    }else if(model == Visualizer::SHUTTLE){
+    }else if(model == torero::Shuttle){
       return load_shuttle();
     }else{
-      Visualizer::Model3D new_model;
+      torero::Model3D new_model;
       new_model.model = new ThreeDimensionalModelLoader(model, model_shader_, core_);
       new_model.type = model;
       core_->multithread_add_process(
@@ -132,18 +132,19 @@ namespace Toreo {
     }
   }
 
-  MMelement ModelManager::add(MMid id, const Algebraica::mat4f *transformation_matrix){
+  MMelement ModelManager::add(MMid id, const algebraica::mat4f *transformation_matrix){
     if(models_.size() > id)
       if(models_[id].model){
-        Visualizer::Model3DElement new_element;
+        torero::Model3DElement new_element;
         new_element.main = transformation_matrix;
         switch (models_[id].type){
-        case Visualizer::COORDINATE_SYSTEM:
-          new_element.metallize = true;
-          new_element.metallic = 0.0f;
-          new_element.roughen = true;
-          new_element.roughness = 0.5f;
+          case torero::CoordinateSystem:
+            new_element.metallize = true;
+            new_element.metallic = 0.0f;
+            new_element.roughen = true;
+            new_element.roughness = 0.5f;
           break;
+          default: break;
         }
         models_[id].elements.push_back(new_element);
         return models_[id].elements.size() - 1;
@@ -219,7 +220,7 @@ namespace Toreo {
   }
 
   bool ModelManager::set_transformation_matrix(MMid model_id, MMelement element_id,
-                                               const Algebraica::mat4f *transformation_matrix){
+                                               const algebraica::mat4f *transformation_matrix){
     if(models_.size() > model_id)
       if(models_[model_id].model && models_[model_id].elements.size() > element_id){
         models_[model_id].elements[element_id].main = transformation_matrix;
@@ -328,7 +329,7 @@ namespace Toreo {
         model_shader_->use();
         cubemap_->bind_reflectance();
         models_[model_id].model->pre_drawing();
-        for(Visualizer::Model3DElement &element : models_[model_id].elements)
+        for(torero::Model3DElement &element : models_[model_id].elements)
           if(element.main && element.visibility)
             draw(&models_[model_id], &element);
 
@@ -343,10 +344,10 @@ namespace Toreo {
   void ModelManager::draw_all(){
     model_shader_->use();
     cubemap_->bind_reflectance();
-    for(Visualizer::Model3D &model : models_){
+    for(torero::Model3D &model : models_){
       if(model.model && model.elements.size() > 0){
         model.model->pre_drawing();
-        for(Visualizer::Model3DElement &element : model.elements)
+        for(torero::Model3DElement &element : model.elements)
           if(element.main && element.visibility)
             draw(&model, &element);
 
@@ -383,7 +384,7 @@ namespace Toreo {
   }
 
   void ModelManager::purge(){
-    for(Visualizer::Model3D &model : models_){
+    for(torero::Model3D &model : models_){
       if(model.model){
         delete model.model;
         model.elements.clear();
@@ -400,8 +401,8 @@ namespace Toreo {
     if(ok){
       skybox_ = new Skybox(up, down, left, right, front, back, core_);
       core_->multithread_add_process(boost::bind(&Skybox::run, skybox_),
-                                     boost::bind(&Skybox::ready, skybox_),
-                                     boost::bind(&Skybox::is_ready, skybox_));
+                                   boost::bind(&Skybox::ready, skybox_),
+                                   boost::bind(&Skybox::is_ready, skybox_));
     }
 
     skybox_visibility_ = true;
@@ -431,10 +432,10 @@ namespace Toreo {
     return ok;
   }
 
-  void ModelManager::sun_properties(const Algebraica::vec3f direction,
+  void ModelManager::sun_properties(const algebraica::vec3f direction,
                                     const float R, const float G, const float B){
     sun_direction_(-direction.y(), direction.z(), -direction.x());
-    sun_color_ = Algebraica::vec3f(R / 255.0f, G / 255.0f, B / 255.0f);
+    sun_color_ = algebraica::vec3f(R / 255.0f, G / 255.0f, B / 255.0f);
     model_shader_->use();
     model_shader_->set_value(m_u_sun_, sun_direction_);
     model_shader_->set_value(m_u_sun_color_, sun_color_);
@@ -444,12 +445,12 @@ namespace Toreo {
     return cubemap_;
   }
 
-  void ModelManager::draw(Visualizer::Model3D *model, Visualizer::Model3DElement *element){
+  void ModelManager::draw(torero::Model3D *model, torero::Model3DElement *element){
     glEnable(GL_CULL_FACE);
     model_shader_->set_value(m_u_colored_, element->colorize);
     if(element->colorize)
       model_shader_->set_value(m_u_color_,
-                               Algebraica::vec4f(element->R, element->G,
+                               algebraica::vec4f(element->R, element->G,
                                                  element->B, element->A)/255.0f);
 
     model_shader_->set_value(m_u_metallized_, element->metallize);
@@ -485,34 +486,34 @@ namespace Toreo {
   }
 
   MMid ModelManager::load_db5(){
-    MMid first{static_cast<int>(models_.size())};
-    Visualizer::Model3D new_model;
-    Visualizer::Model3DElement element;
+    MMid first{models_.size()};
+    torero::Model3D new_model;
+    torero::Model3DElement element;
 
     // Body
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_BODY, model_shader_, core_);
+    new_model.model = new ThreeDimensionalModelLoader(torero::DB5_Body, model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::DB5_BODY;
+    new_model.type = torero::DB5_Body;
     element.main = core_->frame_vehicle();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
     // Tires
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::TIRE, model_shader_, core_);
+    new_model.model = new ThreeDimensionalModelLoader(torero::Tire, model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::TIRE;
+    new_model.type = torero::Tire;
     new_model.elements.clear();
 
     // Rear right
-    Algebraica::mat4f tire;
+    algebraica::mat4f tire;
     tire.translate(0.72f, 0.0f, 0.0f);
     element.secondary = tire;
     new_model.elements.push_back(element);
@@ -536,39 +537,39 @@ namespace Toreo {
     models_.push_back(new_model);
 
     // Accessories
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_ACCESSORIES,
+    new_model.model = new ThreeDimensionalModelLoader(torero::DB5_Accessories,
                                                       model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::DB5_ACCESSORIES;
+    new_model.type = torero::DB5_Accessories;
     new_model.elements.clear();
 
     element.metallize = true;
     element.metallic = 1.0f;
     element.emitting = true;
-    element.secondary = Algebraica::mat4f();
+    element.secondary = algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
     // Windows
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::DB5_WINDOWS,
+    new_model.model = new ThreeDimensionalModelLoader(torero::DB5_Windows,
                                                       model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::DB5_WINDOWS;
+    new_model.type = torero::DB5_Windows;
     new_model.elements.clear();
 
     element.metallize = true;
     element.metallic = 1.0f;
     element.roughen = true;
     element.roughness = 0.3f;
-    element.secondary = Algebraica::mat4f();
+    element.secondary = algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
@@ -576,35 +577,35 @@ namespace Toreo {
   }
 
   MMid ModelManager::load_shuttle(){
-    MMid first{static_cast<int>(models_.size())};
-    Visualizer::Model3D new_model;
-    Visualizer::Model3DElement element;
+    MMid first{models_.size()};
+    torero::Model3D new_model;
+    torero::Model3DElement element;
 
     // Body
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::SHUTTLE_BODY,
+    new_model.model = new ThreeDimensionalModelLoader(torero::ShuttleBody,
                                                       model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::SHUTTLE_BODY;
+    new_model.type = torero::ShuttleBody;
     element.main = core_->frame_vehicle();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
     // Tires
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::TIRE, model_shader_, core_);
+    new_model.model = new ThreeDimensionalModelLoader(torero::Tire, model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::TIRE;
+    new_model.type = torero::Tire;
     new_model.elements.clear();
 
     // Rear right
-    Algebraica::mat4f tire;
+    algebraica::mat4f tire;
     tire.translate(0.9f, 0.0f, 0.0f);
     element.secondary = tire;
     new_model.elements.push_back(element);
@@ -628,14 +629,14 @@ namespace Toreo {
     models_.push_back(new_model);
 
     // Windows
-    new_model.model = new ThreeDimensionalModelLoader(Visualizer::SHUTTLE_WINDOWS,
+    new_model.model = new ThreeDimensionalModelLoader(torero::ShuttleWindows,
                                                       model_shader_, core_);
     core_->multithread_add_process(
           boost::bind(&ThreeDimensionalModelLoader::run, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::ready, new_model.model),
           boost::bind(&ThreeDimensionalModelLoader::is_ready, new_model.model));
 
-    new_model.type = Visualizer::SHUTTLE_WINDOWS;
+    new_model.type = torero::ShuttleWindows;
     new_model.elements.clear();
 
     element.metallize = true;
@@ -647,7 +648,7 @@ namespace Toreo {
 //    element.G = 58.0f;
 //    element.B = 79.0f;
 //    element.A = 242.25f;
-    element.secondary = Algebraica::mat4f();
+    element.secondary = algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 

@@ -1,7 +1,7 @@
 #include "torero/gui_loader.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   GUILoader::GUILoader(const std::string folder_address, Shader *shader, Core *core) :
     folder_address_(folder_address),
     is_ready_(false),
@@ -47,7 +47,7 @@ namespace Toreo {
       if(!boost::filesystem::exists(boost::filesystem::path(folder_address_))){
         core_->message_handler("*** Model loader: ***\n The file: " + first_path +
                                " was not found.\n  Neither: " + folder_address_ + "\n",
-                               Visualizer::Message::ERROR);
+                               torero::Message::Error);
         return false;
       }
     }
@@ -55,10 +55,10 @@ namespace Toreo {
   }
 
   void GUILoader::run(){
-    std::vector<Algebraica::vec3f> position, normal;
-    std::vector<Algebraica::vec2f> texture;
-    Algebraica::vec3f tvector;
-    Algebraica::vec2f ttexture;
+    std::vector<algebraica::vec3f> position, normal;
+    std::vector<algebraica::vec2f> texture;
+    algebraica::vec3f tvector;
+    algebraica::vec2f ttexture;
     std::vector<unsigned int> vertex_indices, texture_indices, normal_indices;
     unsigned int vertex_index[3], texture_index[3], normal_index[3];
     std::string line;
@@ -99,8 +99,8 @@ namespace Toreo {
       }
       file.close();
 
-      Algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
-      Algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
+      algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
+      algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
       int e{0};
 
       protector_.lock();
@@ -113,7 +113,7 @@ namespace Toreo {
         if(texture_indices[i] > 0)
           buffer_data_[i].texture = texture[texture_indices[i] - 1];
         else
-          buffer_data_[i].texture = Algebraica::vec2f();
+          buffer_data_[i].texture = algebraica::vec2f();
 
         v2 = v1;
         v1 = v0;
@@ -146,7 +146,7 @@ namespace Toreo {
         }
       }
 
-      data_size_ = static_cast<GLsizei>(total * sizeof(Visualizer::ComplexShaderData));
+      data_size_ = static_cast<GLsizei>(total * sizeof(torero::ComplexShaderData));
 
       protector_.unlock();
 
@@ -176,7 +176,7 @@ namespace Toreo {
         i_bitangent_ = shader_->attribute_location("i_bitangent");
         i_uv_        = shader_->attribute_location("i_uv");
 
-        GLsizei stride_size{sizeof(Visualizer::ComplexShaderData)};
+        GLsizei stride_size{sizeof(torero::ComplexShaderData)};
 
         buffer_->create();
         buffer_->vertex_bind();
@@ -187,19 +187,19 @@ namespace Toreo {
         buffer_->enable(i_position_);
         buffer_->attributte_buffer(i_position_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_normal_);
         buffer_->attributte_buffer(i_normal_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_tangent_);
         buffer_->attributte_buffer(i_tangent_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_bitangent_);
         buffer_->attributte_buffer(i_bitangent_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_uv_);
         buffer_->attributte_buffer(i_uv_, _2D, offset, stride_size);
 
@@ -207,7 +207,7 @@ namespace Toreo {
 
         is_loaded_ = true;
       }else
-        core_->message_handler(error_log_, Visualizer::Message::ERROR);
+        core_->message_handler(error_log_, torero::Message::Error);
     }
   }
 }

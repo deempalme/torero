@@ -1,6 +1,6 @@
 #include "torero/ground.h"
 
-namespace Toreo {
+namespace torero {
   Ground::Ground(Shader *ground_shader) :
     shader_(ground_shader),
     buffer_(true),
@@ -39,59 +39,59 @@ namespace Toreo {
     initialize();
   }
 
-  void Ground::change_input(const std::vector<Visualizer::Ground2D> *ground){
+  void Ground::change_input(const std::vector<torero::Ground2D> *ground){
     restart();
     ground_2D_ = ground;
-    type_size_ = sizeof(Visualizer::Ground2DShader);
+    type_size_ = sizeof(torero::Ground2DShader);
     is_2D_ = 1;
   }
 
-  void Ground::change_input(const std::vector<Visualizer::Ground3D> *ground){
+  void Ground::change_input(const std::vector<torero::Ground3D> *ground){
     restart();
     ground_3D_ = ground;
-    type_size_ = sizeof(Visualizer::Ground3DShader);
+    type_size_ = sizeof(torero::Ground3DShader);
   }
 
-  void Ground::change_input(const std::vector<Visualizer::GroundGrid> *ground){
+  void Ground::change_input(const std::vector<torero::GroundGrid> *ground){
     restart();
     ground_grid_ = ground;
-    type_size_ = sizeof(Visualizer::GroundGridShader);
+    type_size_ = sizeof(torero::GroundGridShader);
     is_grid_ = 1;
   }
 
-  void Ground::change_input(const std::vector<Visualizer::FreeGround2D> *ground){
+  void Ground::change_input(const std::vector<torero::FreeGround2D> *ground){
     restart();
     free_ground_2D_ = ground;
-    type_size_ = sizeof(Visualizer::FreeGround2D);
+    type_size_ = sizeof(torero::FreeGround2D);
     is_free_ = 1;
     is_2D_ = 1;
   }
 
-  void Ground::change_input(const std::vector<Visualizer::FreeGround3D> *ground){
+  void Ground::change_input(const std::vector<torero::FreeGround3D> *ground){
     restart();
     free_ground_3D_ = ground;
-    type_size_ = sizeof(Visualizer::FreeGround3D);
+    type_size_ = sizeof(torero::FreeGround3D);
     is_free_ = 1;
   }
 
-  void Ground::change_input(const std::vector<Visualizer::FreePolarGround2D> *ground){
+  void Ground::change_input(const std::vector<torero::FreePolarGround2D> *ground){
     restart();
     polar_ground_2D_ = ground;
-    type_size_ = sizeof(Visualizer::FreePolarGround2D);
+    type_size_ = sizeof(torero::FreePolarGround2D);
     is_free_ = 1;
     is_polar_ = 1;
     is_2D_ = 1;
   }
 
-  void Ground::change_input(const std::vector<Visualizer::FreePolarGround3D> *ground){
+  void Ground::change_input(const std::vector<torero::FreePolarGround3D> *ground){
     restart();
     polar_ground_3D_ = ground;
-    type_size_ = sizeof(Visualizer::FreePolarGround3D);
+    type_size_ = sizeof(torero::FreePolarGround3D);
     is_free_ = 1;
     is_polar_ = 1;
   }
 
-  void Ground::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void Ground::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -127,7 +127,7 @@ namespace Toreo {
     secondary_model_.rotate(pitch, yaw, roll);
   }
 
-  void Ground::rotate(const Algebraica::vec3f rotation){
+  void Ground::rotate(const algebraica::vec3f rotation){
     secondary_model_.rotate(rotation.x(), rotation.y(), rotation.z());
   }
 
@@ -154,8 +154,8 @@ namespace Toreo {
       if(ground_2D_){
         data_size_ = quantity_width_ * quantity_length_;
 
-        if(ground_2D_->size() >= data_size_){
-          std::vector<Visualizer::Ground2DShader> ground(data_size_);
+        if(ground_2D_->size() >= static_cast<std::size_t>(data_size_)){
+          std::vector<torero::Ground2DShader> ground(data_size_);
 
           r = 0u;
           for(float row = 0.0f; row < quantity_length; ++row, ++r){
@@ -164,8 +164,8 @@ namespace Toreo {
             for(float column = 0.0f; column < quantity_width; ++column, ++c){
               u = o + c;
               ground[u].position(column, row, 0.0f);
-              ground[u].color((*ground_2D_)[u].color.red, (*ground_2D_)[u].color.green,
-                              (*ground_2D_)[u].color.blue, (*ground_2D_)[u].color.alpha);
+              ground[u].color((*ground_2D_)[u].color.rgba.red, (*ground_2D_)[u].color.rgba.green,
+                              (*ground_2D_)[u].color.rgba.blue, (*ground_2D_)[u].color.rgba.alpha);
             }
           }
           buffer_.vertex_bind();
@@ -188,8 +188,8 @@ namespace Toreo {
       }else if(ground_3D_){
         data_size_ = quantity_width_ * quantity_length_;
 
-        if(ground_3D_->size() >= data_size_){
-          std::vector<Visualizer::Ground3DShader> ground(data_size_);
+        if(ground_3D_->size() >= static_cast<std::size_t>(data_size_)){
+          std::vector<torero::Ground3DShader> ground(data_size_);
 
           r = 0u;
           for(float row = 0.0f; row < quantity_length; ++row, ++r){
@@ -198,9 +198,11 @@ namespace Toreo {
             for(float column = 0.0f; column < quantity_width; ++column, ++c){
               u = o + c;
               ground[u].position(column, row, 0.0f);
-              ground[u].color((*ground_3D_)[u].color.red, (*ground_3D_)[u].color.green,
-                              (*ground_3D_)[u].color.blue, (*ground_3D_)[u].color.alpha);
-              ground[u].height = (*ground_3D_)[u].height;
+              ground[u].color((*ground_3D_)[u].ground.color.rgba.red,
+                              (*ground_3D_)[u].ground.color.rgba.green,
+                              (*ground_3D_)[u].ground.color.rgba.blue,
+                              (*ground_3D_)[u].ground.color.rgba.alpha);
+              ground[u].height = (*ground_3D_)[u].ground.height;
             }
           }
           buffer_.vertex_bind();
@@ -228,8 +230,8 @@ namespace Toreo {
       }else if(ground_grid_){
         data_size_ = quantity_width_ * quantity_length_;
 
-        if(ground_grid_->size() >= data_size_){
-          std::vector<Visualizer::GroundGridShader> ground(data_size_);
+        if(ground_grid_->size() >= static_cast<std::size_t>(data_size_)){
+          std::vector<torero::GroundGridShader> ground(data_size_);
 
           r = 0u;
           for(float row = 0.0f; row < quantity_length; ++row, ++r){
@@ -238,7 +240,7 @@ namespace Toreo {
             for(float column = 0.0f; column < quantity_width; ++column, ++c){
               u = o + c;
               ground[u].position(column, row, 0.0f);
-              ground[u].probability = (*ground_grid_)[u].probability;
+              ground[u].probability = (*ground_grid_)[u].ground.probability;
             }
           }
           buffer_.vertex_bind();

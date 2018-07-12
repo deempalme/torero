@@ -4,17 +4,17 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   Core::Core(int argc, char **argv, const bool system_title) :
     MultiThreadManager(),
     argc_(argc),
     argv_(argv),
     window_(nullptr),
-    width_(DEFAULT_WIDTH),
-    height_(DEFAULT_HEIGHT),
+    width_(kDefaultWidth),
+    height_(kDefaultHeight),
     initial_width_(width_),
     initial_height_(height_),
-    half_height_(DEFAULT_HEIGHT / 2),
+    half_height_(kDefaultHeight / 2),
     position_x_(0),
     position_y_(0),
     initial_position_x_(0),
@@ -40,8 +40,8 @@ namespace Toreo {
     vehicle_frame_yaw_(),
     navigation_frame_(),
     navigation_plus_frame_(),
-    camera_(Algebraica::vec3f(-12.0f, 0.0f, 0.0f), Algebraica::vec3f(),
-            Algebraica::vec3f(0.0f, 0.0f, 1.0f), &vehicle_frame_yaw_),
+    camera_(algebraica::vec3f(-12.0f, 0.0f, 0.0f), algebraica::vec3f(),
+            algebraica::vec3f(0.0f, 0.0f, 1.0f), &vehicle_frame_yaw_),
     vehicle_(nullptr),
     modeler_(nullptr),
     screen_conversor_(),
@@ -50,13 +50,13 @@ namespace Toreo {
     cursor_beam_(nullptr),
     cursor_cross_(nullptr),
     cursor_move_(nullptr),
-    signal_draw_(Visualizer::DRAWING_ELEMENTS)
+    signal_draw_(torero::kDrawingElements)
   {
     // glfw: initialize and configure
     // ------------------------------
     if(!glfwInit()){
-      message_handler("GLFW initialization failed", Visualizer::Message::ERROR);
-      error_log_ =  GLFW_NOT_LOADED;
+      message_handler("GLFW initialization failed", torero::Message::Error);
+      error_log_ =  torero::WindowErrors::GLFW_NotLoaded;
       error_ = true;
     }else{
       glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -82,8 +82,8 @@ namespace Toreo {
 
       if(!window_){
         glfwTerminate();
-        message_handler("GLFW failed creating a window", Visualizer::Message::ERROR);
-        error_log_ = WINDOW_NOT_LOADED;
+        message_handler("GLFW failed creating a window", torero::Message::Error);
+        error_log_ = torero::WindowErrors::WindowNotLoaded;
         error_ = true;
       }else{
         glfwGetMonitorPos(monitor, &position_x_, &position_y_);
@@ -104,8 +104,8 @@ namespace Toreo {
         // ---------------------------------------
         if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)){
           glfwTerminate();
-          message_handler("Failed to initialize GLAD", Visualizer::Message::ERROR);
-          error_log_ = GLAD_NOT_LOADED;
+          message_handler("Failed to initialize GLAD", torero::Message::Error);
+          error_log_ = torero::WindowErrors::GLAD_NotLoaded;
           error_ = true;
         }else{
           glfwSwapInterval(1);
@@ -151,48 +151,48 @@ namespace Toreo {
     return &blocked_;
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective(){
+  const algebraica::mat4f &Core::camera_matrix_perspective(){
     return camera_.perspective_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective_inversed(){
+  const algebraica::mat4f &Core::camera_matrix_perspective_inversed(){
     return camera_.inversed_perspective_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective_view(){
+  const algebraica::mat4f &Core::camera_matrix_perspective_view(){
     return camera_.pv_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective_view_inversed(){
+  const algebraica::mat4f &Core::camera_matrix_perspective_view_inversed(){
     return camera_.inversed_pv_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective_view_static(){
+  const algebraica::mat4f &Core::camera_matrix_perspective_view_static(){
     return camera_.static_pv_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective_view_static_inversed(){
+  const algebraica::mat4f &Core::camera_matrix_perspective_view_static_inversed(){
     return camera_.inversed_static_pv_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_view(){
+  const algebraica::mat4f &Core::camera_matrix_view(){
     return camera_.view_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_view_inversed(){
+  const algebraica::mat4f &Core::camera_matrix_view_inversed(){
     return camera_.inversed_view_matrix();
   }
 
-  const Algebraica::vec3f &Core::camera_position(){
+  const algebraica::vec3f &Core::camera_position(){
     return camera_.camera_position();
   }
 
-  const Algebraica::vec3f &Core::camera_relative_position(){
+  const algebraica::vec3f &Core::camera_relative_position(){
     return camera_.relative_camera_position();
   }
 
-  void Core::camera_rotate(const Algebraica::quaternionF quaternion){
-    Algebraica::quaternionF corrected_rotation(-quaternion[1], quaternion[2],
+  void Core::camera_rotate(const algebraica::quaternionF quaternion){
+    algebraica::quaternionF corrected_rotation(-quaternion[1], quaternion[2],
                                                -quaternion[0], quaternion[3]);
     camera_.rotate_camera(corrected_rotation);
   }
@@ -259,7 +259,7 @@ namespace Toreo {
           }
           if(!multithread_finished()){
             multithread_update_process();
-            glfwWaitEventsTimeout(FREQUENCY);
+            glfwWaitEventsTimeout(kFrequency);
           }else
             glfwWaitEvents();
         }
@@ -300,29 +300,29 @@ namespace Toreo {
 
       glfwSetWindowPos(window_, position_x_, position_y_);
 
-      execute(infinite_loop);
+      return execute(infinite_loop);
     }else{
       return error_log_;
     }
   }
 
-  const Algebraica::mat4f *Core::frame_global() const{
+  const algebraica::mat4f *Core::frame_global() const{
     return &global_frame_;
   }
 
-  const Algebraica::mat4f *Core::frame_navigation() const{
+  const algebraica::mat4f *Core::frame_navigation() const{
     return &navigation_frame_;
   }
 
-  const Algebraica::mat4f *Core::frame_navigation_plus() const{
+  const algebraica::mat4f *Core::frame_navigation_plus() const{
     return &navigation_plus_frame_;
   }
 
-  const Algebraica::mat4f *Core::frame_vehicle() const{
+  const algebraica::mat4f *Core::frame_vehicle() const{
     return &vehicle_frame_;
   }
 
-  const Algebraica::mat4f *Core::frame_vehicle_yaw() const{
+  const algebraica::mat4f *Core::frame_vehicle_yaw() const{
     return &vehicle_frame_yaw_;
   }
 
@@ -336,7 +336,7 @@ namespace Toreo {
                            width_, height_, GLFW_DONT_CARE);
   }
 
-  const double Core::get_time(){
+  double Core::get_time(){
     return glfwGetTime();
   }
 
@@ -428,15 +428,15 @@ namespace Toreo {
     is_maximized_ = !is_maximized_;
   }
 
-  void Core::message_handler(const std::string message, const Visualizer::Message message_type){
-    switch(message_type){
-    case Visualizer::Message::ERROR:
+  void Core::message_handler(const std::string message, const torero::Message message_type){
+    switch(static_cast<unsigned int>(message_type)){
+    case static_cast<unsigned int>(torero::Message::Error):
       std::cout << "\n\033[1;41m Error: \033[0;1;38;5;174m ";
       break;
-    case Visualizer::Message::WARNING:
+    case static_cast<unsigned int>(torero::Message::Warning):
       std::cout << "\n\033[1;30;48;5;11m Warning: \033[0;1;38;5;229m ";
       break;
-    case Visualizer::Message::ATTENTION:
+    case static_cast<unsigned int>(torero::Message::Attention):
       std::cout << "\n\033[1;30;46m Attention: \033[0;1;38;5;195m ";
       break;
     default:
@@ -446,7 +446,7 @@ namespace Toreo {
     std::cout << message << "\033[0m" << std::endl;
   }
 
-  void Core::message_handler(const unsigned int message, const Visualizer::Message message_type){
+  void Core::message_handler(const unsigned int message, const torero::Message message_type){
     message_handler(std::to_string(message), message_type);
   }
 
@@ -457,7 +457,7 @@ namespace Toreo {
       glfwRestoreWindow(window_);
   }
 
-  const int Core::move_frame(){
+  int Core::move_frame(){
     const int action{frame_mover_};
     frame_mover_ = 0;
     return action;
@@ -473,11 +473,11 @@ namespace Toreo {
 
     signal_updated_screen_();
 
-    for(int i = 0; i < Visualizer::DRAWING_ELEMENTS; ++i)
+    for(int i = 0; i < torero::kDrawingElements; ++i)
       signal_draw_[i]();
   }
 
-  const bool Core::paused(){
+  const bool &Core::paused(){
     return is_window_paused_;
   }
 
@@ -524,7 +524,7 @@ namespace Toreo {
     return &screen_conversor_;
   }
 
-  const GLfloat Core::screen_max_anisotropic_filtering(){
+  const GLfloat &Core::screen_max_anisotropic_filtering(){
     return max_filtering_;
   }
 
@@ -541,21 +541,21 @@ namespace Toreo {
     glfwSwapBuffers(window_);
   }
 
-  void Core::set_cursor(const Visualizer::Cursor type){
-    switch(type){
-    case Visualizer::Cursor::HAND:
+  void Core::set_cursor(const torero::Cursor type){
+    switch(static_cast<unsigned int>(type)){
+    case static_cast<unsigned int>(torero::Cursor::Hand):
       glfwSetCursor(window_, cursor_pointer_);
     break;
-    case Visualizer::Cursor::TEXT:
+    case static_cast<unsigned int>(torero::Cursor::Text):
       glfwSetCursor(window_, cursor_beam_);
     break;
-    case Visualizer::Cursor::CROSSHAIR:
+    case static_cast<unsigned int>(torero::Cursor::CrossHair):
       glfwSetCursor(window_, cursor_cross_);
     break;
-    case Visualizer::Cursor::MOVE:
+    case static_cast<unsigned int>(torero::Cursor::Move):
       glfwSetCursor(window_, cursor_move_);
     break;
-    case Visualizer::Cursor::HIDDEN:
+    case static_cast<unsigned int>(torero::Cursor::Hidden):
       glfwSetCursor(window_, NULL);
     break;
     default:
@@ -619,8 +619,8 @@ namespace Toreo {
     return &width_;
   }
 
-  boost::signals2::signal<void ()> *Core::syncronize(const Visualizer::Order object){
-    return &signal_draw_[object];
+  boost::signals2::signal<void ()> *Core::syncronize(const torero::Order object){
+    return &signal_draw_[static_cast<std::size_t>(object)];
   }
 
   boost::signals2::signal<void ()> *Core::signal_updated_camera(){
@@ -647,28 +647,28 @@ namespace Toreo {
     return &signal_released_mouse_;
   }
 
-  void Core::callback_resize(GLFWwindow *window, int width, int height){
-    Toreo::Core::signal_window_resize(width, height);
+  void Core::callback_resize(GLFWwindow */*window*/, int width, int height){
+    torero::Core::signal_window_resize(width, height);
   }
 
-  void Core::callback_mouse_click(GLFWwindow *window, int button, int action, int mods){
-    Toreo::Core::signal_mouse_click(button, action, mods);
+  void Core::callback_mouse_click(GLFWwindow */*window*/, int button, int action, int mods){
+    torero::Core::signal_mouse_click(button, action, mods);
   }
 
-  void Core::callback_mouse_move(GLFWwindow *window, double xpos, double ypos){
-    Toreo::Core::signal_mouse_move(xpos, ypos);
+  void Core::callback_mouse_move(GLFWwindow */*window*/, double xpos, double ypos){
+    torero::Core::signal_mouse_move(xpos, ypos);
   }
 
-  void Core::callback_mouse_scroll(GLFWwindow *window, double xoffset, double yoffset){
-    Toreo::Core::signal_mouse_scroll(yoffset);
+  void Core::callback_mouse_scroll(GLFWwindow */*window*/, double /*xoffset*/, double yoffset){
+    torero::Core::signal_mouse_scroll(yoffset);
   }
 
-  void Core::callback_key_callback(GLFWwindow *window, int key,
+  void Core::callback_key_callback(GLFWwindow */*window*/, int key,
                                    int scancode, int action, int mods){
-    Toreo::Core::signal_key_callback(key, scancode, action, mods);
+    torero::Core::signal_key_callback(key, scancode, action, mods);
   }
 
-  void Core::event_key_callback(int key, int scancode, int action, int mods){
+  void Core::event_key_callback(int key, int /*scancode*/, int action, int /*mods*/){
     if(action == GLFW_RELEASE || action == GLFW_REPEAT){
       if(key == GLFW_KEY_SPACE)
         is_window_paused_ = !is_window_paused_;
@@ -680,21 +680,24 @@ namespace Toreo {
   }
 
   void Core::event_mouse_click(int button, int action, int mods){
-    if(button == GLFW_MOUSE_BUTTON_1)
+    if(button == GLFW_MOUSE_BUTTON_1){
       if(action == GLFW_PRESS)
         is_left_click_ = true;
       else
         is_left_click_ = false;
-    if(button == GLFW_MOUSE_BUTTON_2)
+    }
+    if(button == GLFW_MOUSE_BUTTON_2){
       if(action == GLFW_PRESS)
         is_right_click_ = true;
       else
         is_right_click_ = false;
-    if(button == GLFW_MOUSE_BUTTON_3)
+    }
+    if(button == GLFW_MOUSE_BUTTON_3){
       if(action == GLFW_PRESS)
         is_scroll_click_ = true;
       else
         is_scroll_click_ = false;
+    }
 
     double posx, posy;
     glfwGetCursorPos(window_, &posx, &posy);
@@ -712,8 +715,8 @@ namespace Toreo {
   }
 
   void Core::event_mouse_move(double xpos, double ypos){
-    const int x_pos{INT(std::floor(xpos))};
-    const int y_pos{INT(std::floor(ypos))};
+    const int x_pos{ToInt(std::floor(xpos))};
+    const int y_pos{ToInt(std::floor(ypos))};
 
     if((is_left_click_ || is_right_click_) && !blocked_){
       const int dx = (is_inversed_ && is_left_click_)? -x_pos + old_x_ : x_pos - old_x_;

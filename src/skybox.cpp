@@ -3,7 +3,7 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   Skybox::Skybox(const std::string up, const std::string down,
                  const std::string left, const std::string right,
                  const std::string front, const std::string back,
@@ -27,19 +27,19 @@ namespace Toreo {
        files_exists_ = true;
     else
       core_->message_handler("Some/all files for the skybox were not found",
-                             Visualizer::Message::ERROR);
+                             torero::Message::Error);
 
     // Skybox shader
     // -------------
     if(!sky_shader_->use())
-      core_->message_handler(sky_shader_->error_log(), Visualizer::Message::ERROR);
+      core_->message_handler(sky_shader_->error_log(), torero::Message::Error);
 
     sky_u_pv_ = sky_shader_->uniform_location("u_pv");
     sky_u_skybox_ = sky_shader_->uniform_location("u_skybox");
 
     signal_update_camera_ = core->signal_updated_camera()
                             ->connect(boost::bind(&Skybox::update_camera, this));
-    signal_update_screen_ = core->syncronize(Visualizer::SKYBOX)
+    signal_update_screen_ = core->syncronize(torero::Order::Skybox)
                             ->connect(boost::bind(&Skybox::draw, this));
   }
 
@@ -65,7 +65,7 @@ namespace Toreo {
     }
   }
 
-  const bool Skybox::is_ready(){
+  bool Skybox::is_ready(){
     if(is_loaded_){
       return is_ready_;
     }else{
@@ -77,7 +77,7 @@ namespace Toreo {
     }
   }
 
-  const bool Skybox::check_path(std::string *path){
+  bool Skybox::check_path(std::string *path){
     if(path->front() != '/')
       *path = "/" + *path;
 
@@ -88,7 +88,7 @@ namespace Toreo {
 
       if(!boost::filesystem::exists(boost::filesystem::path(*path))){
         core_->message_handler("The file: " + first_path + " was not found.\n" +
-                               "  Neither: " + *path + "\n", Visualizer::Message::ERROR);
+                               "  Neither: " + *path + "\n", torero::Message::Error);
         return false;
       }
     }
@@ -170,7 +170,7 @@ namespace Toreo {
     }
   }
 
-  void Skybox::write_data_opengl(Visualizer::ImageFile *image, const int level){
+  void Skybox::write_data_opengl(torero::ImageFile *image, const int level){
     switch(image->components_size){
     case 1:
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + level, 0, GL_RED, image->width,

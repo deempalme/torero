@@ -5,11 +5,10 @@
 #include "glad/glad.h"
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/objects.h"
 #include "torero/shader.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 // signals and slots
@@ -20,7 +19,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class ObjectManager
@@ -32,29 +31,29 @@ namespace Toreo {
     // ------------------------------------------------------------------------------------ //
     // ------------------------------- OBJECTS MANAGEMENT --------------------------------- //
     // ------------------------------------------------------------------------------------ //
-    // This will add a new point cloud with values Visualizer::PointXYZ, you must also define
+    // This will add a new point cloud with values torero::PointXYZ, you must also define
     // a RGB color. It will return the point cloud's ID, it will be useful if you want to
     // modify properties or values of the created point cloud.
-    OMid add_boxes(const std::vector<Visualizer::Object> *objects,
+    OMid add_boxes(const std::vector<torero::Object> *objects,
                    const std::string name,
-                   const Algebraica::mat4f *transformation_matrix = nullptr,
+                   const algebraica::mat4f *transformation_matrix = nullptr,
                    const bool visible = true);
-    OMid add_circles(const std::vector<Visualizer::Object> *objects,
+    OMid add_circles(const std::vector<torero::Object> *objects,
                      const std::string name,
-                     const Algebraica::mat4f *transformation_matrix = nullptr,
+                     const algebraica::mat4f *transformation_matrix = nullptr,
                      const bool visible = true);
-    OMid add_cylinders(const std::vector<Visualizer::Object> *objects,
+    OMid add_cylinders(const std::vector<torero::Object> *objects,
                        const std::string name,
-                       const Algebraica::mat4f *transformation_matrix = nullptr,
+                       const algebraica::mat4f *transformation_matrix = nullptr,
                        const bool visible = true);
-    OMid add_squares(const std::vector<Visualizer::Object> *objects,
+    OMid add_squares(const std::vector<torero::Object> *objects,
                      const std::string name,
-                     const Algebraica::mat4f *transformation_matrix = nullptr,
+                     const algebraica::mat4f *transformation_matrix = nullptr,
                      const bool visible = true);
     // This will change the input data for the Point cloud with ID = id
-    bool change_input(OMid id, const std::vector<Visualizer::Object> *objects);
+    bool change_input(OMid id, const std::vector<torero::Object> *objects);
     // Sets the transformation matrix for the Point cloud with ID = id.
-    bool set_transformation_matrix(OMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(OMid id, const algebraica::mat4f *transformation_matrix);
     // Changes the visibility of the point cloud,
     // returns false if point cloud with ID = id was not found.
     bool set_visibility(OMid id, const bool visible = true);
@@ -123,7 +122,7 @@ namespace Toreo {
     Buffer *hollow_square_, *solid_square_, *hollow_circle_, *solid_circle_, *solid_arrow_;
     GLint u_pv_, u_camera_position_, u_point_light_, u_point_light_color_, u_ao_;
     GLint u_directional_light_, u_directional_light_color_;
-    std::vector<Visualizer::ObjectElement> objects_;
+    std::vector<torero::ObjectElement> objects_;
     Texture *ao_cylinder_, *ao_box_, *ao_square_, *ao_circle_, *ao_arrow_;
 
     boost::signals2::connection signal_updated_camera_, signal_draw_all_;

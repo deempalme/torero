@@ -4,7 +4,7 @@
 #include "torero/buffer.h"
 #include "torero/texture.h"
 #include "torero/shader.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 // Linear mathematics
 #include "algebraica/algebraica.h"
 // Boost
@@ -13,14 +13,14 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class GUISpeedometer
   {
   public:
     GUISpeedometer(Core *core, Shader *pbr, Shader *emission, Shader *text,
-                   const std::vector<Visualizer::FontCharacter> *characters,
+                   const std::vector<torero::FontCharacter> *characters,
                    const std::string folder_path, bool *changer);
     ~GUISpeedometer();
 
@@ -33,21 +33,21 @@ namespace Toreo {
 
     void run();
     void ready();
-    const bool is_ready();
+    bool is_ready();
 
   private:
     bool check_folder();
-    void calculate_model(std::vector<Visualizer::ComplexShaderData> *buffer_data,
+    void calculate_model(std::vector<torero::ComplexShaderData> *buffer_data,
                          const std::string subfolder);
 
     void update_text(const float speed, const float rpm);
 
     void load_buffer(Buffer *buffer, Buffer *objects, const GLsizei size,
-                     const std::vector<Visualizer::PBR_GUIShader> &object_data,
-                     std::vector<Visualizer::ComplexShaderData> *buffer_data,
+                     const std::vector<torero::PBR_GUIShader> &object_data,
+                     std::vector<torero::ComplexShaderData> *buffer_data,
                      GLsizei *data_size);
     void update_buffer(Buffer *buffer, Buffer *objects, const GLsizei size,
-                       const std::vector<Visualizer::PBR_GUIShader> &object_data);
+                       const std::vector<torero::PBR_GUIShader> &object_data);
 
     Core *core_;
     std::string folder_path_;
@@ -61,16 +61,16 @@ namespace Toreo {
 
     Buffer buffer_background_, buffer_background_objects_;
     GLsizei background_data_size_;
-    std::vector<Visualizer::PBR_GUIShader> background_objects_;
+    std::vector<torero::PBR_GUIShader> background_objects_;
 
     Buffer buffer_marker_, buffer_marker_objects_;
     GLsizei marker_data_size_;
     std::size_t previous_speed_level_, previous_rpm_level_;
-    std::vector<Visualizer::PBR_GUIShader> marker_objects_;
+    std::vector<torero::PBR_GUIShader> marker_objects_;
 
     Buffer buffer_needle_, buffer_needle_objects_;
     GLsizei needle_data_size_;
-    std::vector<Visualizer::PBR_GUIShader> needle_objects_;
+    std::vector<torero::PBR_GUIShader> needle_objects_;
 
     Shader *text_;
     GLint  i_size_;
@@ -78,17 +78,17 @@ namespace Toreo {
     Buffer buffer_text_;
     GLsizei text_data_size_;
     const GLsizei text_stride_size_;
-    const std::vector<Visualizer::FontCharacter> *characters_;
+    const std::vector<torero::FontCharacter> *characters_;
 
-    Visualizer::ImageFile im_albedo_, im_normal_, im_metallic_, im_roughness_, im_ao_, im_emission_;
-    std::vector<Visualizer::ComplexShaderData> data_background_, data_marker_, data_needle_;
+    torero::ImageFile im_albedo_, im_normal_, im_metallic_, im_roughness_, im_ao_, im_emission_;
+    std::vector<torero::ComplexShaderData> data_background_, data_marker_, data_needle_;
     boost::mutex protector_;
 
     float previous_rotation_;
-    Algebraica::quaternionF rotation_;
-    const Algebraica::vec3f translation_;
-    const Algebraica::vec3f light_color_;
-    Algebraica::vec3f light_;
+    algebraica::quaternionF rotation_;
+    const algebraica::vec3f translation_;
+    const algebraica::vec3f light_color_;
+    algebraica::vec3f light_;
   };
 }
 

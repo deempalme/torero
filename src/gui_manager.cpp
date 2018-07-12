@@ -5,7 +5,7 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   GUIManager::GUIManager(Core *core, ModelManager *model_manager, TextManager *text_manager,
                          const std::string folder_address) :
     has_changed_(core->screen_changer()),
@@ -40,10 +40,10 @@ namespace Toreo {
                             "resources/shaders/gui_text.geom")),
     u_t_projection_(text_shader_->uniform_location("u_projection")),
 
-    ortho_(Algebraica::mat4f::from_ortho(-ORTHO_WIDTH, ORTHO_WIDTH,
-                                         -ORTHO_HEIGHT, ORTHO_HEIGHT, -1, 1)),
-    window_width_(DEFAULT_WIDTH),
-    window_height_(DEFAULT_HEIGHT),
+    ortho_(algebraica::mat4f::from_ortho(-kOrthoWidth, kOrthoWidth,
+                                         -kOrthoHeight, kOrthoHeight, -1, 1)),
+    window_width_(kDefaultWidth),
+    window_height_(kDefaultHeight),
     frame_buffer_(true),
     render_buffer_(true),
     compass_(nullptr),
@@ -57,7 +57,7 @@ namespace Toreo {
     last_changed_object_(-1u),
     last_changed_id_(-1u),
     is_clicked_(false),
-    signal_draw_all_(core->syncronize(Visualizer::GUI)
+    signal_draw_all_(core->syncronize(torero::Order::GUI)
                      ->connect(boost::bind(&GUIManager::draw_all, this))),
     signal_updated_camera_(core->signal_updated_camera()
                            ->connect(boost::bind(&GUIManager::update_camera, this))),
@@ -67,12 +67,12 @@ namespace Toreo {
                            ->connect(boost::bind(&GUIManager::mouse_move, this, _1, _2))),
     signal_clicked_mouse_(core->signal_clicked_mouse()
                            ->connect(boost::bind(&GUIManager::mouse_event, this, _1, _2, _3,
-                                                 Visualizer::Mouse::CLICK))),
+                                                 torero::Mouse::Click))),
     signal_released_mouse_(core->signal_released_mouse()
                            ->connect(boost::bind(&GUIManager::mouse_event, this, _1, _2, _3,
-                                                 Visualizer::Mouse::RELEASE)))
+                                                 torero::Mouse::Release)))
   {
-    Visualizer::ImageFile gui_main_albedo;
+    torero::ImageFile gui_main_albedo;
     const bool checked{check_folder()};
 
     if(pbr_shader_->use()){
@@ -105,10 +105,10 @@ namespace Toreo {
 
         plane_shader_->set_value(plane_shader_->uniform_location("u_albedo"), 4);
         plane_shader_->set_value(plane_shader_->uniform_location("u_texture_size"),
-                                 Algebraica::vec2f(static_cast<float>(gui_main_albedo.width),
+                                 algebraica::vec2f(static_cast<float>(gui_main_albedo.width),
                                                    static_cast<float>(gui_main_albedo.height)));
         plane_shader_->set_value(u_p_window_size_,
-                                 Algebraica::vec2f(window_width_, window_height_));
+                                 algebraica::vec2f(window_width_, window_height_));
 
         stbi_image_free(gui_main_albedo.data);
       }
@@ -119,10 +119,10 @@ namespace Toreo {
       if(checked){
         mouse_shader_->set_value(mouse_shader_->uniform_location("u_albedo"), 4);
         mouse_shader_->set_value(mouse_shader_->uniform_location("u_texture_size"),
-                                 Algebraica::vec2f(static_cast<float>(gui_main_albedo.width),
+                                 algebraica::vec2f(static_cast<float>(gui_main_albedo.width),
                                                    static_cast<float>(gui_main_albedo.height)));
         mouse_shader_->set_value(u_m_window_size_,
-                                 Algebraica::vec2f(window_width_, window_height_));
+                                 algebraica::vec2f(window_width_, window_height_));
 
         render_buffer_.bind();
         render_buffer_.storage(static_cast<GLint>(window_width_),
@@ -139,7 +139,7 @@ namespace Toreo {
 
     if(text_shader_->use()){
       if(checked){
-        iceland_id_ = text_manager_->font_add("resources/fonts/Iceland.png",
+        iceland_id_ = text_manager_->add_font("resources/fonts/Iceland.png",
                                               "resources/fonts/Iceland.fnt");
         text_shader_->set_value(text_shader_->uniform_location("u_font_atlas"), 9);
         text_shader_->set_value(u_t_projection_, ortho_);
@@ -188,8 +188,8 @@ namespace Toreo {
       return false;
   }
 
-  bool GUIManager::menu_alignment(const Visualizer::Alignment vertical,
-                                  const Visualizer::Alignment horizontal){
+  bool GUIManager::menu_alignment(const torero::Alignment vertical,
+                                  const torero::Alignment horizontal){
     if(menu_.object){
       menu_.vertical = vertical;
       menu_.horizontal = horizontal;
@@ -200,10 +200,11 @@ namespace Toreo {
       return false;
   }
 
-  bool GUIManager::menu_change_button_state(const Visualizer::Menu::ButtonType button_id,
-                                            const Visualizer::Button::State state){
+  bool GUIManager::menu_change_button_state(const torero::Menu::ButtonType button_id,
+                                            const torero::Button::State state){
     if(menu_.object){
       menu_.object->change_button_state(button_id, state);
+      return true;
     }else
       return false;
   }
@@ -386,7 +387,7 @@ namespace Toreo {
     }
 
     if(text_shader_->use()){
-      text_manager_->font_use(iceland_id_);
+      text_manager_->use_font(iceland_id_);
       if(speedometer_visibility_)
         speedometer_->draw_text();
       if(compass_visibility_)
@@ -430,7 +431,7 @@ namespace Toreo {
       if(!boost::filesystem::exists(boost::filesystem::path(folder_address_))){
         core_->message_handler("*** GUI manager: ***\n The folder: " + first_path +
                                " was not found.\n  Neither: " + folder_address_ + "\n",
-                               Visualizer::Message::ERROR);
+                               torero::Message::Error);
         return false;
       }
     }
@@ -448,10 +449,10 @@ namespace Toreo {
     window_height_ = static_cast<float>(height);
 
     plane_shader_->use();
-    plane_shader_->set_value(u_p_window_size_, Algebraica::vec2f(window_width_, window_height_));
+    plane_shader_->set_value(u_p_window_size_, algebraica::vec2f(window_width_, window_height_));
 
     mouse_shader_->use();
-    mouse_shader_->set_value(u_m_window_size_, Algebraica::vec2f(window_width_, window_height_));
+    mouse_shader_->set_value(u_m_window_size_, algebraica::vec2f(window_width_, window_height_));
 
     title_bar_->set_buffer();
 
@@ -459,8 +460,8 @@ namespace Toreo {
     render_buffer_.storage(width, height, GL_RGBA8);
     render_buffer_.release();
 
-    const float height_ratio {ORTHO_WIDTH / (window_width_/window_height_)};
-    ortho_.ortho(-ORTHO_WIDTH, ORTHO_WIDTH, -height_ratio, height_ratio, -1, 1);
+    const float height_ratio {kOrthoWidth / (window_width_/window_height_)};
+    ortho_.ortho(-kOrthoWidth, kOrthoWidth, -height_ratio, height_ratio, -1, 1);
 
     pbr_shader_->use();
     pbr_shader_->set_value(u_pbr_projection_, ortho_);
@@ -474,11 +475,11 @@ namespace Toreo {
   void GUIManager::calculate_alignment(auto *element){
     float top, left;
 
-    switch(element->vertical){
-    case Visualizer::Alignment::CENTER:
+    switch(static_cast<unsigned int>(element->vertical)){
+    case static_cast<unsigned int>(torero::Alignment::Center):
       top = (window_height_ - element->height) / 2.0f;
     break;
-    case Visualizer::Alignment::BOTTOM:
+    case static_cast<unsigned int>(torero::Alignment::Bottom):
       top = window_height_ - element->height;
     break;
     default:
@@ -486,11 +487,11 @@ namespace Toreo {
     break;
     }
 
-    switch(element->horizontal){
-    case Visualizer::Alignment::CENTER:
+    switch(static_cast<unsigned int>(element->horizontal)){
+    case static_cast<unsigned int>(torero::Alignment::Center):
       left = (window_width_ - element->width) / 2.0f;
     break;
-    case Visualizer::Alignment::RIGHT:
+    case static_cast<unsigned int>(torero::Alignment::Right):
       left = window_width_ - element->width;
     break;
     default:
@@ -507,38 +508,38 @@ namespace Toreo {
       const unsigned int id{red + green};
 
       switch(blue){
-      case Visualizer::GUIid::MENU:
+      case static_cast<unsigned int>(torero::GUIid::Menu):
         if(menu_.object){
           if(last_changed_id_ != id){
             menu_.object->restart_buttons();
             last_changed_id_ = id;
           }
 
-          menu_.object->change_button_state(static_cast<Visualizer::Menu::ButtonType>(id),
-                                            Visualizer::Button::HOVER);
-          last_changed_object_ = Visualizer::GUIid::MENU;
+          menu_.object->change_button_state(static_cast<torero::Menu::ButtonType>(id),
+                                            torero::Button::Hover);
+          last_changed_object_ = static_cast<unsigned int>(torero::GUIid::Menu);
         }
       break;
-      case Visualizer::GUIid::TITLE_BAR:
+      case static_cast<unsigned int>(torero::GUIid::TitleBar):
         if(last_changed_id_ != id){
           title_bar_->restart_buttons();
           last_changed_id_ = id;
         }
 
-        title_bar_->change_button_state(static_cast<Visualizer::Title::ButtonType>(id),
-                                        Visualizer::Button::HOVER);
+        title_bar_->change_button_state(static_cast<torero::Title::ButtonType>(id),
+                                        torero::Button::Hover);
 
-        last_changed_object_ = Visualizer::GUIid::TITLE_BAR;
+        last_changed_object_ = static_cast<unsigned int>(torero::GUIid::TitleBar);
       break;
       }
     }else{
-      switch(last_changed_object_){
-      case Visualizer::GUIid::MENU:
+      switch(static_cast<unsigned int>(last_changed_object_)){
+      case static_cast<unsigned int>(torero::GUIid::Menu):
         menu_.object->restart_buttons();
         last_changed_object_ = -1u;
         last_changed_id_ = -1u;
       break;
-      case Visualizer::GUIid::TITLE_BAR:
+      case static_cast<unsigned int>(torero::GUIid::TitleBar):
         title_bar_->restart_buttons();
         last_changed_object_ = -1u;
         last_changed_id_ = -1u;
@@ -558,7 +559,7 @@ namespace Toreo {
     const unsigned int green{static_cast<unsigned int>(color[1])};
     const unsigned int blue {static_cast<unsigned int>(color[2])};
 
-    const float factor{FLOAT(x) / window_width_};
+    const float factor{ToFloat(x) / window_width_};
 
     if(speedometer_)
       speedometer_->rotate(factor);
@@ -571,7 +572,7 @@ namespace Toreo {
 //              << " B: " << blue << " A: " << alpha << std::endl;
   }
 
-  void GUIManager::mouse_event(int x, int y, int mod, Visualizer::Mouse::Event state){
+  void GUIManager::mouse_event(int x, int y, int /*mode*/, torero::Mouse::Event state){
     GLubyte color[3];
     frame_buffer_.read_pixel(color, x, y);
 
@@ -582,20 +583,20 @@ namespace Toreo {
     if(blue > 0u){
       const unsigned int id{red + green};
 
-      if(state == Visualizer::Mouse::CLICK){
+      if(state == torero::Mouse::Click){
         switch(blue){
-        case Visualizer::GUIid::MENU:
+        case static_cast<unsigned int>(torero::GUIid::Menu):
           if(menu_.object){
-            menu_.object->change_button_state(static_cast<Visualizer::Menu::ButtonType>(id),
-                                              Visualizer::Button::CLICK);
+            menu_.object->change_button_state(static_cast<torero::Menu::ButtonType>(id),
+                                              torero::Button::Click);
             is_clicked_ = true;
           }
         break;
-        case Visualizer::GUIid::TITLE_BAR:
-          const Visualizer::Title::ButtonType title_id =
-              static_cast<Visualizer::Title::ButtonType>(id);
-          title_bar_->change_button_state(title_id, Visualizer::Button::CLICK);
-          title_bar_->click_event(title_id, Visualizer::Mouse::CLICK);
+        case static_cast<unsigned int>(torero::GUIid::TitleBar):
+          const torero::Title::ButtonType title_id =
+              static_cast<torero::Title::ButtonType>(id);
+          title_bar_->change_button_state(title_id, torero::Button::Click);
+          title_bar_->click_event(title_id, torero::Mouse::Click);
           is_clicked_ = true;
         break;
         }
@@ -604,17 +605,17 @@ namespace Toreo {
         mouse_eval(red, green, blue);
 
         switch(blue){
-        case Visualizer::GUIid::MENU:
+        case static_cast<unsigned int>(torero::GUIid::Menu):
           if(menu_.object)
-            menu_.object->click_event(static_cast<Visualizer::Menu::ButtonType>(id));
+            menu_.object->click_event(static_cast<torero::Menu::ButtonType>(id));
         break;
-        case Visualizer::GUIid::TITLE_BAR:
-            title_bar_->click_event(static_cast<Visualizer::Title::ButtonType>(id),
-                                    Visualizer::Mouse::RELEASE);
+        case static_cast<unsigned int>(torero::GUIid::TitleBar):
+            title_bar_->click_event(static_cast<torero::Title::ButtonType>(id),
+                                    torero::Mouse::Release);
         break;
         }
       }
-    }else if(state == Visualizer::Mouse::RELEASE){
+    }else if(state == torero::Mouse::Release){
       is_clicked_ = false;
       mouse_eval(red, green, blue);
     }

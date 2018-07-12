@@ -1,7 +1,7 @@
 #include "torero/text_manager.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   TextManager::TextManager(Core *core) :
     core_(core),
     shader_(new Shader("resources/shaders/text.vert",
@@ -18,14 +18,14 @@ namespace Toreo {
     transformation_matrix_(nullptr),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&TextManager::updated_camera, this))),
-    signal_draw_all_(core->syncronize(Visualizer::TEXT)->
+    signal_draw_all_(core->syncronize(torero::Order::Text)->
                      connect(boost::bind(&TextManager::draw_all, this)))
   {
     initialize();
   }
 
   TextManager::~TextManager(){    
-    for(Visualizer::Text &text : texts_)
+    for(torero::Text &text : texts_)
       if(text.text)
         delete text.text;
 
@@ -45,8 +45,12 @@ namespace Toreo {
     if(shader_) delete shader_;
   }
 
-  FTid TextManager::font_add(const std::string font_distance_path,
-                              const std::string font_info_path){
+  // ------------------------------------------------------------------------------------ //
+  // --------------------------------- FONT MANAGEMENT ---------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+
+  FTid TextManager::add_font(const std::string font_distance_path,
+                            const std::string font_info_path){
     FontLoader *new_font = new FontLoader(font_distance_path, font_info_path, core_);
     core_->multithread_add_process(boost::bind(&FontLoader::run, new_font),
                                    boost::bind(&FontLoader::ready, new_font),
@@ -55,58 +59,7 @@ namespace Toreo {
     return fonts_.size() - 1;
   }
 
-  bool TextManager::font_use(const FTid font){
-    if(fonts_.size() > font)
-      if(fonts_[font]){
-        fonts_[font]->use();
-        return true;
-      }else
-        return false;
-    else
-      return false;
-  }
-
-  const std::vector<Visualizer::FontCharacter> *TextManager::font_characters(const FTid font) const{
-    if(fonts_.size() > font)
-      if(fonts_[font]){
-        return fonts_[font]->characters();
-      }else
-        return nullptr;
-    else
-      return nullptr;
-  }
-
-  bool TextManager::font_delete(FTid font){
-    bool ok{false};
-
-    if(fonts_.size() > font)
-      if(fonts_[font]){
-        try{
-          for(Visualizer::TextIndex index : text_indices_.at(font))
-            if(index.exist && texts_.size() > index.index)
-              if(texts_[index.index].text)
-                delete texts_[index.index].text;
-
-          text_indices_.erase(font);
-        }catch(const std::out_of_range&){
-        }
-        delete fonts_[font];
-        fonts_[font] = nullptr;
-        ok = true;
-      }
-    return ok;
-  }
-
-  void TextManager::font_purge(){
-    purge();
-    for(FontLoader *font : fonts_)
-      if(font)
-        delete font;
-
-    fonts_.clear();
-  }
-
-  bool TextManager::font_change(TXMid id, FTid new_font){
+  bool TextManager::change_font(TXMid id, FTid new_font){
     bool ok{false};
 
     if(fonts_.size() > new_font)
@@ -123,14 +76,69 @@ namespace Toreo {
     return ok;
   }
 
-  TXMid TextManager::add_3D(FTid font, const std::vector<Visualizer::TextSimple> *data,
-                            const std::string name, const Algebraica::mat4f *transformation_matrix,
+  bool TextManager::delete_font(FTid font){
+    bool ok{false};
+
+    if(fonts_.size() > font)
+      if(fonts_[font]){
+        try{
+          for(torero::TextIndex index : text_indices_.at(font))
+            if(index.exist && texts_.size() > index.index)
+              if(texts_[index.index].text)
+                delete texts_[index.index].text;
+
+          text_indices_.erase(font);
+        }catch(const std::out_of_range&){
+        }
+        delete fonts_[font];
+        fonts_[font] = nullptr;
+        ok = true;
+      }
+    return ok;
+  }
+
+  const std::vector<torero::FontCharacter> *TextManager::font_characters(const FTid font) const{
+    if(fonts_.size() > font)
+      if(fonts_[font]){
+        return fonts_[font]->characters();
+      }else
+        return nullptr;
+    else
+      return nullptr;
+  }
+
+  void TextManager::purge_fonts(){
+    purge();
+    for(FontLoader *font : fonts_)
+      if(font)
+        delete font;
+
+    fonts_.clear();
+  }
+
+  bool TextManager::use_font(const FTid font){
+    if(fonts_.size() > font)
+      if(fonts_[font]){
+        fonts_[font]->use();
+        return true;
+      }else
+        return false;
+    else
+      return false;
+  }
+
+  // ------------------------------------------------------------------------------------ //
+  // --------------------------------- TEXT MANAGEMENT ---------------------------------- //
+  // ------------------------------------------------------------------------------------ //
+
+  TXMid TextManager::add_3D(FTid font, const std::vector<torero::TextSimple> *data,
+                            const std::string name, const algebraica::mat4f *transformation_matrix,
                             const bool visible){
-    if(fonts_.size() > font)
+    if(fonts_.size() > font){
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_,
-                                  Visualizer::Dimensionality::THREE_DIMENSIONAL),
-                                  font, name, visible };
+        torero::Text text = { new TextObject(shader_,
+                                  torero::Dimensionality::ThreeDimensional),
+                                  font, name, visible, 0, boost::signals2::connection() };
         if(transformation_matrix != nullptr)
           text.text->set_transformation_matrix(transformation_matrix);
 
@@ -146,16 +154,18 @@ namespace Toreo {
         return static_cast<TXMid>(id);
       }else
         return -1;
+    }else
+      return -1;
   }
 
-  TXMid TextManager::add_3D(FTid font, const std::vector<Visualizer::TextColored> *data,
-                         const std::string name, const Algebraica::mat4f *transformation_matrix,
+  TXMid TextManager::add_3D(FTid font, const std::vector<torero::TextColored> *data,
+                         const std::string name, const algebraica::mat4f *transformation_matrix,
                          const bool visible){
-    if(fonts_.size() > font)
+    if(fonts_.size() > font){
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_,
-                                  Visualizer::Dimensionality::THREE_DIMENSIONAL),
-                                  font, name, visible };
+        torero::Text text = { new TextObject(shader_,
+                                  torero::Dimensionality::ThreeDimensional),
+                                  font, name, visible, 0, boost::signals2::connection() };
         if(transformation_matrix != nullptr)
           text.text->set_transformation_matrix(transformation_matrix);
 
@@ -171,15 +181,17 @@ namespace Toreo {
         return static_cast<TXMid>(id);
       }else
         return -1;
+    }else
+      return -1;
   }
 
-  TXMid TextManager::add_2D(FTid font, const std::vector<Visualizer::TextSimple> *data,
+  TXMid TextManager::add_2D(FTid font, const std::vector<torero::TextSimple> *data,
                             const std::string name, const bool visible){
-    if(fonts_.size() > font)
+    if(fonts_.size() > font){
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_,
-                                  Visualizer::Dimensionality::TWO_DIMENSIONAL),
-                                  font, name, visible };
+        torero::Text text = { new TextObject(shader_,
+                                  torero::Dimensionality::TwoDimensional),
+                                  font, name, visible, 0, boost::signals2::connection() };
 
         text.text->set_font(fonts_[font]);
         text.text->set_input(data);
@@ -193,15 +205,17 @@ namespace Toreo {
         return static_cast<TXMid>(id);
       }else
         return -1;
+    }else
+      return -1;
   }
 
-  TXMid TextManager::add_2D(FTid font, const std::vector<Visualizer::TextColored> *data,
+  TXMid TextManager::add_2D(FTid font, const std::vector<torero::TextColored> *data,
                             const std::string name, const bool visible){
-    if(fonts_.size() > font)
+    if(fonts_.size() > font){
       if(fonts_[font]){
-        Visualizer::Text text = { new TextObject(shader_,
-                                  Visualizer::Dimensionality::TWO_DIMENSIONAL),
-                                  font, name, visible };
+        torero::Text text = { new TextObject(shader_,
+                                  torero::Dimensionality::TwoDimensional),
+                                  font, name, visible, 0, boost::signals2::connection() };
 
         text.text->set_font(fonts_[font]);
         text.text->set_input(data);
@@ -215,9 +229,11 @@ namespace Toreo {
         return static_cast<TXMid>(id);
       }else
         return -1;
+    }else
+      return -1;
   }
 
-  bool TextManager::change_input(TXMid id, const std::vector<Visualizer::TextSimple> *data){
+  bool TextManager::change_input(TXMid id, const std::vector<torero::TextSimple> *data){
     if(texts_.size() > id)
       if(texts_[id].text){
         texts_[id].text->set_input(data);
@@ -228,7 +244,7 @@ namespace Toreo {
       return false;
   }
 
-  bool TextManager::change_input(TXMid id, const std::vector<Visualizer::TextColored> *data){
+  bool TextManager::change_input(TXMid id, const std::vector<torero::TextColored> *data){
     if(texts_.size() > id)
       if(texts_[id].text){
         texts_[id].text->set_input(data);
@@ -296,7 +312,7 @@ namespace Toreo {
       return false;
   }
 
-  bool TextManager::set_font_weight(TXMid id, const Visualizer::TextWeight width){
+  bool TextManager::set_font_weight(TXMid id, const torero::TextWeight width){
     if(texts_.size() > id)
       if(texts_[id].text){
         texts_[id].text->set_weight(width);
@@ -364,7 +380,7 @@ namespace Toreo {
   }
 
   bool TextManager::set_transformation_matrix(TXMid id,
-                                              const Algebraica::mat4f *transformation_matrix){
+                                              const algebraica::mat4f *transformation_matrix){
     if(texts_.size() > id)
       if(texts_[id].text){
         texts_[id].text->set_transformation_matrix(transformation_matrix);
@@ -386,7 +402,7 @@ namespace Toreo {
       return false;
   }
 
-  bool TextManager::set_horizontal_alignment(TXMid id, const Visualizer::Alignment alignment){
+  bool TextManager::set_horizontal_alignment(TXMid id, const torero::Alignment alignment){
     if(texts_.size() > id)
       if(texts_[id].text){
         texts_[id].text->set_horizontal_alignment(alignment);
@@ -397,7 +413,7 @@ namespace Toreo {
       return false;
   }
 
-  bool TextManager::set_vertical_alignment(TXMid id, const Visualizer::Alignment alignment){
+  bool TextManager::set_vertical_alignment(TXMid id, const torero::Alignment alignment){
     if(texts_.size() > id)
       if(texts_[id].text){
         texts_[id].text->set_vertical_alignment(alignment);
@@ -475,7 +491,7 @@ namespace Toreo {
   }
 
   void TextManager::update_all(){
-    for(Visualizer::Text &text : texts_)
+    for(torero::Text &text : texts_)
       if(text.text && text.visibility)
         text.text->update();
   }
@@ -495,10 +511,10 @@ namespace Toreo {
   }
 
   void TextManager::draw_all(){
-    std::map<FTid, std::vector<Visualizer::TextIndex> >::iterator it = text_indices_.begin();
+    std::map<FTid, std::vector<torero::TextIndex> >::iterator it = text_indices_.begin();
     while(it != text_indices_.end()){
       fonts_[it->first]->use();
-      for(Visualizer::TextIndex index : it->second)
+      for(torero::TextIndex index : it->second)
         if(index.exist)
           texts_[index.index].text->draw();
       ++it;
@@ -521,7 +537,7 @@ namespace Toreo {
   }
 
   void TextManager::purge(){
-    for(Visualizer::Text &text : texts_)
+    for(torero::Text &text : texts_)
       if(text.text){
         if(text.connection.connected())
           text.connection.disconnect();
@@ -555,7 +571,7 @@ namespace Toreo {
     shader_->use();
     shader_->set_value(u_projection_, core_->camera_matrix_perspective());
     shader_->set_value(u_view_, core_->camera_matrix_view());
-    shader_->set_value(u_window_, Algebraica::vec2f(FLOAT(*width_), FLOAT(*height_)));
+    shader_->set_value(u_window_, algebraica::vec2f(ToFloat(*width_), ToFloat(*height_)));
   }
 
   void TextManager::initialize(){

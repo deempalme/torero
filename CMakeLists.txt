@@ -34,7 +34,8 @@ if(NOT TARGET ${TORERO_LIB})
     include/torero/camera_manager.h
     include/torero/core.h
     include/torero/cubemap.h
-    include/torero/definitions.h
+    include/torero/constant_expressions.h
+    include/torero/enumerators.h
     include/torero/font_loader.h
     include/torero/frame_buffer.h
     include/torero/gui_compass.h
@@ -60,9 +61,9 @@ if(NOT TARGET ${TORERO_LIB})
     include/torero/text_object.h
     include/torero/texture.h
     include/torero/three_dimensional_model_loader.h
-    include/torero/trajectory.h
+    include/torero/trajectories.h
     include/torero/trajectory_manager.h
-    include/torero/types.h
+    include/torero/type_definitions.h
 #    include/torero/utilities.h
     include/torero/vehicle_manager.h
   )
@@ -95,8 +96,8 @@ if(NOT TARGET ${TORERO_LIB})
     src/text_manager.cpp
     src/text_object.cpp
     src/three_dimensional_model_loader.cpp
+    src/trajectories.cpp
     src/trajectory_manager.cpp
-    src/trajectory.cpp
 #    src/utilities.cpp
     src/vehicle_manager.cpp
   )
@@ -237,4 +238,9 @@ if(NOT TARGET ${TORERO_LIB})
     ${X11_Xinerama_LIB}
     ${X11_Xrandr_LIB}
   )
+
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-function -pedantic")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunreachable-code -Wno-ignored-qualifiers")
+
 endif(NOT TARGET ${TORERO_LIB})

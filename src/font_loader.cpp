@@ -3,7 +3,7 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   FontLoader::FontLoader(const std::string font_distance_path,
                          const std::string font_info_path,
                          Core *core) :
@@ -34,7 +34,7 @@ namespace Toreo {
       if(t_distance_) t_distance_->use();
   }
 
-  const std::vector<Visualizer::FontCharacter> *FontLoader::characters() const{
+  const std::vector<torero::FontCharacter> *FontLoader::characters() const{
     return &characters_;
   }
 
@@ -50,7 +50,7 @@ namespace Toreo {
         error_ = true;
         error_log_ = "*** Font loader: ***\n The file: " + first_path +
                      " was not found.\n  Neither: " + *path + "\n";
-        core_->message_handler(error_log_, Visualizer::Message::ERROR);
+        core_->message_handler(error_log_, torero::Message::Error);
         return false;
       }
     }
@@ -63,13 +63,13 @@ namespace Toreo {
     std::size_t position(0u);
     std::size_t i{0u};
     unsigned int maximum{0u};
-    Visualizer::FontCharacter letter;
+    torero::FontCharacter letter;
     float scale_w, scale_h, base, font_size;
     float padding_top, padding_right, padding_bottom, padding_left;
     float space_x, space_y;
     file.open(font_info_path_);
 
-    std::vector<Visualizer::FontCharacter> temporal_data(0);
+    std::vector<torero::FontCharacter> temporal_data(0);
 
     if(file.is_open()){
       while(std::getline(file, line)){
@@ -106,21 +106,23 @@ namespace Toreo {
           const char *line_c = line.c_str();
           float x{-2.0f}, y{-2.0f};
           std::sscanf(line_c, "%*s %*3s%u %*2s%f %*2s%f %*6s%f %*7s%f %*8s%f %*8s%f %*9s%f",
-                      &letter.ascii, &x, &y, &letter.width, &letter.height,
-                      &letter.x, &letter.y, &letter.next);
+                      &letter.ascii, &x, &y, &letter.texture.map.width,
+                      &letter.texture.map.height, &letter.position.offset.x,
+                      &letter.position.offset.y, &letter.position.offset.next);
 
           maximum = (letter.ascii > maximum)? letter.ascii : maximum;
 
-          letter.u1 = x / scale_w;
-          letter.v1 = y / scale_h;
-          letter.u2 = (x + letter.width) / scale_w;
-          letter.v2 = (y + letter.height) / scale_h;
+          letter.texture.map.u1 = x / scale_w;
+          letter.texture.map.v1 = y / scale_h;
+          letter.texture.map.u2 = (x + letter.texture.map.width) / scale_w;
+          letter.texture.map.v2 = (y + letter.texture.map.height) / scale_h;
 
-          letter.width /= font_size;
-          letter.height /= font_size;
-          letter.next = (letter.next - padding_left - padding_right) / font_size;
-          letter.x = (letter.x - padding_left) / font_size;
-          letter.y = (letter.y - padding_top) / font_size;
+          letter.texture.map.width /= font_size;
+          letter.texture.map.height /= font_size;
+          letter.position.offset.next = (letter.position.offset.next - padding_left
+                                           - padding_right) / font_size;
+          letter.position.offset.x = (letter.position.offset.x - padding_left) / font_size;
+          letter.position.offset.y = (letter.position.offset.y - padding_top) / font_size;
 
           temporal_data[i++] = letter;
         }else
@@ -128,7 +130,7 @@ namespace Toreo {
       }
 
       characters_.resize(maximum + 1u);
-      for(const Visualizer::FontCharacter &character : temporal_data)
+      for(const torero::FontCharacter &character : temporal_data)
         characters_[character.ascii] = character;
 
       file.close();
@@ -166,10 +168,10 @@ namespace Toreo {
 
       is_loaded_ = true;
     }else if(error_)
-      core_->message_handler(error_log_, Visualizer::Message::ERROR);
+      core_->message_handler(error_log_, torero::Message::Error);
   }
 
-  const bool FontLoader::is_ready(){
+  bool FontLoader::is_ready(){
     if(is_loaded_){
       return is_ready_;
     }else{

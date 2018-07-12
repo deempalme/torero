@@ -4,26 +4,25 @@
 #include "glad/glad.h"
 
 #include "torero/buffer.h"
-#include "torero/definitions.h"
 #include "torero/shader.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Objects
   {
   public:
-    Objects(Shader *shader_program, const std::vector<Visualizer::Object> *objects,
+    Objects(Shader *shader_program, const std::vector<torero::Object> *objects,
             Buffer *hollow, Texture *texture, Buffer *solid, Buffer *arrow,
-            Texture *arrow_ao, const Visualizer::Shape type);
+            Texture *arrow_ao, const torero::Shape type);
 
-    void change_input(const std::vector<Visualizer::Object> *objects);
+    void change_input(const std::vector<torero::Object> *objects);
 
-    void set_transformation_matrix(const Algebraica::mat4f *transformation_matrix);
+    void set_transformation_matrix(const algebraica::mat4f *transformation_matrix);
 
     void translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
     void rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
@@ -43,12 +42,12 @@ namespace Toreo {
     Buffer *buffer_arrow_data_, buffer_arrow_;
     Texture *ao_, *ao_arrow_;
 
-    const std::vector<Visualizer::Object> *object_;
-    Visualizer::Shape type_;
+    const std::vector<torero::Object> *object_;
+    torero::Shape type_;
     GLsizei type_size_hollow_, type_size_solid_, type_size_arrow_;
 
-    const Algebraica::mat4f *primary_model_;
-    Algebraica::mat4f secondary_model_, identity_matrix_;
+    const algebraica::mat4f *primary_model_;
+    algebraica::mat4f secondary_model_, identity_matrix_;
     GLsizei hollow_data_size_, solid_data_size_, arrow_data_size_;
     GLsizei hollow_type_size_, solid_type_size_;
     GLsizei buffer_size_;

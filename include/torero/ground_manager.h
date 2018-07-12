@@ -4,12 +4,11 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "torero/definitions.h"
 #include "torero/line_grid.h"
 #include "torero/ground.h"
 #include "torero/shader.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 // signals and slots
@@ -20,7 +19,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class GroundManager
@@ -49,7 +48,7 @@ namespace Toreo {
     /*
      * ### Adding a new *Occupancy Grid*
      *
-     * This will add a new ground with values type `Visualizer::GroundGrid`, you must
+     * This will add a new ground with values type `torero::GroundGrid`, you must
      * define the probabilities value. You may choose to display different grid's height
      * proportional to its probability. White is for free space, black for occupied space and
      * middle grey for unkonw (may also be for probability ~50%). It will return the
@@ -57,7 +56,7 @@ namespace Toreo {
      * the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::GroundGrid>*} ground = Address to the ground data
+     * {const std::vector<torero::GroundGrid>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
      * {const float} width = Ground's width in meters.
@@ -66,7 +65,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      * {const bool} calculate_height = If true calculates a proportional height for each grid
@@ -77,25 +76,25 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::GroundGrid> *ground,
+    GMid add(const std::vector<torero::GroundGrid> *ground,
              const std::string name,
              const float width = 100.0f,
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true,
              const bool calculate_height = true,
              const float maximum_height = 2.0f);
     /*
      * ### Adding a new *uniform* two-dimensional ground
      *
-     * This will add a new ground with values type `Visualizer::Ground2D`, you must also
+     * This will add a new ground with values type `torero::Ground2D`, you must also
      * define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::Ground2D>*} ground = Address to the ground data
+     * {const std::vector<torero::Ground2D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
      * {const float} width = Ground's width in meters.
@@ -104,7 +103,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -112,23 +111,23 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::Ground2D> *ground,
+    GMid add(const std::vector<torero::Ground2D> *ground,
              const std::string name,
              const float width = 100.0f,
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new *uniform* three-dimensional ground
      *
-     * This will add a new ground with values type `Visualizer::Ground3D`, you must also
+     * This will add a new ground with values type `torero::Ground3D`, you must also
      * define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::Ground3D>*} trajectories = Address to the ground data
+     * {const std::vector<torero::Ground3D>*} trajectories = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
      * {const float} width = Ground's width in meters.
@@ -137,7 +136,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -145,27 +144,27 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::Ground3D> *ground,
+    GMid add(const std::vector<torero::Ground3D> *ground,
              const std::string name,
              const float width = 100.0f,
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new two-dimensional ground
      *
-     * This will add a new ground with values type `Visualizer::FreeGround2D`, with this **data
+     * This will add a new ground with values type `torero::FreeGround2D`, with this **data
      * type** you can define a **position** and **size** for each segment. You must also
      * define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::FreeGround2D>*} ground = Address to the ground data
+     * {const std::vector<torero::FreeGround2D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -173,23 +172,23 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::FreeGround2D> *ground,
+    GMid add(const std::vector<torero::FreeGround2D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new three-dimensional ground
      *
-     * This will add a new ground with values type `Visualizer::FreeGround3D`, with this **data
+     * This will add a new ground with values type `torero::FreeGround3D`, with this **data
      * type** you can define a **position**, **size** and **height** for each segment. You must
      * also define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::FreeGround3D>*} ground = Address to the ground data
+     * {const std::vector<torero::FreeGround3D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -197,23 +196,23 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::FreeGround3D> *ground,
+    GMid add(const std::vector<torero::FreeGround3D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new two-dimensional ground that uses polar values
      *
-     * This will add a new ground with values type `Visualizer::FreePolarGround2D`, with this **data
+     * This will add a new ground with values type `torero::FreePolarGround2D`, with this **data
      * type** you can define a **distance**, **angle** and **size** for each segment. You must also
      * define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::FreePolarGround2D>*} ground = Address to the ground data
+     * {const std::vector<torero::FreePolarGround2D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -221,23 +220,23 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::FreePolarGround2D> *ground,
+    GMid add(const std::vector<torero::FreePolarGround2D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new three-dimensional ground that uses polar values
      *
-     * This will add a new ground with values type `Visualizer::FreePolarGround3D`, with this **data
+     * This will add a new ground with values type `torero::FreePolarGround3D`, with this **data
      * type** you can define a **position**, **size** and **height** for each segment. You must
      * also define a **RGBA color** to color each segment. It will return the ground's **ID**,
      * this will be useful if you want to modify properties or values of the created ground.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::FreePolarGround3D>*} ground = Address to the ground data
+     * {const std::vector<torero::FreePolarGround3D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -245,9 +244,9 @@ namespace Toreo {
      * {GMid} Ground identification number (use it for future modifications)
      *
      */
-    GMid add(const std::vector<Visualizer::FreePolarGround3D> *ground,
+    GMid add(const std::vector<torero::FreePolarGround3D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Changing the ground data input: uniform 2D ground
@@ -257,14 +256,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const std::vector<Visualizer::Ground2D>*} trajectories = new address to a 3D ground's
+     * {const std::vector<torero::Ground2D>*} trajectories = new address to a 3D ground's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool change_input(GMid id, const std::vector<Visualizer::Ground2D> *ground);
+    bool change_input(GMid id, const std::vector<torero::Ground2D> *ground);
     /*
      * ### Changing the ground data input: uniform 3D ground
      *
@@ -273,14 +272,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const std::vector<Visualizer::Ground3D>*} trajectories = new address to a 3D ground's
+     * {const std::vector<torero::Ground3D>*} trajectories = new address to a 3D ground's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool change_input(GMid id, const std::vector<Visualizer::Ground3D> *ground);
+    bool change_input(GMid id, const std::vector<torero::Ground3D> *ground);
     /*
      * ### Changing the ground data input: 2D ground
      *
@@ -289,14 +288,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const std::vector<Visualizer::FreeGround2D>*} trajectories = new address to a 3D ground's
+     * {const std::vector<torero::FreeGround2D>*} trajectories = new address to a 3D ground's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool change_input(GMid id, const std::vector<Visualizer::FreeGround2D> *ground);
+    bool change_input(GMid id, const std::vector<torero::FreeGround2D> *ground);
     /*
      * ### Changing the ground data input: 3D ground
      *
@@ -305,14 +304,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const std::vector<Visualizer::FreeGround3D>*} trajectories = new address to a 3D ground's
+     * {const std::vector<torero::FreeGround3D>*} trajectories = new address to a 3D ground's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool change_input(GMid id, const std::vector<Visualizer::FreeGround3D> *ground);
+    bool change_input(GMid id, const std::vector<torero::FreeGround3D> *ground);
     /*
      * ### Changing the ground data input: polar 2D ground
      *
@@ -321,14 +320,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const std::vector<Visualizer::FreePolarGround2D>*} trajectories = new address to a 3D ground's
+     * {const std::vector<torero::FreePolarGround2D>*} trajectories = new address to a 3D ground's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool change_input(GMid id, const std::vector<Visualizer::FreePolarGround2D> *ground);
+    bool change_input(GMid id, const std::vector<torero::FreePolarGround2D> *ground);
     /*
      * ### Changing the ground data input: polar 3D ground
      *
@@ -337,14 +336,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const std::vector<Visualizer::FreePolarGround3D>*} trajectories = new address to a 3D ground's
+     * {const std::vector<torero::FreePolarGround3D>*} trajectories = new address to a 3D ground's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool change_input(GMid id, const std::vector<Visualizer::FreePolarGround3D> *ground);
+    bool change_input(GMid id, const std::vector<torero::FreePolarGround3D> *ground);
     /*
      * ### Adding fog to the scene
      *
@@ -374,7 +373,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} line_quantity_through_length = Quantity of lines along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      *
      * **Returns**
@@ -385,7 +384,7 @@ namespace Toreo {
                   const float length = 100.0f,
                   const unsigned int line_quantity_through_width = 100u,
                   const unsigned int line_quantity_through_length = 100u,
-                  const Algebraica::mat4f *transformation_matrix = nullptr);
+                  const algebraica::mat4f *transformation_matrix = nullptr);
     /*
      * ### Changing the lines' color
      *
@@ -478,14 +477,14 @@ namespace Toreo {
      * the transformation matrix, then, it will take the "fixed frame" transformation matrix.
      *
      * **Arguments**
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      *
      * **Returns**
      * {bool} Returns `false` if the line grid **has not been** created.
      *
      */
-    bool grid_transformation_matrix(const Algebraica::mat4f *transformation_matrix = nullptr);
+    bool grid_transformation_matrix(const algebraica::mat4f *transformation_matrix = nullptr);
     /*
      * ### Changing the line grid's visibility
      *
@@ -543,13 +542,13 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
+     * {const algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool set_transformation_matrix(GMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(GMid id, const algebraica::mat4f *transformation_matrix);
     /*
      * ### Translating the ground
      *
@@ -742,7 +741,7 @@ namespace Toreo {
     GLint u_point_light_color_ground_, u_directional_light_ground_;
     GLint u_directional_light_color_ground_, u_camera_position_ground_;
 
-    std::vector<Visualizer::GroundElement> grounds_;
+    std::vector<torero::GroundElement> grounds_;
 
     LineGrid *grid_;
     Shader *line_shader_;

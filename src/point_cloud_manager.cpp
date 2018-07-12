@@ -1,7 +1,7 @@
 #include "torero/point_cloud_manager.h"
 #include "torero/core.h"
 
-namespace Toreo {
+namespace torero {
   PointCloudManager::PointCloudManager(Core *core) :
     core_(core),
     shader_(new Shader("resources/shaders/point_cloud.vert",
@@ -10,14 +10,14 @@ namespace Toreo {
     point_clouds_(0),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&PointCloudManager::updated_camera, this))),
-    signal_draw_all_(core->syncronize(Visualizer::POINT_CLOUDS)->
+    signal_draw_all_(core->syncronize(torero::Order::PointClouds)->
                      connect(boost::bind(&PointCloudManager::draw_all, this)))
   {
     shader_->set_value(u_pv_, core->camera_matrix_perspective_view());
   }
 
   PointCloudManager::~PointCloudManager(){
-    for(Visualizer::PointCloudElement &cloud : point_clouds_)
+    for(torero::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud){
         if(cloud.connection.connected())
           cloud.connection.disconnect();
@@ -38,32 +38,34 @@ namespace Toreo {
   }
 
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZ> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<torero::PointXYZ> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const float color_red, const float color_green,
                                const float color_blue, const bool visible,
                                const float point_size, const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
-                                            maximum_intensity_value), name, visible };
+    torero::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                        maximum_intensity_value), name, visible,
+                                        boost::signals2::connection()};
 
     cloud.point_cloud->set_transformation_matrix(transformation_matrix);
     cloud.point_cloud->set_cloud(point_cloud);
-    cloud.point_cloud->set_color_palette(Visualizer::ColorRGB{color_red, color_green, color_blue});
-    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::SOLID);
+    cloud.point_cloud->set_color_palette(torero::ColorRGB{color_red, color_green, color_blue});
+    cloud.point_cloud->set_color_mode(torero::ColorMode::Solid);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZI> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<torero::PointXYZI> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
-                               const Visualizer::ColorMode color_mode,
+                               const algebraica::mat4f *transformation_matrix,
+                               const torero::ColorMode color_mode,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
-                                            maximum_intensity_value), name, visible };
+    torero::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible,
+                                        boost::signals2::connection()};
 
     cloud.point_cloud->set_transformation_matrix(transformation_matrix);
     cloud.point_cloud->set_cloud(point_cloud);
@@ -73,50 +75,53 @@ namespace Toreo {
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZRGB> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<torero::PointXYZRGB> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
-                                            maximum_intensity_value), name, visible };
+    torero::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible,
+                                        boost::signals2::connection()};
 
     cloud.point_cloud->set_transformation_matrix(transformation_matrix);
     cloud.point_cloud->set_cloud(point_cloud);
-    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::DATA);
+    cloud.point_cloud->set_color_mode(torero::ColorMode::Data);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZRGBI> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<torero::PointXYZRGBI> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const bool visible,
                                const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
-                                            maximum_intensity_value), name, visible };
+    torero::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible,
+                                        boost::signals2::connection()};
 
     cloud.point_cloud->set_transformation_matrix(transformation_matrix);
     cloud.point_cloud->set_cloud(point_cloud);
-    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::DATA);
+    cloud.point_cloud->set_color_mode(torero::ColorMode::Data);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
   }
 
-  PCMid PointCloudManager::add(const std::vector<Visualizer::PointXYZRGBA> *point_cloud,
+  PCMid PointCloudManager::add(const std::vector<torero::PointXYZRGBA> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
-    Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_size,
-                                            maximum_intensity_value), name, visible };
+    torero::PointCloudElement cloud = { new PointCloud(shader_, point_size,
+                                            maximum_intensity_value), name, visible,
+                                        boost::signals2::connection()};
 
     cloud.point_cloud->set_transformation_matrix(transformation_matrix);
     cloud.point_cloud->set_cloud(point_cloud);
-    cloud.point_cloud->set_color_mode(Visualizer::ColorMode::DATA);
+    cloud.point_cloud->set_color_mode(torero::ColorMode::Data);
 
     point_clouds_.push_back(cloud);
     return point_clouds_.size() - 1;
@@ -130,7 +135,7 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::set_colormap(PCMid id, const Visualizer::ColorRGB color){
+  bool PointCloudManager::set_colormap(PCMid id, const torero::ColorRGB color){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
         point_clouds_[id].point_cloud->set_color_palette(color);
@@ -141,7 +146,7 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::set_colormap(PCMid id, const std::vector<Visualizer::ColorRGB> &colors){
+  bool PointCloudManager::set_colormap(PCMid id, const std::vector<torero::ColorRGB> &colors){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
         point_clouds_[id].point_cloud->set_color_palette(colors);
@@ -152,7 +157,7 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::set_color_mode(PCMid id, const Visualizer::ColorMode color_mode){
+  bool PointCloudManager::set_color_mode(PCMid id, const torero::ColorMode color_mode){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
         point_clouds_[id].point_cloud->set_color_mode(color_mode);
@@ -164,7 +169,7 @@ namespace Toreo {
   }
 
   bool PointCloudManager::set_transformation_matrix(PCMid id,
-                                                    const Algebraica::mat4f *transformation_matrix){
+                                                    const algebraica::mat4f *transformation_matrix){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
         point_clouds_[id].point_cloud->set_transformation_matrix(transformation_matrix);
@@ -242,7 +247,7 @@ namespace Toreo {
   }
 
   void PointCloudManager::update_all(){
-    for(Visualizer::PointCloudElement &cloud : point_clouds_)
+    for(torero::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud != nullptr && cloud.visibility)
         cloud.point_cloud->update();
   }
@@ -259,7 +264,7 @@ namespace Toreo {
   }
 
   void PointCloudManager::draw_all(){
-    for(Visualizer::PointCloudElement &cloud : point_clouds_)
+    for(torero::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud != nullptr && cloud.visibility)
         cloud.point_cloud->draw();
   }
@@ -279,7 +284,7 @@ namespace Toreo {
   }
 
   void PointCloudManager::purge(){
-    for(Visualizer::PointCloudElement &cloud : point_clouds_)
+    for(torero::PointCloudElement &cloud : point_clouds_)
       if(cloud.point_cloud != nullptr){
         if(cloud.connection.connected())
           cloud.connection.disconnect();

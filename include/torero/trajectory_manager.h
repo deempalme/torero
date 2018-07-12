@@ -4,11 +4,10 @@
 // OpenGL loader and core library
 #include "glad/glad.h"
 
-#include "torero/definitions.h"
-#include "torero/trajectory.h"
+#include "torero/trajectories.h"
 #include "torero/shader.h"
 #include "torero/texture.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 #include "algebraica/algebraica.h"
 // signals and slots
@@ -19,7 +18,7 @@
 #include <string>
 #include <vector>
 
-namespace Toreo {
+namespace torero {
   class Core;
 
   class TrajectoryManager
@@ -48,17 +47,17 @@ namespace Toreo {
     /*
      * ### Adding a new 3D trajectory
      *
-     * This will add a new trajectory with values type `Visualizer::Trajectory`, you must also
+     * This will add a new trajectory with values type `torero::Trajectory`, you must also
      * define a **RGB color** to color all the points. It will return the trajectory's **ID**,
      * this will be useful if you want to modify properties or values of the created trajectory.
      *
      * **Arguments**
-     * {const std::vector<Visualizer::Trajectory>*} trajectories = Address to the trajectory data
+     * {const std::vector<torero::Trajectory>*} trajectories = Address to the trajectory data
      * (see data types for more information).
      * {const std::string} name = Title to display for this trajectory.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
-     * {const Visualizer::LineType} type = Type of line's appearance (see the description of
+     * {const torero::LineType} type = Type of line's appearance (see the description of
      * data types for more information).
      * {const bool} visible = Visibility of this trajectory.
      *
@@ -66,10 +65,10 @@ namespace Toreo {
      * {TMid} Trajectory identification number (use it for future modifications)
      *
      */
-    TMid add(const std::vector<Visualizer::Trajectory> *trajectories,
+    TMid add(const std::vector<torero::Trajectory> *trajectories,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
-             const Visualizer::LineType type = Visualizer::SOLID,
+             const algebraica::mat4f *transformation_matrix = nullptr,
+             const torero::LineType type = torero::Solid,
              const bool visible = true);
     /*
      * ### Changing the trajectory data input
@@ -79,14 +78,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {TMid} id = **id** of the trajectory you want to modify.
-     * {const std::vector<Visualizer::Trajectory>*} trajectories = new address to a 3D trajectory's
+     * {const std::vector<torero::Trajectory>*} trajectories = new address to a 3D trajectory's
      * data.
      *
      * **Returns**
      * {bool} Returns `false` if the trajectory with **id** was **not** found.
      *
      */
-    bool change_input(TMid id, const std::vector<Visualizer::Trajectory> *trajectories);
+    bool change_input(TMid id, const std::vector<torero::Trajectory> *trajectories);
     /*
      * ### Changing the line type of a trajectory
      *
@@ -95,14 +94,14 @@ namespace Toreo {
      *
      * **Arguments**
      * {TMid} id = **id** of the trajectory you want to modify.
-     * {const Visualizer::LineType} type = Type of line's appearance (see the description of
+     * {const torero::LineType} type = Type of line's appearance (see the description of
      * data types for more information).
      *
      * **Returns**
      * {bool} Returns `false` if the trajectory with **id** was **not** found.
      *
      */
-    bool set_type(TMid id, const Visualizer::LineType type = Visualizer::SOLID);
+    bool set_type(TMid id, const torero::LineType type = torero::Solid);
     /*
      * ### Changing the visibility of a trajectory
      *
@@ -125,13 +124,13 @@ namespace Toreo {
      *
      * **Arguments**
      * {TMid} id = **id** of the trajectory you want to modify.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
+     * {const algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
      *
      * **Returns**
      * {bool} Returns `false` if the trajectory with **id** was **not** found.
      *
      */
-    bool set_transformation_matrix(TMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(TMid id, const algebraica::mat4f *transformation_matrix);
     /*
      * ### Translating the trajectory
      *
@@ -322,7 +321,7 @@ namespace Toreo {
     Shader *shader_;
     GLint u_pv_, u_point_light_, u_point_light_color_, u_directional_light_;
     GLint u_directional_light_color_, u_camera_position_;
-    std::vector<Visualizer::TrajectoryElement> trajectories_;
+    std::vector<torero::TrajectoryElement> trajectories_;
     Texture *solid_, *dotted_, *dashed_, *arrowed_;
 
     boost::signals2::connection signal_updated_camera_, signal_draw_all_;

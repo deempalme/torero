@@ -1,7 +1,7 @@
 
 #include "algebraica/vec2.h"
 
-namespace Algebraica {
+namespace algebraica {
   ALGTEM T& vec2<T>::operator[](const unsigned int index){
     return values_[index];
   }

@@ -1,7 +1,7 @@
 #include "algebraica/vec3.h"
 #include "algebraica/quaternion.h"
 
-namespace Algebraica {
+namespace algebraica {
   ALGTEM T& vec3<T>::operator[](const unsigned int index){
     assert(index >= 0 && index < 3);
     return values_[index];

@@ -6,10 +6,9 @@
 #include <GLFW/glfw3.h>
 
 #include "torero/camera.h"
-#include "torero/definitions.h"
 #include "torero/multithread_manager.h"
 #include "torero/screen_conversor.h"
-#include "torero/types.h"
+#include "torero/type_definitions.h"
 
 // linear mathematical functions
 #include "algebraica/algebraica.h"
@@ -20,7 +19,7 @@
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
-namespace Toreo {
+namespace torero {
   class ModelManager;
   class VehicleManager;
 
@@ -53,33 +52,33 @@ namespace Toreo {
      *
      * Returns the **perspective** transformation matrix, this matrix is calculated using
      * **perspective** matrix transformation with window's width and height as parameters
-     * to get the aspect radio. A near plane with value `NEAR_PLANE`, far plane with value
-     * `FAR_PLANE` and field of view with value `FIELD_OF_VIEW`.
+     * to get the aspect radio. A near plane with value `kNearPlane`, far plane with value
+     * `kFarPlane` and field of view with value `kFieldOfView`.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
+     * {const algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_perspective();
-    const Algebraica::mat4f &camera_matrix_perspective_inversed();
+    const algebraica::mat4f &camera_matrix_perspective();
+    const algebraica::mat4f &camera_matrix_perspective_inversed();
     /*
      * ### Obtaining the multiplied matrix between perspective and view matrices
      *
      * Returns the multiplied matrix between **perspective and view** transformation matrices.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
+     * {const algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
      * camera matrices multiplication.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_perspective_view();
-    const Algebraica::mat4f &camera_matrix_perspective_view_inversed();
+    const algebraica::mat4f &camera_matrix_perspective_view();
+    const algebraica::mat4f &camera_matrix_perspective_view_inversed();
     /*
      * ### Obtaining the non-translated multiplied matrix between perspective and view matrices
      *
@@ -88,15 +87,15 @@ namespace Toreo {
      * pv_matrix and **not translations**.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
+     * {const algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
      * camera matrices multiplication WITHOUT translation (only rotation).
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_perspective_view_static();
-    const Algebraica::mat4f &camera_matrix_perspective_view_static_inversed();
+    const algebraica::mat4f &camera_matrix_perspective_view_static();
+    const algebraica::mat4f &camera_matrix_perspective_view_static_inversed();
     /*
      * ### Obtaining the view transformation matrix
      *
@@ -104,28 +103,28 @@ namespace Toreo {
      * **look at** matrix transformation with the camera as parameter.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
+     * {const algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_view();
-    const Algebraica::mat4f &camera_matrix_view_inversed();
+    const algebraica::mat4f &camera_matrix_view();
+    const algebraica::mat4f &camera_matrix_view_inversed();
     /*
      * ### Obtaining the camera position
      *
      * This function returns a 3D vector with the camera position in X, Y and Z.
      *
      * **Returns**
-     * {const Algebraica::vec3f} 3D vector width camera position.
+     * {const algebraica::vec3f} 3D vector width camera position.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::vec3f &camera_position();
-    const Algebraica::vec3f &camera_relative_position();
+    const algebraica::vec3f &camera_position();
+    const algebraica::vec3f &camera_relative_position();
     /*
      * ### Rotating the camera
      *
@@ -144,7 +143,7 @@ namespace Toreo {
      *
      */
 //    void camera_rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
-    void camera_rotate(const Algebraica::quaternionF quaternion);
+    void camera_rotate(const algebraica::quaternionF quaternion);
     /*
      * ### Setting camera position
      *
@@ -331,13 +330,13 @@ namespace Toreo {
      * [[coordinate system|Coordinate-systems#fixed-frame]] for more information).
      *
      * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **fixed frame** transformation matrix.
+     * {const algebraica::mat4f *const} Address to the **fixed frame** transformation matrix.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f *frame_global() const;
+    const algebraica::mat4f *frame_global() const;
     /*
      * ### Obtaining the "vehicle frame" transformation matrix
      *
@@ -346,14 +345,14 @@ namespace Toreo {
      * [[coordinate system|Coordinate-systems#vehicle-frame]] for more information).
      *
      * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **vehicle frame** transformation matrix.
+     * {const algebraica::mat4f *const} Address to the **vehicle frame** transformation matrix.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f *frame_vehicle() const;
-    const Algebraica::mat4f *frame_vehicle_yaw() const;
+    const algebraica::mat4f *frame_vehicle() const;
+    const algebraica::mat4f *frame_vehicle_yaw() const;
     /*
      * ### Obtaining the "navigation frame" transformation matrix
      *
@@ -362,14 +361,14 @@ namespace Toreo {
      * [[coordinate system|Coordinate-systems#navigation-frame]] for more information).
      *
      * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **navigation frame** transformation matrix.
+     * {const algebraica::mat4f *const} Address to the **navigation frame** transformation matrix.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f *frame_navigation() const;
-    const Algebraica::mat4f *frame_navigation_plus() const;
+    const algebraica::mat4f *frame_navigation() const;
+    const algebraica::mat4f *frame_navigation_plus() const;
     /*
      * ### Full screen window
      *
@@ -385,7 +384,7 @@ namespace Toreo {
      *
      */
     void full_screen(const bool make_full = true);
-    const double get_time();
+    double get_time();
     const int *height() const;
     /*
      * ### Maximize window
@@ -411,8 +410,8 @@ namespace Toreo {
      * This will return error if the window was not created properly.
      *
      */
-    void message_handler(const std::string message, const Visualizer::Message message_type);
-    void message_handler(const unsigned int message, const Visualizer::Message message_type);
+    void message_handler(const std::string message, const torero::Message message_type);
+    void message_handler(const unsigned int message, const torero::Message message_type);
     /*
      * ### Minimize window
      *
@@ -427,9 +426,9 @@ namespace Toreo {
      *
      */
     void minimize(const bool minimized = true);
-    const int move_frame();
+    int move_frame();
     bool *mover();
-    const bool paused();
+    const bool &paused();
     /*
      * ### Processing all pending events
      *
@@ -466,7 +465,7 @@ namespace Toreo {
      */
     bool *screen_changer();
     ScreenConversor *screen_conversor();
-    const GLfloat screen_max_anisotropic_filtering();
+    const GLfloat &screen_max_anisotropic_filtering();
     void screen_paint();
     /*
      * ### Redrawing the window's screen
@@ -492,7 +491,7 @@ namespace Toreo {
      *
      */
     void screen_swap_buffers();
-    void set_cursor(const Visualizer::Cursor type);
+    void set_cursor(const torero::Cursor type);
     bool set_module(ModelManager *model_manager);
     /*
      * ### Setting the vehicle management class
@@ -606,12 +605,12 @@ namespace Toreo {
     /*
      * ### Sincronizing your code with custom signals
      *
-     * This functions returns a signal using the **enumerator** `Visualizer::Order`, use it
+     * This functions returns a signal using the **enumerator** `torero::Order`, use it
      * to connect it to your own functions. This signal is triggered when the *class manager*
      * with name equal to this **enumerator** is drawn in screen.
      *
      * **Arguments**
-     * {enum Visualizer::Order} object = *Class manager* name.
+     * {enum torero::Order} object = *Class manager* name.
      *
      * **Returns**
      * This returns a **boost signal** that you could use to connect your code.
@@ -620,7 +619,7 @@ namespace Toreo {
      * This will return error if the window was not created properly.
      *
      */
-    boost::signals2::signal<void ()> *syncronize(const Visualizer::Order object);
+    boost::signals2::signal<void ()> *syncronize(const torero::Order object);
     /*
      * ### Signal triggered by camera changes
      *
@@ -665,16 +664,16 @@ namespace Toreo {
     virtual void resize(const int width, const int height);
 
   private:
-    static void callback_resize(GLFWwindow *window, int width, int height);
-    static void callback_mouse_click(GLFWwindow *window, int button, int action, int mods);
-    static void callback_mouse_move(GLFWwindow *window, double xpos, double ypos);
-    static void callback_mouse_scroll(GLFWwindow *window, double xoffset, double yoffset);
-    static void callback_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+    static void callback_resize(GLFWwindow */*window*/, int width, int height);
+    static void callback_mouse_click(GLFWwindow */*window*/, int button, int action, int mods);
+    static void callback_mouse_move(GLFWwindow */*window*/, double xpos, double ypos);
+    static void callback_mouse_scroll(GLFWwindow */*window*/, double /*xoffset*/, double yoffset);
+    static void callback_key_callback(GLFWwindow */*window*/, int key, int scancode, int action, int mods);
 
     void event_mouse_click(int button, int action, int mods);
     void event_mouse_move(double xpos, double ypos);
     void event_mouse_scroll(double yoffset);
-    void event_key_callback(int key, int scancode, int action, int mods);
+    void event_key_callback(int key, int /*scancode*/, int action, int /*mods*/);
 
     void updated_camera();
     void load_window_icon();
@@ -693,9 +692,9 @@ namespace Toreo {
     int frame_mover_;
 
     GLfloat max_filtering_;
-    Algebraica::mat4f global_frame_, vehicle_frame_, vehicle_frame_yaw_;
-    Algebraica::mat4f navigation_frame_, navigation_plus_frame_;
-    Algebraica::mat4f inversed_vehicle_frame_;
+    algebraica::mat4f global_frame_, vehicle_frame_, vehicle_frame_yaw_;
+    algebraica::mat4f navigation_frame_, navigation_plus_frame_;
+    algebraica::mat4f inversed_vehicle_frame_;
     Camera camera_;
 
     VehicleManager *vehicle_;

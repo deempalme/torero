@@ -3,7 +3,7 @@
 // Image loader
 #include "stb_image.h"
 
-namespace Toreo {
+namespace torero {
   TrajectoryManager::TrajectoryManager(Core *core) :
     core_(core),
     shader_(new Shader("resources/shaders/trajectory.vert",
@@ -22,14 +22,14 @@ namespace Toreo {
     arrowed_(nullptr),
     signal_updated_camera_(core->signal_updated_camera()->
                            connect(boost::bind(&TrajectoryManager::updated_camera, this))),
-    signal_draw_all_(core->syncronize(Visualizer::TRAJECTORIES)->
+    signal_draw_all_(core->syncronize(torero::Order::Trajectories)->
                      connect(boost::bind(&TrajectoryManager::draw_all, this)))
   {
     initialize();
   }
 
   TrajectoryManager::~TrajectoryManager(){
-    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
+    for(torero::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr){
         if(trajectory.connection.connected())
           trajectory.connection.disconnect();
@@ -57,13 +57,13 @@ namespace Toreo {
       delete shader_;
   }
 
-  TMid TrajectoryManager::add(const std::vector<Visualizer::Trajectory> *trajectories,
+  TMid TrajectoryManager::add(const std::vector<torero::Trajectory> *trajectories,
                               const std::string name,
-                              const Algebraica::mat4f *transformation_matrix,
-                              const Visualizer::LineType type,
+                              const algebraica::mat4f *transformation_matrix,
+                              const torero::LineType type,
                               const bool visible){
-    Visualizer::TrajectoryElement trajectory = { new Trajectory(shader_, trajectories),
-                                                 type, name, visible };
+    torero::TrajectoryElement trajectory = { new Trajectories(shader_, trajectories),
+                                             type, name, visible, boost::signals2::connection() };
     if(transformation_matrix != nullptr)
       trajectory.trajectory->set_transformation_matrix(transformation_matrix);
 
@@ -72,7 +72,7 @@ namespace Toreo {
   }
 
   bool TrajectoryManager::change_input(TMid id,
-                                       const std::vector<Visualizer::Trajectory> *trajectory){
+                                       const std::vector<torero::Trajectory> *trajectory){
     if(trajectories_.size() > id)
       if(trajectories_[id].trajectory != nullptr){
         trajectories_[id].trajectory->change_input(trajectory);
@@ -83,7 +83,7 @@ namespace Toreo {
       return false;
   }
 
-  bool TrajectoryManager::set_type(TMid id, const Visualizer::LineType type){
+  bool TrajectoryManager::set_type(TMid id, const torero::LineType type){
     if(trajectories_.size() > id)
       if(trajectories_[id].trajectory != nullptr){
         trajectories_[id].type = type;
@@ -103,7 +103,7 @@ namespace Toreo {
   }
 
   bool TrajectoryManager::set_transformation_matrix(TMid id,
-                                                    const Algebraica::mat4f *transformation_matrix){
+                                                    const algebraica::mat4f *transformation_matrix){
     if(trajectories_.size() > id)
       if(trajectories_[id].trajectory != nullptr){
         trajectories_[id].trajectory->set_transformation_matrix(transformation_matrix);
@@ -181,7 +181,7 @@ namespace Toreo {
   }
 
   void TrajectoryManager::update_all(){
-    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
+    for(torero::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr && trajectory.visibility)
         trajectory.trajectory->update();
   }
@@ -190,13 +190,13 @@ namespace Toreo {
     if(trajectories_.size() > id)
       if(trajectories_[id].trajectory != nullptr && trajectories_[id].visibility){
         switch(trajectories_[id].type){
-        case Visualizer::DOTTED:
+        case torero::Dotted:
           if(dotted_) dotted_->use();
           break;
-        case Visualizer::DASHED:
+        case torero::Dashed:
           if(dashed_) dashed_->use();
           break;
-        case Visualizer::ARROWED:
+        case torero::Arrowed:
           if(arrowed_) arrowed_->use();
           break;
         default:
@@ -212,16 +212,16 @@ namespace Toreo {
   }
 
   void TrajectoryManager::draw_all(){
-    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
+    for(torero::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr && trajectory.visibility){
         switch(trajectory.type){
-        case Visualizer::DOTTED:
+        case torero::Dotted:
           if(dotted_) dotted_->use();
           break;
-        case Visualizer::DASHED:
+        case torero::Dashed:
           if(dashed_) dashed_->use();
           break;
-        case Visualizer::ARROWED:
+        case torero::Arrowed:
           if(arrowed_) arrowed_->use();
           break;
         default:
@@ -247,7 +247,7 @@ namespace Toreo {
   }
 
   void TrajectoryManager::purge(){
-    for(Visualizer::TrajectoryElement &trajectory : trajectories_)
+    for(torero::TrajectoryElement &trajectory : trajectories_)
       if(trajectory.trajectory != nullptr){
         if(trajectory.connection.connected())
           trajectory.connection.disconnect();
@@ -287,20 +287,20 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f,-10.0f),
+      algebraica::vec3f( 10.0f, 10.0f,-10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(1.0f, 0.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 0.0f, 1.0f)
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 0.0f),
+      algebraica::vec3f(1.0f, 0.0f, 0.0f),
+      algebraica::vec3f(0.0f, 1.0f, 0.0f),
+      algebraica::vec3f(0.0f, 0.0f, 1.0f)
     };
 
-    Algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
+    algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
 
     shader_->set_value(u_directional_light_, sun_direction);
     shader_->set_value(u_directional_light_color_, sun_color);
@@ -308,7 +308,7 @@ namespace Toreo {
     shader_->set_values(u_point_light_color_, &lightColors[0], 4);
 
     stbi_set_flip_vertically_on_load(true);
-    Visualizer::ImageFile t_texture;
+    torero::ImageFile t_texture;
     // Solid texture
     t_texture.data = stbi_load(std::string("resources/models3D/trajectory/solid.png").c_str(),
                                &t_texture.width, &t_texture.height, &t_texture.components_size, 0);
