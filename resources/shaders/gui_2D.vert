@@ -2,7 +2,7 @@
 //GUI 2D vertex shader
 
 layout(location = 0) in vec2 i_position;
-layout(location = 1) in vec2 i_texture;
+layout(location = 1) in vec2 i_uv;
 layout(location = 2) in vec2 i_size;
 
 out vec2 o_texture;
@@ -21,7 +21,7 @@ void main()
 
   position.x = -position.x;
 
-  o_texture = i_texture / u_texture_size;
+  o_texture = i_uv / u_texture_size;
 
   gl_Position = vec4(position.yx, 0.0, 1.0);
 }

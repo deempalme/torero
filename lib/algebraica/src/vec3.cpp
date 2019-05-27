@@ -13,99 +13,99 @@ namespace algebraica {
   }
 
   ALGTEM vec3<T> vec3<T>::operator+(const vec3<T> &v){
-    return vec3<T>(values_[0] + v.x(), values_[1] + v.y(), values_[2] + v.z());
+    return vec3<T>(x + v.x, y + v.y, z + v.z);
   }
 
   ALGTEM const vec3<T> vec3<T>::operator+(const vec3<T> &v) const{
-    return vec3<T>(values_[0] + v.x(), values_[1] + v.y(), values_[2] + v.z());
+    return vec3<T>(x + v.x, y + v.y, z + v.z);
   }
 
   ALGTEM vec3<T> vec3<T>::operator-(const vec3<T> &v){
-    return vec3<T>(values_[0] - v.x(), values_[1] - v.y(), values_[2] - v.z());
+    return vec3<T>(x - v.x, y - v.y, z - v.z);
   }
 
   ALGTEM const vec3<T> vec3<T>::operator-(const vec3<T> &v) const{
-    return vec3<T>(values_[0] - v.x(), values_[1] - v.y(), values_[2] - v.z());
+    return vec3<T>(x - v.x, y - v.y, z - v.z);
   }
 
   ALGTEM vec3<T> vec3<T>::operator*(const vec3<T> &v){
-    return vec3<T>(values_[0] * v.x(), values_[1] * v.y(), values_[2] * v.z());
+    return vec3<T>(x * v.x, y * v.y, z * v.z);
   }
 
   ALGTEM const vec3<T> vec3<T>::operator*(const vec3<T> &v) const{
-    return vec3<T>(values_[0] * v.x(), values_[1] * v.y(), values_[2] * v.z());
+    return vec3<T>(x * v.x, y * v.y, z * v.z);
   }
 
   ALGTEM vec3<T> vec3<T>::operator*(const T s){
-    return vec3<T>(values_[0] * s, values_[1] * s, values_[2] * s);
+    return vec3<T>(x * s, y * s, z * s);
   }
 
   ALGTEM const vec3<T> vec3<T>::operator*(const T s) const{
-    return vec3<T>(values_[0] * s, values_[1] * s, values_[2] * s);
+    return vec3<T>(x * s, y * s, z * s);
   }
 
   ALGTEM vec3<T> vec3<T>::operator/(const vec3<T> &v){
-    return vec3<T>(values_[0] / v.x(), values_[1] / v.y(), values_[2] / v.z());
+    return vec3<T>(x / v.x, y / v.y, z / v.z);
   }
 
   ALGTEM const vec3<T> vec3<T>::operator/(const vec3<T> &v) const{
-    return vec3<T>(values_[0] / v.x(), values_[1] / v.y(), values_[2] / v.z());
+    return vec3<T>(x / v.x, y / v.y, z / v.z);
   }
 
   ALGTEM vec3<T> vec3<T>::operator/(const T s){
-    return vec3<T>(values_[0] / s, values_[1] / s, values_[2] / s);
+    return vec3<T>(x / s, y / s, z / s);
   }
 
   ALGTEM const vec3<T> vec3<T>::operator/(const T s) const{
-    return vec3<T>(values_[0] / s, values_[1] / s, values_[2] / s);
+    return vec3<T>(x / s, y / s, z / s);
   }
 
   ALGTEM vec3<T>& vec3<T>::operator+=(const vec3<T> &v){
-    values_[0] += v.x();
-    values_[1] += v.y();
-    values_[2] += v.z();
+    x += v.x;
+    y += v.y;
+    z += v.z;
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::operator-=(const vec3<T> &v){
-    values_[0] -= v.x();
-    values_[1] -= v.y();
-    values_[2] -= v.z();
+    x -= v.x;
+    y -= v.y;
+    z -= v.z;
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::operator*=(const vec3<T> &v){
-    values_[0] *= v.x();
-    values_[1] *= v.y();
-    values_[2] *= v.z();
+    x *= v.x;
+    y *= v.y;
+    z *= v.z;
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::operator*=(const T s){
-    values_[0] *= s;
-    values_[1] *= s;
-    values_[2] *= s;
+    x *= s;
+    y *= s;
+    z *= s;
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::operator/=(const vec3<T> &v){
-    values_[0] /= v.x();
-    values_[1] /= v.y();
-    values_[2] /= v.z();
+    x /= v.x;
+    y /= v.y;
+    z /= v.z;
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::operator/=(const T s){
-    values_[0] /= s;
-    values_[1] /= s;
-    values_[2] /= s;
+    x /= s;
+    y /= s;
+    z /= s;
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::operator++(){
-    ++values_[0];
-    ++values_[1];
-    ++values_[2];
+    ++x;
+    ++y;
+    ++z;
     return *this;
   }
 
@@ -116,9 +116,9 @@ namespace algebraica {
   }
 
   ALGTEM vec3<T>& vec3<T>::operator--(){
-    --values_[0];
-    --values_[1];
-    --values_[2];
+    --x;
+    --y;
+    --z;
     return *this;
   }
 
@@ -136,26 +136,26 @@ namespace algebraica {
   }
 
   ALGTEM bool vec3<T>::operator==(const vec3<T> &v){
-    return values_[0] == v.x() && values_[1] == v.y() && values_[2] == v.z();
+    return x == v.x && y == v.y && z == v.z;
   }
 
-  ALGTEM const bool vec3<T>::operator==(const vec3<T> &v) const{
-    return values_[0] == v.x() && values_[1] == v.y() && values_[2] == v.z();
+  ALGTEM bool vec3<T>::operator==(const vec3<T> &v) const{
+    return x == v.x && y == v.y && z == v.z;
   }
 
   ALGTEM bool vec3<T>::operator!=(const vec3<T> &v){
-    return !(values_[0] == v.x() && values_[1] == v.y() && values_[2] == v.z());
+    return !(x == v.x && y == v.y && z == v.z);
   }
 
-  ALGTEM const bool vec3<T>::operator!=(const vec3<T> &v) const{
-    return !(values_[0] == v.x() && values_[1] == v.y() && values_[2] == v.z());
+  ALGTEM bool vec3<T>::operator!=(const vec3<T> &v) const{
+    return !(x == v.x && y == v.y && z == v.z);
   }
 
   ALGTEM bool vec3<T>::operator>(const vec3<T> &v){
     return length() > v.length();
   }
 
-  ALGTEM const bool vec3<T>::operator>(const vec3<T> &v) const{
+  ALGTEM bool vec3<T>::operator>(const vec3<T> &v) const{
     return length() > v.length();
   }
 
@@ -163,7 +163,7 @@ namespace algebraica {
     return length() < v.length();
   }
 
-  ALGTEM const bool vec3<T>::operator<(const vec3<T> &v) const{
+  ALGTEM bool vec3<T>::operator<(const vec3<T> &v) const{
     return length() < v.length();
   }
 
@@ -171,7 +171,7 @@ namespace algebraica {
     return length() >= v.length();
   }
 
-  ALGTEM const bool vec3<T>::operator>=(const vec3<T> &v) const{
+  ALGTEM bool vec3<T>::operator>=(const vec3<T> &v) const{
     return length() >= v.length();
   }
 
@@ -179,7 +179,7 @@ namespace algebraica {
     return length() <= v.length();
   }
 
-  ALGTEM const bool vec3<T>::operator<=(const vec3<T> &v) const{
+  ALGTEM bool vec3<T>::operator<=(const vec3<T> &v) const{
     return length() <= v.length();
   }
 
@@ -192,11 +192,11 @@ namespace algebraica {
   }
 
   ALGTEM T vec3<T>::length(){
-    return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1] + values_[2] * values_[2]);
+    return std::sqrt(x * x + y * y + z * z);
   }
 
   ALGTEM const T vec3<T>::length() const{
-    return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1] + values_[2] * values_[2]);
+    return std::sqrt(x * x + y * y + z * z);
   }
 
   ALGTEM T vec3<T>::distance(const vec3<T> &first, const vec3<T> &second){
@@ -206,56 +206,56 @@ namespace algebraica {
   ALGTEM vec3<T>& vec3<T>::normalize(){
     T d(length());
     d = (d > 0)? 1/d : 0;
-    values_[0] *= d;
-    values_[1] *= d;
-    values_[2] *= d;
+    x *= d;
+    y *= d;
+    z *= d;
     return *this;
   }
 
   ALGTEM vec3<T> vec3<T>::normalize(vec3<T> v){
     T d{v.length()};
     d = (d > 0)? 1/d : 0;
-    return vec3<T>(d * v.x(), d * v.y(), d * v.z());
+    return vec3<T>(d * v.x, d * v.y, d * v.z);
   }
 
   ALGTEM vec3<T> vec3<T>::normalized(){
     T d(length());
     d = (d > 0)? 1/d : 0;
-    return vec3<T>(values_[0] * d, values_[1] * d, values_[2] * d);
+    return vec3<T>(x * d, y * d, z * d);
   }
 
   ALGTEM const vec3<T> vec3<T>::normalized() const{
     T d(length());
     d = (d > 0)? 1/d : 0;
-    return vec3<T>(values_[0] * d, values_[1] * d, values_[2] * d);
+    return vec3<T>(x * d, y * d, z * d);
   }
 
   ALGTEM vec3<T> vec3<T>::cross(const vec3<T> &u, const vec3<T> &v){
-    return vec3<T>(u.y() * v.z() - v.y() * u.z(),
-                   u.z() * v.x() - v.z() * u.x(),
-                   u.x() * v.y() - v.x() * u.y());
+    return vec3<T>(u.y * v.z - v.y * u.z,
+                   u.z * v.x - v.z * u.x,
+                   u.x * v.y - v.x * u.y);
   }
 
-  ALGTEM T vec3<T>::dot(vec3<T> &u, const vec3<T> &v){
+  ALGTEM T vec3<T>::dot(const vec3<T> &u, const vec3<T> &v){
     vec3<T> tmp(u * v);
-    return tmp.x() + tmp.y() + tmp.z();
+    return tmp.x + tmp.y + tmp.z;
   }
 
   ALGTEM vec3<T>& vec3<T>::rotateX(const T _angle) {
-    values_[1] = values_[1] * std::cos(_angle) - values_[2] * std::sin(_angle);
-    values_[2] = values_[1] * std::sin(_angle) + values_[2] * std::cos(_angle);
+    y = y * std::cos(_angle) - z * std::sin(_angle);
+    z = y * std::sin(_angle) + z * std::cos(_angle);
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::rotateY(const T _angle) {
-    values_[0] = values_[2] * std::sin(_angle) + values_[0] * std::cos(_angle);
-    values_[2] = values_[2] * std::cos(_angle) - values_[0] * std::sin(_angle);
+    x = z * std::sin(_angle) + x * std::cos(_angle);
+    z = z * std::cos(_angle) - x * std::sin(_angle);
     return *this;
   }
 
   ALGTEM vec3<T>& vec3<T>::rotateZ(const T _angle) {
-    values_[0] = values_[0] * std::cos(_angle) - values_[1] * std::sin(_angle);
-    values_[1] = values_[0] * std::sin(_angle) + values_[1] * std::cos(_angle);
+    x = x * std::cos(_angle) - y * std::sin(_angle);
+    y = x * std::sin(_angle) + y * std::cos(_angle);
     return *this;
   }
 

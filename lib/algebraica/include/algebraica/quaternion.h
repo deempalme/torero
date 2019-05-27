@@ -22,26 +22,26 @@ namespace algebraica {
   ALGTEM class quaternion
   {
   public:
-    quaternion(T x = 0, T y = 0, T z = 0, T w = 0) : values_{x, y, z, w} {}
+    quaternion(T x = 0, T y = 0, T z = 0, T w = 1) : values{x, y, z, w} {}
 
     quaternion(const quaternion<T> &q){ *this = q; }
 
-    quaternion(const vec4<T> &v) : values_{v[0], v[1], v[2], v[3]} {}
+    quaternion(const vec4<T> &v) : values{v[0], v[1], v[2], v[3]} {}
 
-    quaternion(const vec3<T> &v, const T w = 0) : values_{v[0], v[1], v[2], w} {}
+    quaternion(const vec3<T> &v, const T w = 1) : values{v[0], v[1], v[2], w} {}
 
-    quaternion(const vec2<T> &v, const T z = 0, const T w = 0) : values_{v[0], v[1], z, w} {}
+    quaternion(const vec2<T> &v, const T z = 0, const T w = 1) : values{v[0], v[1], z, w} {}
 
     // Access the constant value of each axis
-    const T x() const { return values_[0]; }
-    const T y() const { return values_[1]; }
-    const T z() const { return values_[2]; }
-    const T w() const { return values_[3]; }
+//    const T x() const { return values_[0]; }
+//    const T y() const { return values_[1]; }
+//    const T z() const { return values_[2]; }
+//    const T w() const { return values_[3]; }
     // Access the value of each axis
     T& operator[](const unsigned int index);
     const T& operator[](const unsigned int index) const;
     // Sets all the values
-    quaternion<T>& operator()(const T x = 0, const T y = 0, const T z = 0, const T w = 0);
+    quaternion<T>& operator()(const T x = 0, const T y = 0, const T z = 0, const T w = 1);
     // Calculates a quaternion from euler angles
     quaternion<T>& from_euler(const T pitch = 0, const T yaw = 0, const T roll = 0);
     static quaternion<T> euler_to_quaternion(const T pitch = 0, const T yaw = 0, const T roll = 0);
@@ -110,27 +110,52 @@ namespace algebraica {
     quaternion<T>& operator/=(const T &s);
     // Quaternion's printing output
     friend std::ostream& operator<<(std::ostream &os, const quaternion<T> &q){
-      return os << "quaternion(" << q.x() << ", " << q.y()
-                << ", "<< q.z() << ", " << q.w() << ") ";
+      return os << "quaternion(" << q.x << ", " << q.y << ", "<< q.z << ", " << q.w << ") ";
     }
     // Verifying if two quaternions are equal
     bool operator==(const quaternion<T> &q);
-    const bool operator==(const quaternion<T> &q) const;
+    bool operator==(const quaternion<T> &q) const;
     // Verifying if two quaternions are different
     bool operator!=(const quaternion<T> &q);
-    const bool operator!=(const quaternion<T> &q) const;
+    bool operator!=(const quaternion<T> &q) const;
     // Quaternion dimensional comparation (greater than)
     bool operator>(const quaternion<T> &q);
-    const bool operator>(const quaternion<T> &q) const;
+    bool operator>(const quaternion<T> &q) const;
     // Quaternion dimensional comparation (lesser than)
     bool operator<(const quaternion<T> &q);
-    const bool operator<(const quaternion<T> &q) const;
+    bool operator<(const quaternion<T> &q) const;
     // Quaternion dimensional comparation (greater or equal than)
     bool operator>=(const quaternion<T> &q);
-    const bool operator>=(const quaternion<T> &q) const;
+    bool operator>=(const quaternion<T> &q) const;
     // Quaternion dimensional comparation (lesser or equal than)
     bool operator<=(const quaternion<T> &q);
-    const bool operator<=(const quaternion<T> &q) const;
+    bool operator<=(const quaternion<T> &q) const;
+
+    // Casting
+    inline quaternion<int> to_int(){
+      return quaternion<int>(static_cast<int>(x), static_cast<int>(y),
+                             static_cast<int>(z), static_cast<int>(w));
+    }
+    inline quaternion<int> to_int() const{
+      return quaternion<int>(static_cast<int>(x), static_cast<int>(y),
+                             static_cast<int>(z), static_cast<int>(w));
+    }
+    inline quaternion<float> to_float(){
+      return quaternion<float>(static_cast<float>(x), static_cast<float>(y),
+                               static_cast<float>(z), static_cast<float>(w));
+    }
+    inline quaternion<float> to_float() const{
+      return quaternion<float>(static_cast<float>(x), static_cast<float>(y),
+                               static_cast<float>(z), static_cast<float>(w));
+    }
+    inline quaternion<double> to_double(){
+      return quaternion<double>(static_cast<double>(x), static_cast<double>(y),
+                                static_cast<double>(z), static_cast<double>(w));
+    }
+    inline quaternion<double> to_double() const{
+      return quaternion<double>(static_cast<double>(x), static_cast<double>(y),
+                                static_cast<double>(z), static_cast<double>(w));
+    }
     // Pointer to this quaternion data
     T* data();
     const T* data() const;
@@ -143,13 +168,25 @@ namespace algebraica {
     T length();
     const T length() const;
 
-  private:
-    T values_[4];
+//  private:
+    union {
+      struct {
+        T x;
+        T y;
+        T z;
+        T w;
+      };
+      T values[4];
+    };
   };
 
   typedef quaternion<double> quaternionD;
   typedef quaternion<float> quaternionF;
   typedef quaternion<int> quaternionI;
+
+  extern template class quaternion<double>;
+  extern template class quaternion<float>;
+  extern template class quaternion<int>;
 }
 
 #endif // ALGEBRAICA_QUATERNION_H

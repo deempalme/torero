@@ -4,384 +4,378 @@
 namespace algebraica {
   ALGTEM T& quaternion<T>::operator[](const unsigned int index){
     assert(index >= 0 && index < 4);
-    return values_[index];
+    return values[index];
   }
 
   ALGTEM const T& quaternion<T>::operator[](const unsigned int index) const{
     assert(index >= 0 && index < 4);
-    return values_[index];
+    return values[index];
   }
 
   ALGTEM quaternion<T>& quaternion<T>::operator()(const T x, const T y, const T z, const T w){
-    values_[0] = x;
-    values_[1] = y;
-    values_[2] = z;
-    values_[3] = w;
+    values[0] = x;
+    values[1] = y;
+    values[2] = z;
+    values[3] = w;
     return *this;
   }
 
   ALGTEM quaternion<T>& quaternion<T>::from_euler(const T pitch, const T yaw, const T roll){
-    const T two{T(2)};
-    const vec3<T> c(std::cos(yaw / two), std::cos(roll / two), std::cos(pitch / two));
-    const vec3<T> s(std::sin(yaw / two), std::sin(roll / two), std::sin(pitch / two));
+    const T half{static_cast<T>(0.5)};
+    const T cy {static_cast<T>(std::cos(yaw * half))};
+    const T sy {static_cast<T>(std::sin(yaw * half))};
+    const T cr {static_cast<T>(std::cos(roll * half))};
+    const T sr {static_cast<T>(std::sin(roll * half))};
+    const T cp {static_cast<T>(std::cos(pitch * half))};
+    const T sp {static_cast<T>(std::sin(pitch * half))};
 
-    values_[0] = s[0] * c[1] * c[2] - c[0] * s[1] * s[2];
-    values_[1] = c[0] * s[1] * c[2] + s[0] * c[1] * s[2];
-    values_[2] = c[0] * c[1] * s[2] - s[0] * s[1] * c[2];
-    values_[3] = c[0] * c[1] * c[2] + s[0] * s[1] * s[2];
+    x = cy * sr * cp - sy * cr * sp;
+    y = cy * cr * sp + sy * sr * cp;
+    z = sy * cr * cp - cy * sr * sp;
+    w = cy * cr * cp + sy * sr * sp;
 
     return *this;
   }
 
   ALGTEM quaternion<T> quaternion<T>::euler_to_quaternion(const T pitch, const T yaw, const T roll){
     quaternion<T> quat;
-    const T two{T(2)};
-    const vec3<T> c(std::cos(yaw / two), std::cos(roll / two), std::cos(pitch / two));
-    const vec3<T> s(std::sin(yaw / two), std::sin(roll / two), std::sin(pitch / two));
+    const T half{static_cast<T>(0.5)};
+    const T cy {static_cast<T>(std::cos(yaw * half))};
+    const T sy {static_cast<T>(std::sin(yaw * half))};
+    const T cr {static_cast<T>(std::cos(roll * half))};
+    const T sr {static_cast<T>(std::sin(roll * half))};
+    const T cp {static_cast<T>(std::cos(pitch * half))};
+    const T sp {static_cast<T>(std::sin(pitch * half))};
 
-    quat[0] = s[0] * c[1] * c[2] - c[0] * s[1] * s[2];
-    quat[1] = c[0] * s[1] * c[2] + s[0] * c[1] * s[2];
-    quat[2] = c[0] * c[1] * s[2] - s[0] * s[1] * c[2];
-    quat[3] = c[0] * c[1] * c[2] + s[0] * s[1] * s[2];
+    quat.x = cy * sr * cp - sy * cr * sp;
+    quat.y = cy * cr * sp + sy * sr * cp;
+    quat.z = sy * cr * cp - cy * sr * sp;
+    quat.w = cy * cr * cp + sy * sr * sp;
 
     return quat;
   }
 
   ALGTEM vec3<T> quaternion<T>::to_euler(){
-    vec3<T> euler;
-    const T one{1}, two{2};
-    const T sinr{two * (values_[3] * values_[0] + values_[1] * values_[2])};
-    const T cosr{one - two * (values_[0] * values_[0] + values_[1] * values_[1])};
+    vec3<double> euler;
+    const double sinr{2.0 * static_cast<double>(w * x + y * z)};
+    const double cosr{1.0 - 2.0 * static_cast<double>(x * x + y * y)};
     euler[2] = std::atan2(sinr, cosr);
 
-    const T sinp{two * (values_[3] * values_[1] - values_[2] * values_[0])};
-    if (std::fabs(sinp) >= one)
+    const double sinp{2.0 * static_cast<double>(w * y - z * x)};
+    if (std::fabs(sinp) >= 1.0)
       euler[0] = std::copysign(M_PI / 2.0, sinp);
     else
       euler[0] = std::asin(sinp);
 
-    const T siny{two * (values_[3] * values_[2] + values_[0] * values_[1])};
-    const T cosy{one - two * (values_[1] * values_[1] + values_[2] * values_[2])};
+    const double siny{2.0 * static_cast<double>(w * z + x * y)};
+    const double cosy{1.0 - 2.0 * static_cast<double>(y * y + z * z)};
     euler[1] = std::atan2(siny, cosy);
 
-    return euler;
+    return static_cast<T>(euler);
   }
 
   ALGTEM const vec3<T> quaternion<T>::to_euler() const{
-    vec3<T> euler;
-    const T one{1}, two{2};
-    const T sinr{two * (values_[3] * values_[0] + values_[1] * values_[2])};
-    const T cosr{one - two * (values_[0] * values_[0] + values_[1] * values_[1])};
+    vec3<double> euler;
+    const double sinr{2.0 * static_cast<double>(w * x + y * z)};
+    const double cosr{1.0 - 2.0 * static_cast<double>(x * x + y * y)};
     euler[2] = std::atan2(sinr, cosr);
 
-    const T sinp{two * (values_[3] * values_[1] - values_[2] * values_[0])};
-    if (std::fabs(sinp) >= one)
+    const double sinp{2.0 * static_cast<double>(w * y - z * x)};
+    if (std::fabs(sinp) >= 1.0)
       euler[0] = std::copysign(M_PI / 2.0, sinp);
     else
       euler[0] = std::asin(sinp);
 
-    const T siny{two * (values_[3] * values_[2] + values_[0] * values_[1])};
-    const T cosy{one - two * (values_[1] * values_[1] + values_[2] * values_[2])};
+    const double siny{2.0 * static_cast<double>(w * z + x * y)};
+    const double cosy{1.0 - 2.0 * static_cast<double>(y * y + z * z)};
     euler[1] = std::atan2(siny, cosy);
 
-    return euler;
+    return static_cast<T>(euler);
   }
 
   ALGTEM void quaternion<T>::to_euler(T *pitch, T *yaw, T *roll){
-    const T one{1}, two{2};
-    const T sinr{two * (values_[3] * values_[0] + values_[1] * values_[2])};
-    const T cosr{one - two * (values_[0] * values_[0] + values_[1] * values_[1])};
-    *roll = std::atan2(sinr, cosr);
+    const double sinr{2.0 * static_cast<double>(w * x + y * z)};
+    const double cosr{1.0 - 2.0 * static_cast<double>(x * x + y * y)};
+    *roll = static_cast<T>(std::atan2(sinr, cosr));
 
-    const T sinp{two * (values_[3] * values_[1] - values_[2] * values_[0])};
-    if (std::fabs(sinp) >= one)
-      *pitch = std::copysign(M_PI / 2.0, sinp);
+    const double sinp{2.0 * static_cast<double>(w * y - z * x)};
+    if (std::fabs(sinp) >= 1.0)
+      *pitch = static_cast<T>(std::copysign(M_PI / 2.0, sinp));
     else
-      *pitch = std::asin(sinp);
+      *pitch = static_cast<T>(std::asin(sinp));
 
-    const T siny{two * (values_[3] * values_[2] + values_[0] * values_[1])};
-    const T cosy{one - two * (values_[1] * values_[1] + values_[2] * values_[2])};
-    *yaw = std::atan2(siny, cosy);
+    const double siny{2.0 * static_cast<double>(w * z + x * y)};
+    const double cosy{1.0 - 2.0 * static_cast<double>(y * y + z * z)};
+    *yaw = static_cast<T>(std::atan2(siny, cosy));
   }
 
   ALGTEM void quaternion<T>::to_euler(T *pitch, T *yaw, T *roll) const{
-    const T one{1}, two{2};
-    const T sinr{two * (values_[3] * values_[0] + values_[1] * values_[2])};
-    const T cosr{one - two * (values_[0] * values_[0] + values_[1] * values_[1])};
-    *roll = std::atan2(sinr, cosr);
+    const double sinr{2.0 * static_cast<double>(w * x + y * z)};
+    const double cosr{1.0 - 2.0 * static_cast<double>(x * x + y * y)};
+    *roll = static_cast<T>(std::atan2(sinr, cosr));
 
-    const T sinp{two * (values_[3] * values_[1] - values_[2] * values_[0])};
-    if (std::fabs(sinp) >= one)
-      *pitch = std::copysign(M_PI / 2.0, sinp);
+    const double sinp{2.0 * static_cast<double>(w * y - z * x)};
+    if (std::fabs(sinp) >= 1.0)
+      *pitch = static_cast<T>(std::copysign(M_PI / 2.0, sinp));
     else
-      *pitch = std::asin(sinp);
+      *pitch = static_cast<T>(std::asin(sinp));
 
-    const T siny{two * (values_[3] * values_[2] + values_[0] * values_[1])};
-    const T cosy{one - two * (values_[1] * values_[1] + values_[2] * values_[2])};
-    *yaw = std::atan2(siny, cosy);
+    const double siny{2.0 * static_cast<double>(w * z + x * y)};
+    const double cosy{1.0 - 2.0 * static_cast<double>(y * y + z * z)};
+    *yaw = static_cast<T>(std::atan2(siny, cosy));
   }
 
   ALGTEM vec3<T> quaternion<T>::to_3D(){
-    return vec3<T>(values_[0], values_[1], values_[2]);
+    return vec3<T>(x, y, z);
   }
 
   ALGTEM const vec3<T> quaternion<T>::to_3D() const{
-    return vec3<T>(values_[0], values_[1], values_[2]);
+    return vec3<T>(x, y, z);
   }
 
   ALGTEM T quaternion<T>::angle(){
-    return T(std::acos(values_[3])) * T(2);
+    return T(std::acos(w)) * T(2);
   }
 
   ALGTEM const T quaternion<T>::angle() const{
-    return T(std::acos(values_[3])) * T(2);
+    return T(std::acos(w)) * T(2);
   }
 
   ALGTEM T quaternion<T>::pitch(){
-    const T two(2), one(1);
-    const T sinp(two * (values_[3] * values_[1] - values_[2] * values_[0]));
-//    if(std::fabs(sinp) >= one)
+    const double sinp(2.0 * static_cast<double>(w * y - z * x));
+//    if(std::fabs(sinp) >= 1.0)
 //      return T(std::copysign(M_PI_2, sinp));
 //    else
       return T(std::asin(sinp));
   }
 
   ALGTEM const T quaternion<T>::pitch() const{
-    const T two(2), one(1);
-//    const T sinp(two * (values_[3] * values_[1] - values_[2] * values_[0]));
-//    if(std::fabs(sinp) >= one)
+//    const T sinp(2.0 * (w * y - z * x));
+//    if(std::fabs(sinp) >= 1.0)
 //      return T(std::copysign(M_PI_2, sinp));
 //    else
 //      return T(std::asin(sinp));
-    return T(std::atan2(two * (values_[0] * values_[3] + values_[1] * values_[2]),
-                        one - two * (values_[0] * values_[0] + values_[1] * values_[1])));
+    return T(std::atan2(2.0 * static_cast<double>(x * w + y * z),
+                        1.0 - 2.0 * static_cast<double>(x * x + y * y)));
   }
 
   ALGTEM T quaternion<T>::yaw(){
-    const T two(2), one(1);
-    return T(std::atan2(two * (values_[3] * values_[2] + values_[0] * values_[1]),
-                        one - two * (values_[1] * values_[1] + values_[2] * values_[2])));
+    return T(std::atan2(2.0 * static_cast<double>(w * z + x * y),
+                        1.0 - 2.0 * static_cast<double>(y * y + z * z)));
   }
 
   ALGTEM const T quaternion<T>::yaw() const{
-    const T two(2), one(1);
-    return T(std::atan2(two * (values_[3] * values_[2] + values_[0] * values_[1]),
-                        one - two * (values_[1] * values_[1] + values_[2] * values_[2])));
+    return T(std::atan2(2.0 * static_cast<double>(w * z + x * y),
+                        1.0 - 2.0 * static_cast<double>(y * y + z * z)));
   }
 
   ALGTEM T quaternion<T>::roll(){
-    const T two(2), one(1);
-    return T(std::atan2(two * (values_[3] * values_[0] + values_[1] * values_[2]),
-                        one - two * (values_[0] * values_[0] + values_[1] * values_[1])));
+    return T(std::atan2(2.0 * static_cast<double>(w * x + y * z),
+                        1.0 - 2.0 * static_cast<double>(x * x + y * y)));
   }
 
   ALGTEM const T quaternion<T>::roll() const{
-    const T two(2), one(1);
-    return T(std::atan2(two * (values_[3] * values_[0] + values_[1] * values_[2]),
-                        one - two * (values_[0] * values_[0] + values_[1] * values_[1])));
+    return T(std::atan2(2.0 * static_cast<double>(w * x + y * z),
+                        1.0 - 2.0 * static_cast<double>(x * x + y * y)));
   }
 
   ALGTEM quaternion<T>& quaternion<T>::rotate(const vec3<T> axis, const T angle){
-    const T a(angle/2.0);
-    const T s(std::sin(a));
+    const double a{static_cast<double>(angle)/2.0};
+    const double s{std::sin(a)};
 
-    const quaternion<T> rot(axis[0] * s, axis[1] * s, axis[2] * s, T(std::cos(a)));
+    const quaternion<T> rot(static_cast<T>(static_cast<double>(axis[0]) * s),
+                            static_cast<T>(static_cast<double>(axis[1]) * s),
+                            static_cast<T>(static_cast<double>(axis[2]) * s),
+                            static_cast<T>(std::cos(a)));
     return *this *= rot;
   }
 
   ALGTEM quaternion<T>& quaternion<T>::rotate(const T x, const T y, const T z, const T angle){
-    const T a(angle/2.0);
-    const T s(std::sin(a));
+    const double a{static_cast<double>(angle)/2.0};
+    const double s{std::sin(a)};
 
-    const quaternion<T> rot(x * s, y * s, z * s, T(std::cos(a)));
+    const quaternion<T> rot(static_cast<T>(static_cast<double>(x) * s),
+                            static_cast<T>(static_cast<double>(y) * s),
+                            static_cast<T>(static_cast<double>(z) * s),
+                            static_cast<T>(std::cos(a)));
     return *this *= rot;
   }
 
   ALGTEM quaternion<T> quaternion<T>::from_axis_and_angle(const vec3<T> axis, const T angle){
-    const T a(angle/2);
-    const T s(std::sin(a));
+    const double a{static_cast<double>(angle)/2};
+    const double s{std::sin(a)};
 
-    return quaternion<T>(axis[0] * s, axis[1] * s, axis[2] * s, T(std::cos(a)));
+    return quaternion<T>(static_cast<T>(static_cast<double>(axis[0]) * s),
+                         static_cast<T>(static_cast<double>(axis[1]) * s),
+                         static_cast<T>(static_cast<double>(axis[2]) * s),
+                         static_cast<T>(std::cos(a)));
   }
 
   ALGTEM quaternion<T> quaternion<T>::from_axis_and_angle(const T x, const T y, const T z,
                                                           const T angle){
-    const T a(angle/2);
-    const T s(std::sin(a));
+    const double a{static_cast<double>(angle)/2.0};
+    const double s{std::sin(a)};
 
-    return quaternion<T>(x * s, y * s, z * s, T(std::cos(a)));
+    return quaternion<T>(static_cast<T>(static_cast<double>(x) * s),
+                         static_cast<T>(static_cast<double>(y) * s),
+                         static_cast<T>(static_cast<double>(z) * s),
+                         static_cast<T>(std::cos(a)));
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator/(const T &s){
-    return quaternion<T>(values_[0] / s, values_[1] / s, values_[2] / s, values_[3] / s);
+    return quaternion<T>(x / s, y / s, z / s, w / s);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator/(const T &s) const{
-    return quaternion<T>(values_[0] / s, values_[1] / s, values_[2] / s, values_[3] / s);
+    return quaternion<T>(x / s, y / s, z / s, w / s);
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator*(const T &s){
-    return quaternion<T>(values_[0] * s, values_[1] * s, values_[2] * s, values_[3] * s);
+    return quaternion<T>(x * s, y * s, z * s, w * s);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator*(const T &s) const{
-    return quaternion<T>(values_[0] * s, values_[1] * s, values_[2] * s, values_[3] * s);
+    return quaternion<T>(x * s, y * s, z * s, w * s);
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator*(const quaternion<T> &q){
-    quaternion<T> result;
-    result[0] =  values_[0] * q[3] + values_[1] * q[2] - values_[2] * q[1] + values_[3] * q[0];
-    result[1] = -values_[0] * q[2] + values_[1] * q[3] + values_[2] * q[0] + values_[3] * q[1];
-    result[2] =  values_[0] * q[1] - values_[1] * q[0] + values_[2] * q[3] + values_[3] * q[2];
-    result[3] = -values_[0] * q[0] - values_[1] * q[1] - values_[2] * q[2] + values_[3] * q[3];
-
-    return result;
+    return quaternion<T>( x * q.w + y * q.z - z * q.y + w * q.x,
+                         -x * q.z + y * q.w + z * q.x + w * q.y,
+                          x * q.y - y * q.x + z * q.w + w * q.z,
+                         -x * q.x - y * q.y - z * q.z + w * q.w);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator*(const quaternion<T> &q) const{
-    quaternion<T> result;
-    result[0] =  values_[0] * q[3] + values_[1] * q[2] - values_[2] * q[1] + values_[3] * q[0];
-    result[1] = -values_[0] * q[2] + values_[1] * q[3] + values_[2] * q[0] + values_[3] * q[1];
-    result[2] =  values_[0] * q[1] - values_[1] * q[0] + values_[2] * q[3] + values_[3] * q[2];
-    result[3] = -values_[0] * q[0] - values_[1] * q[1] - values_[2] * q[2] + values_[3] * q[3];
-
-    return result;
+    return quaternion<T>( x * q.w + y * q.z - z * q.y + w * q.x,
+                         -x * q.z + y * q.w + z * q.x + w * q.y,
+                          x * q.y - y * q.x + z * q.w + w * q.z,
+                         -x * q.x - y * q.y - z * q.z + w * q.w);
   }
-/*
-  ALGTEM vec3<T> quaternion<T>::operator*(const vec3<T> &v){
-    const vec3<T> Q{values_[0], values_[1], values_[2]};
-    const vec3<T> A{vec3<T>::cross(v, Q) + v * values_[3]};
 
-    return vec3<T>::cross(A, Q) * T(2);
-  }
-*/
   ALGTEM vec3<T> quaternion<T>::operator*(const vec3<T> &v){
-//    const vec
-    const vec3<T> Q{values_[0], values_[1], values_[2]};
-    const vec3<T> A{vec3<T>::cross(v, Q) + v * values_[3]};
+    const vec3<T> Q{x, y, z};
+    const vec3<T> A{vec3<T>::cross(v, Q) + v * w};
 
     return v + vec3<T>::cross(A, Q) * T(2);
   }
 
   ALGTEM const vec3<T> quaternion<T>::operator*(const vec3<T> &v) const{
-    const vec3<T> Q{values_[0], values_[1], values_[2]};
-    const vec3<T> A{vec3<T>::cross(v, Q) + v * values_[3]};
+    const vec3<T> Q{x, y, z};
+    const vec3<T> A{vec3<T>::cross(v, Q) + v * w};
 
     return v + vec3<T>::cross(A, Q) * T(2);
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator-(const T &s){
-    return quaternion<T>(values_[0] - s, values_[1] - s, values_[2] - s, values_[3] - s);
+    return quaternion<T>(x - s, y - s, z - s, w - s);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator-(const T &s) const{
-    return quaternion<T>(values_[0] - s, values_[1] - s, values_[2] - s, values_[3] - s);
+    return quaternion<T>(x - s, y - s, z - s, w - s);
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator-(const quaternion<T> &q){
-    return quaternion<T>(values_[0] - q[0], values_[1] - q[1], values_[2] - q[2], values_[3] - q[3]);
+    return quaternion<T>(x - q.x, y - q.y, z - q.z, w - q.w);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator-(const quaternion<T> &q) const{
-    return quaternion<T>(values_[0] - q[0], values_[1] - q[1], values_[2] - q[2], values_[3] - q[3]);
+    return quaternion<T>(x - q.x, y - q.y, z - q.z, w - q.w);
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator+(const T &s){
-    return quaternion<T>(values_[0] + s, values_[1] + s, values_[2] + s, values_[3] + s);
+    return quaternion<T>(x + s, y + s, z + s, w + s);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator+(const T &s) const{
-    return quaternion<T>(values_[0] + s, values_[1] + s, values_[2] + s, values_[3] + s);
+    return quaternion<T>(x + s, y + s, z + s, w + s);
   }
 
   ALGTEM quaternion<T> quaternion<T>::operator+(const quaternion<T> &q){
-    return quaternion<T>(values_[0] + q[0], values_[1] + q[1],
-        values_[2] + q[2], values_[3] + q[3]);
+    return quaternion<T>(x + q.x, y + q.y, z + q.z, w + q.w);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::operator+(const quaternion<T> &q) const{
-    return quaternion<T>(values_[0] + q[0], values_[1] + q[1],
-        values_[2] + q[2], values_[3] + q[3]);
+    return quaternion<T>(x + q.x, y + q.y, z + q.z, w + q.w);
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator/=(const T &s){
-    values_[0] /= s;
-    values_[1] /= s;
-    values_[2] /= s;
-    values_[3] /= s;
+    x /= s;
+    y /= s;
+    z /= s;
+    w /= s;
     return *this;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator*=(const quaternion<T> &q){
     quaternion<T> value(*this);
-    values_[0] =  value[0] * q[3] + value[1] * q[2] - value[2] * q[1] + value[3] * q[0];
-    values_[1] = -value[0] * q[2] + value[1] * q[3] + value[2] * q[0] + value[3] * q[1];
-    values_[2] =  value[0] * q[1] - value[1] * q[0] + value[2] * q[3] + value[3] * q[2];
-    values_[3] = -value[0] * q[0] - value[1] * q[1] - value[2] * q[2] + value[3] * q[3];
+    x =  value.x * q.w + value.y * q.z - value.z * q.y + value.w * q.x;
+    y = -value.x * q.z + value.y * q.w + value.z * q.x + value.w * q.y;
+    z =  value.x * q.y - value.y * q.x + value.z * q.w + value.w * q.z;
+    w = -value.x * q.x - value.y * q.y - value.z * q.z + value.w * q.w;
     return *this;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator*=(const T &s){
-    values_[0] *= s;
-    values_[1] *= s;
-    values_[2] *= s;
-    values_[3] *= s;
+    x *= s;
+    y *= s;
+    z *= s;
+    w *= s;
     return *this;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator-=(const quaternion<T> &q){
-    values_[0] -= q[0];
-    values_[1] -= q[1];
-    values_[2] -= q[2];
-    values_[3] -= q[3];
+    x -= q.x;
+    y -= q.y;
+    z -= q.z;
+    w -= q.w;
     return *this;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator-=(const T &s){
-    values_[0] -= s;
-    values_[1] -= s;
-    values_[2] -= s;
-    values_[3] -= s;
+    x -= s;
+    y -= s;
+    z -= s;
+    w -= s;
     return *this;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator+=(const quaternion<T> &q){
-    values_[0] += q[0];
-    values_[1] += q[1];
-    values_[2] += q[2];
-    values_[3] += q[3];
+    x += q.x;
+    y += q.y;
+    z += q.z;
+    w += q.w;
     return *this;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::operator+=(const T &s){
-    values_[0] += s;
-    values_[1] += s;
-    values_[2] += s;
-    values_[3] += s;
+    x += s;
+    y += s;
+    z += s;
+    w += s;
     return *this;
   }
 
   ALGTEM bool quaternion<T>::operator==(const quaternion<T> &q){
-    return values_[0] == q[0] && values_[1] == q[1] && values_[2] == q[2] && values_[3] == q[3];
+    return x == q.x && y == q.y && z == q.z && w == q.w;
   }
 
-  ALGTEM const bool quaternion<T>::operator==(const quaternion<T> &q) const{
-    return values_[0] == q[0] && values_[1] == q[1] && values_[2] == q[2] && values_[3] == q[3];
+  ALGTEM bool quaternion<T>::operator==(const quaternion<T> &q) const{
+    return x == q.x && y == q.y && z == q.z && w == q.w;
   }
 
   ALGTEM bool quaternion<T>::operator!=(const quaternion<T> &q){
-    return !(values_[0] == q[0] && values_[1] == q[1] && values_[2] == q[2] && values_[3] == q[3]);
+    return !(x == q.x && y == q.y && z == q.z && w == q.w);
   }
 
-  ALGTEM const bool quaternion<T>::operator!=(const quaternion<T> &q) const{
-    return !(values_[0] == q[0] && values_[1] == q[1] && values_[2] == q[2] && values_[3] == q[3]);
+  ALGTEM bool quaternion<T>::operator!=(const quaternion<T> &q) const{
+    return !(x == q.x && y == q.y && z == q.z && w == q.w);
   }
 
   ALGTEM bool quaternion<T>::operator>(const quaternion<T> &q){
     return length() > q.length();
   }
 
-  ALGTEM const bool quaternion<T>::operator>(const quaternion<T> &q) const{
+  ALGTEM bool quaternion<T>::operator>(const quaternion<T> &q) const{
     return length() > q.length();
   }
 
@@ -389,7 +383,7 @@ namespace algebraica {
     return length() < q.length();
   }
 
-  ALGTEM const bool quaternion<T>::operator<(const quaternion<T> &q) const{
+  ALGTEM bool quaternion<T>::operator<(const quaternion<T> &q) const{
     return length() < q.length();
   }
 
@@ -397,7 +391,7 @@ namespace algebraica {
     return length() >= q.length();
   }
 
-  ALGTEM const bool quaternion<T>::operator>=(const quaternion<T> &q) const{
+  ALGTEM bool quaternion<T>::operator>=(const quaternion<T> &q) const{
     return length() >= q.length();
   }
 
@@ -405,48 +399,46 @@ namespace algebraica {
     return length() <= q.length();
   }
 
-  ALGTEM const bool quaternion<T>::operator<=(const quaternion<T> &q) const{
+  ALGTEM bool quaternion<T>::operator<=(const quaternion<T> &q) const{
     return length() <= q.length();
   }
 
   ALGTEM T *quaternion<T>::data(){
-    return &values_[0];
+    return &x;
   }
 
   ALGTEM const T *quaternion<T>::data() const{
-    return &values_[0];
+    return &x;
   }
 
   ALGTEM quaternion<T> &quaternion<T>::normalize(){
     T d(length());
     d = (d > 0)? 1/d : 0;
-    values_[0] *= d;
-    values_[1] *= d;
-    values_[2] *= d;
-    values_[3] *= d;
+    x *= d;
+    y *= d;
+    z *= d;
+    w *= d;
     return *this;
   }
 
   ALGTEM quaternion<T> quaternion<T>::normalized(){
     T d(length());
     d = (d > 0)? 1/d : 0;
-    return quaternion<T>(values_[0] * d, values_[1] * d, values_[2] * d, values_[3] * d);
+    return quaternion<T>(x * d, y * d, z * d, w * d);
   }
 
   ALGTEM const quaternion<T> quaternion<T>::normalized() const{
     T d(length());
     d = (d > 0)? 1/d : 0;
-    return quaternion<T>(values_[0] * d, values_[1] * d, values_[2] * d, values_[3] * d);
+    return quaternion<T>(x * d, y * d, z * d, w * d);
   }
 
   ALGTEM T quaternion<T>::length(){
-    return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1] +
-        values_[2] * values_[2] + values_[3] * values_[3]);
+    return static_cast<T>(std::sqrt(x * x + y * y + z * z + w * w));
   }
 
   ALGTEM const T quaternion<T>::length() const{
-    return std::sqrt(values_[0] * values_[0] + values_[1] * values_[1] +
-        values_[2] * values_[2] + values_[3] * values_[3]);
+    return static_cast<T>(std::sqrt(x * x + y * y + z * z + w * w));
   }
 
   template class quaternion<double>;

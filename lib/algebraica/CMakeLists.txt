@@ -18,6 +18,7 @@ if(NOT TARGET ${ALGEBRAICA_LIB})
   set(HPP_FILES
     include/algebraica/algebraica.h
     include/algebraica/linear.h
+    include/algebraica/mat2.h
     include/algebraica/mat3.h
     include/algebraica/mat4.h
     include/algebraica/quaternion.h
@@ -29,6 +30,7 @@ if(NOT TARGET ${ALGEBRAICA_LIB})
   #source files
   set(CPP_FILES
     src/linear.cpp
+    src/mat2.cpp
     src/mat3.cpp
     src/mat4.cpp
     src/quaternion.cpp

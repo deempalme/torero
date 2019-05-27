@@ -1,11 +1,11 @@
 #version 420 core
 // Trajectory vertex shader
 
-in vec3 i_position;
-in vec4 i_color;
-in float i_line_width;
-in float i_angle;
-in float i_distance;
+layout(location = 0) in vec3 i_position;
+layout(location = 1) in float i_distance;
+layout(location = 2) in float i_line_width;
+layout(location = 4) in float i_angle;
+layout(location = 5) in vec4 i_color;
 
 out vec4 g_color;
 out float g_line_width;

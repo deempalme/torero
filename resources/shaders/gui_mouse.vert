@@ -2,7 +2,7 @@
 //GUI Mouse event vertex shader
 
 layout(location = 0) in vec2 i_position;
-layout(location = 1) in vec2 i_texture;
+layout(location = 1) in vec2 i_uv;
 layout(location = 2) in vec2 i_size;
 layout(location = 3) in float i_id;
 layout(location = 4) in float i_element;
@@ -25,7 +25,7 @@ void main()
 
   position.x = -position.x;
 
-  o_texture = i_texture / u_texture_size;
+  o_texture = i_uv / u_texture_size;
   o_id = i_id/255.0;
   o_element = i_element/255.0;
 

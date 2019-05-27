@@ -153,6 +153,7 @@ namespace algebraica {
    * @param {number} far indicates the maximum limit for the objects to appear in screen
    */
     mat4<T>& perspective(const T fov, const T aspect, const T near, const T far);
+    static mat4<T> Perspective(const T fov, const T aspect, const T near, const T far);
     /*
    * Pocisionates the camera in a 3D space
    *
@@ -307,6 +308,10 @@ namespace algebraica {
   typedef mat4<double> mat4d;
   typedef mat4<float> mat4f;
   typedef mat4<int> mat4i;
+
+  extern template class mat4<double>;
+  extern template class mat4<float>;
+  extern template class mat4<int>;
 }
 
 #endif // ALGEBRAICA_MAT4_H

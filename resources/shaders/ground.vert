@@ -1,11 +1,11 @@
 #version 420 core
 // Ground vertex shader
 
-in vec3 i_position;
-in vec4 i_color;
-in vec2 i_dimension;
-in float i_height;
-in float i_probability;
+layout(location = 0) in vec3 i_position;
+layout(location = 1) in vec2 i_dimension;
+layout(location = 2) in float i_height;
+layout(location = 3) in float i_probability;
+layout(location = 5) in vec4 i_color;
 
 out vec4 g_color;
 out vec2 g_dimension;

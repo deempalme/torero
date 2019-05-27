@@ -23,9 +23,9 @@ namespace algebraica {
     vec3(T x = 0, T y = 0, T z = 0) : values_{x, y, z} {}
     vec3(const vec3<T> &v){ *this = v; }
 
-    const T x() const { return values_[0]; }
-    const T y() const { return values_[1]; }
-    const T z() const { return values_[2]; }
+//    const T x() const { return values_[0]; }
+//    const T y() const { return values_[1]; }
+//    const T z() const { return values_[2]; }
 
     /*
      * index array access
@@ -74,26 +74,26 @@ namespace algebraica {
     vec3<T>& operator ()(const T x = 0, const T y = 0, const T z = 0);
     // printing the values
     friend std::ostream& operator<<(std::ostream &os, const vec3<T> &v){
-      return os << "vec3(" << v.x() << ", " << v.y() << ", " << v.z() << ") ";
+      return os << "vec3(" << v.x << ", " << v.y << ", " << v.z << ") ";
     }
     // verifying if two vectors are equal
     bool operator==(const vec3<T> &v);
-    const bool operator==(const vec3<T> &v) const;
+    bool operator==(const vec3<T> &v) const;
     // verifying if two vectors are different
     bool operator!=(const vec3<T> &v);
-    const bool operator!=(const vec3<T> &v) const;
+    bool operator!=(const vec3<T> &v) const;
     // vectors dimensional comparation (greater than)
     bool operator>(const vec3<T> &v);
-    const bool operator>(const vec3<T> &v) const;
+    bool operator>(const vec3<T> &v) const;
     // vectors dimensional comparation (lesser than)
     bool operator<(const vec3<T> &v);
-    const bool operator<(const vec3<T> &v) const;
+    bool operator<(const vec3<T> &v) const;
     // vectors dimensional comparation (greater or equal than)
     bool operator>=(const vec3<T> &v);
-    const bool operator>=(const vec3<T> &v) const;
+    bool operator>=(const vec3<T> &v) const;
     // vectors dimensional comparation (lesser or equal than)
     bool operator<=(const vec3<T> &v);
-    const bool operator<=(const vec3<T> &v) const;
+    bool operator<=(const vec3<T> &v) const;
     // pointer to vector data
     T* data();
     // constant pointer to vector data
@@ -112,7 +112,7 @@ namespace algebraica {
     // cross product between two vectors
     static vec3<T> cross(const vec3<T> &u, const vec3<T> &v);
     // compute the dot product of two vectors
-    static T dot(vec3<T> &u, const vec3<T> &v);
+    static T dot(const vec3<T> &u, const vec3<T> &v);
     // rotate the vector through X axis
     vec3<T>& rotateX(const T _angle);
     // rotate the vector through Y axis
@@ -122,13 +122,44 @@ namespace algebraica {
     // rotate using quaternion
     vec3<T>& rotate(const quaternion<T> quat);
 
-  private:
-    T values_[3];
+    // Casting
+    inline operator int(){
+      return vec3<int>(static_cast<int>(x), static_cast<int>(y), static_cast<int>(z));
+    }
+    inline operator int() const{
+      return vec3<int>(static_cast<int>(x), static_cast<int>(y), static_cast<int>(z));
+    }
+    inline operator float(){
+      return vec3<float>(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
+    }
+    inline operator float() const{
+      return vec3<float>(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
+    }
+    inline operator double(){
+      return vec3<double>(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
+    }
+    inline operator double() const{
+      return vec3<double>(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z));
+    }
+
+//  private:
+    union {
+      struct {
+        T x;
+        T y;
+        T z;
+      };
+      T values_[3];
+    };
   };
 
   typedef vec3<double> vec3d;
   typedef vec3<float> vec3f;
   typedef vec3<int> vec3i;
+
+  extern template class vec3<double>;
+  extern template class vec3<float>;
+  extern template class vec3<int>;
 }
 
 #endif // ALGEBRAICA_VECTOR3_H

@@ -9,14 +9,18 @@ in float g_line_width[];
 in float g_distance[];
 in float g_angle[];
 
-uniform mat4 u_pv;
+layout (std140, binding = 1) uniform u_scene {
+  mat4 u_projection;
+  mat4 u_view;
+  mat4 u_pv;
+  mat4 u_psv;
+  vec3 u_camera_position;
+};
 
 out vec3 f_position;
 out vec3 f_normal;
 out vec4 f_color;
 out vec2 f_uv;
-
-const vec3 normal = vec3(0.0, 1.0, 0.0);
 
 vec3 rotate_z(const vec3 vector, const float angle){
   const float s = sin(angle);
@@ -72,12 +76,12 @@ void main(void)
   float length_a = thickness1 / dot(miter_a, n1);
   float length_b = thickness2 / dot(miter_b, n2);
 
-  vec3 normal1 = rotate_z(normal, g_angle[1]);
-  vec3 normal2 = rotate_z(normal, g_angle[2]);
+  vec3 normal1 = rotate_z(vec3(0.0, 1.0, 0.0), g_angle[1]);
+  vec3 normal2 = rotate_z(vec3(0.0, 1.0, 0.0), g_angle[2]);
 
   vec3 width1, width2;
 
-  f_color = g_color[1]/255.0;
+  f_color = g_color[1] * 0.003921569; // 0.003921569 ~= 1/255
 
   // prevent excessively long miters at sharp corners
   if(dot(v0, v1) < -0.75){
@@ -148,7 +152,7 @@ void main(void)
   f_position = gl_Position.xyz;
   EmitVertex();
 
-  f_color = g_color[2]/255.0;
+  f_color = g_color[2] * 0.003921569; // 0.003921569 ~= 1/255
   f_normal = normal2;
 
   f_uv = vec2(distance2, 0);

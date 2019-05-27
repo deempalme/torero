@@ -3,21 +3,20 @@
 
 layout(location = 0) in vec3 i_position;
 
-out vec3 o_position;
-out vec3 o_up;
-out vec3 o_right;
+out vec3 f_position;
+out vec3 f_up;
+out vec3 f_right;
 
-uniform mat4 u_projection;
-uniform mat4 u_view;
+uniform mat4 u_pv;
 
 void main()
 {
-  o_position = normalize(i_position);
+  f_position = normalize(i_position);
 
   // tangent space calculation from origin point
-  o_up    = vec3(0.0, 1.0, 0.0);
-  o_right = cross(o_up, o_position);
-  o_up    = cross(o_position, o_right);
+  f_up    = vec3(0.0, 1.0, 0.0);
+  f_right = cross(f_up, f_position);
+  f_up    = cross(f_position, f_right);
 
-  gl_Position =  u_projection * u_view * vec4(i_position, 1.0);
+  gl_Position =  u_pv * vec4(i_position, 1.0);
 }

@@ -1,14 +1,17 @@
 #ifndef TORERO_CORE_H
 #define TORERO_CORE_H
 
-// OpenGL loader and core library
+// OpenGL loader and SDL2 library
 #include "glad/glad.h"
-#include <GLFW/glfw3.h>
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
+//#include <SDL2/SDL_vulkan.h>
 
-#include "torero/camera.h"
-#include "torero/multithread_manager.h"
-#include "torero/screen_conversor.h"
-#include "torero/type_definitions.h"
+#include "torero/definition/types.h"
+#include "torero/event/handler.h"
+#include "torero/gl/texture.h"
+#include "torero/gui/cursors.h"
+#include "torero/thread/manager.h"
 
 // linear mathematical functions
 #include "algebraica/algebraica.h"
@@ -16,14 +19,25 @@
 #include <iostream>
 #include <string>
 // Boost
+#include <boost/filesystem.hpp>
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
 namespace torero {
-  class ModelManager;
-  class VehicleManager;
+  namespace camera { class View; }
+  namespace gui {
+    class Controller;
+    class Manager;
+  }
+  namespace model {
+    class Environment;
+    class Manager;
+  }
+  namespace image { class Manager; }
+  namespace text { class Manager; }
+  namespace vehicle { class Manager; }
 
-  class Core : public MultiThreadManager
+  class Core : public gui::Cursors, public event::Handler, public thread::Manager
   {
   public:
     /*
@@ -40,221 +54,16 @@ namespace torero {
      * In this case a message will be displayed at the Terminal/console.
      *
      */
-    explicit Core(int argc, char **argv, const bool system_title = false);
+    explicit Core(int /*argc*/, char** /*argv*/, const bool system_title = false);
     ~Core();
 
-    // ------------------------------------------------------------------------------------ //
-    // -------------------------------- CAMERA MANAGEMENT --------------------------------- //
-    // ------------------------------------------------------------------------------------ //
-    bool *camera_blocker();
-    /*
-     * ### Obtaining the perspective transformation matrix
-     *
-     * Returns the **perspective** transformation matrix, this matrix is calculated using
-     * **perspective** matrix transformation with window's width and height as parameters
-     * to get the aspect radio. A near plane with value `kNearPlane`, far plane with value
-     * `kFarPlane` and field of view with value `kFieldOfView`.
-     *
-     * **Returns**
-     * {const algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const algebraica::mat4f &camera_matrix_perspective();
-    const algebraica::mat4f &camera_matrix_perspective_inversed();
-    /*
-     * ### Obtaining the multiplied matrix between perspective and view matrices
-     *
-     * Returns the multiplied matrix between **perspective and view** transformation matrices.
-     *
-     * **Returns**
-     * {const algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
-     * camera matrices multiplication.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const algebraica::mat4f &camera_matrix_perspective_view();
-    const algebraica::mat4f &camera_matrix_perspective_view_inversed();
-    /*
-     * ### Obtaining the non-translated multiplied matrix between perspective and view matrices
-     *
-     * Returns the **non-translated** multiplied matrix between **perspective and view**
-     * transformation matrices. **Note:* this matrix only contains the **rotations** of
-     * pv_matrix and **not translations**.
-     *
-     * **Returns**
-     * {const algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
-     * camera matrices multiplication WITHOUT translation (only rotation).
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const algebraica::mat4f &camera_matrix_perspective_view_static();
-    const algebraica::mat4f &camera_matrix_perspective_view_static_inversed();
-    /*
-     * ### Obtaining the view transformation matrix
-     *
-     * Returns the **view** transformation matrix, this matrix is calculated using
-     * **look at** matrix transformation with the camera as parameter.
-     *
-     * **Returns**
-     * {const algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const algebraica::mat4f &camera_matrix_view();
-    const algebraica::mat4f &camera_matrix_view_inversed();
-    /*
-     * ### Obtaining the camera position
-     *
-     * This function returns a 3D vector with the camera position in X, Y and Z.
-     *
-     * **Returns**
-     * {const algebraica::vec3f} 3D vector width camera position.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    const algebraica::vec3f &camera_position();
-    const algebraica::vec3f &camera_relative_position();
-    /*
-     * ### Rotating the camera
-     *
-     * Multiplies the Camera position by a rotation matrix using euler angles
-     * (the center is the camera target's position), the angles are in **RADIANS**.
-     * See the [[coordinate systems|Coordinate-systems#orientation-angles]] to view more
-     * details about the angles.
-     *
-     * **Arguments**
-     * {const float} pitch = Pitch angle in radians.
-     * {const float} yaw = Yaw angle in radians.
-     * {const float} roll = Roll angle in radians.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-//    void camera_rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
-    void camera_rotate(const algebraica::quaternionF quaternion);
-    /*
-     * ### Setting camera position
-     *
-     * Changes the position of the camera, note that is only the location of the camera,
-     * the point that the camera is aiming will not be modified.
-     *
-     * **Arguments**
-     * {const float} x = Position in meters in the X axis.
-     * {const float} y = Position in meters in the Y axis.
-     * {const float} z = Position in meters in the Z axis.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_set_position(const float x = -12.0f, const float y = 0.0f, const float z = 5.0f);
-    /*
-     * ### Setting camera target position
-     *
-     * This specifies the point which the camera is looking.
-     *
-     * **Arguments**
-     * {const float} x = Position in meters in the X axis.
-     * {const float} y = Position in meters in the Y axis.
-     * {const float} z = Position in meters in the Z axis.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_set_target(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
-    /*
-     * ### Setting camera upwards direction
-     *
-     * Changes the rotation of the camera, changes the upward side of the camera.
-     * You must introduce the coordinates of a **normalized** vector, this vector
-     * represents the camera orientation, by default is pointing up parallel to Y axis.
-     *
-     * **Arguments**
-     * {const float} x = Position in meters in the X axis, must be normalized.
-     * {const float} y = Position in meters in the Y axis, must be normalized.
-     * {const float} z = Position in meters in the Z axis, must be normalized.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_set_up(const float x = 0.0f, const float y = 0.0f, const float z = 1.0f);
-    /*
-     * ### Setting the camera's zoom
-     *
-     * This changes the scenary zoom, maximum = 0.05 : minimum = 15. The smaller the zoom
-     * factor is, the closer to the target the camera position becomes.
-     *
-     * **Arguments**
-     * {const float} zoom = Zoom factor, if `zoom = 0.05` then, the camera position
-     * **vector** is multiplied for 0.05.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_set_zoom(const float zoom = 1.0f);
-    /*
-     * ### Translating the camera
-     *
-     * Multiplies the Camera position by a translation matrix (the center is the camera target's position).
-     *
-     * **Arguments**
-     * {const float} x = Distance in X axis to translate.
-     * {const float} y = Distance in Y axis to translate.
-     * {const float} z = Distance in Z axis to translate.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
-    /*
-     * ### Updating the camera
-     *
-     * This function updates the camera position and orientation, it is very useful when the
-     * position of the **vehicle transformation matrix** has been modified by your own code.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_update();
-    /*
-     * ### Change view to isometric view
-     *
-     * Changes the view to **Isometric view**.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_view_isometric();
-    /*
-     * ### Change view to top view
-     *
-     * Changes the view to **Top view**.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void camera_view_top();
-    void camera_zoom_in();
-    void camera_zoom_out();
+    torero::camera::View &camera();
+    torero::gui::Controller &controller();
+    torero::model::Environment &environment();
+    torero::image::Manager &image_manager();
+    torero::text::Manager &text_manager();
+    torero::vehicle::Manager &vehicle();
+
     void close();
     /*
      * ### Checking if window is closing
@@ -302,8 +111,8 @@ namespace torero {
      * **Arguments**
      * {const bool} infinite_loop = If set to `true` it will maintain the window open until
      * close event.
-     * {const int} width = Window's width in pixels.
-     * {const int} height = Window's height in pixels.
+     * {int} width = Window's width in pixels.
+     * {int} height = Window's height in pixels.
      * {const std::string} title = The UTF-8 encoded window's title.
      * {const bool} full_screen = if set to `true` it will make the window full screen.
      * {const bool} maximized = if set to `true` it will maximize the window, ignored if
@@ -315,7 +124,7 @@ namespace torero {
      * or `EXISTING_WINDOW`.
      *
      */
-    int execute(const int width, const int height, const std::string title = "Torero",
+    int execute(int width, int height, const std::string title = "Torero",
                 const bool full_screen = true, const bool maximized = false,
                 const bool infinite_loop = true);
 
@@ -384,8 +193,7 @@ namespace torero {
      *
      */
     void full_screen(const bool make_full = true);
-    double get_time();
-    const int *height() const;
+    uint32_t get_time();
     /*
      * ### Maximize window
      *
@@ -395,23 +203,7 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    void maximize();
-    /*
-     * ### Displaying messages in GUI and Terminal/Console
-     *
-     * This function displays messages into the GUI window (in the message box) and in the
-     * Ubuntu Terminal or Window's console.
-     *
-     * **Arguments**
-     * {const std::string} text = Text to display in the GUI and Terminal/Console.
-     * {const int} message_type = Type of message to display.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void message_handler(const std::string message, const torero::Message message_type);
-    void message_handler(const unsigned int message, const torero::Message message_type);
+    void maximize(const bool maximize = true);
     /*
      * ### Minimize window
      *
@@ -425,10 +217,7 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    void minimize(const bool minimized = true);
-    int move_frame();
-    bool *mover();
-    const bool &paused();
+    void minimize(const bool minimize = true);
     /*
      * ### Processing all pending events
      *
@@ -450,6 +239,14 @@ namespace torero {
      *
      */
     void restart_viewport();
+    void reload_screen(const bool change = true);
+    void sdl_error();
+    void set_module(torero::gui::Manager */*gui_manager*/,
+                    torero::model::Environment *&environment,
+                    torero::text::Manager *&text_manager);
+    const torero::model::Environment &set_module(torero::model::Manager */*model_manager*/);
+    void set_module(torero::vehicle::Manager *vehicle_manager);
+    void screen_clear();
     /*
      * ### Maximum anisotropic filtering
      *
@@ -463,9 +260,7 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    bool *screen_changer();
-    ScreenConversor *screen_conversor();
-    const GLfloat &screen_max_anisotropic_filtering();
+    const GLfloat screen_max_filtering();
     void screen_paint();
     /*
      * ### Redrawing the window's screen
@@ -491,25 +286,6 @@ namespace torero {
      *
      */
     void screen_swap_buffers();
-    void set_cursor(const torero::Cursor type);
-    bool set_module(ModelManager *model_manager);
-    /*
-     * ### Setting the vehicle management class
-     *
-     * This function obtains and connects the **vehicle**, **navigation matrices** and other
-     * data from the `VehicleManager` class addressed at the argument.
-     *
-     * **Arguments**
-     * {VehicleManager*} vehicle_manager = Address to the **vehicle manager** class.
-     *
-     * **Returns**
-     * {bool} Returns `true` if there was a previously addressed `VehicleManager` class.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    bool set_module(VehicleManager *vehicle_manager);
     /*
      * ### Window position
      *
@@ -524,7 +300,8 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    void set_position(const int x, const int y);
+    torero::PointXY<int> position();
+    void position(const int x, const int y);
     /*
      * ### Window size
      *
@@ -543,7 +320,9 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    void set_size(const int width, const int height);
+    torero::PointXY<int> size();
+    void size(const int width, const int height);
+    void sleep(const uint32_t milliseconds);
     /*
      * ### Window title
      *
@@ -556,7 +335,8 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    void set_title(const std::string title);
+    void title(const std::string &title);
+    const std::string &title();
     /*
      * ### Checking window's visility
      *
@@ -571,33 +351,8 @@ namespace torero {
      *
      */
     bool visibility();
-    /*
-     * ### Waiting for triggering events
-     *
-     * Waits until an event is triggered (mouse, keyboard, etc). This will pause the program's
-     * execution until an event is triggered.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void wait_for_events();
-    /*
-     * ### Waiting for triggering events or until time runs out
-     *
-     * Waits until an event is triggered (mouse, keyboard, etc) or until the timeout
-     * (in seconds) has passed. This will pause the program's execution until an event
-     * is triggered or the time is over.
-     *
-     * **Arguments**
-     * {const double} timeout = Waiting time in seconds, use decimals for more precision.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
-     *
-     */
-    void wait_for_events(const double timeout);
-    const int *width() const;
+    void visibility(const bool hide);
+//    const int *width() const;
 
     // ------------------------------------------------------------------------------------ //
     // ------------------------------------- SIGNALS -------------------------------------- //
@@ -619,7 +374,8 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    boost::signals2::signal<void ()> *syncronize(const torero::Order object);
+    boost::signals2::connection syncronize(const torero::Order object,
+                                           boost::function<void ()> callback);
     /*
      * ### Signal triggered by camera changes
      *
@@ -635,84 +391,51 @@ namespace torero {
      * This will return error if the window was not created properly.
      *
      */
-    boost::signals2::signal<void ()> *signal_updated_camera();
+    boost::signals2::connection connect_camera_updates(boost::function<void ()> callback);
     /*
-     * ### Signal triggered when OpenGL's screen is redrawn
+     * ### Connection to a signal triggered when OpenGL's screen is redrawn
      *
-     * This signal is triggered every time the OpenGL screen is redrawn; every time you
-     * see a change in the window's screen this signal will be triggered. You can obtain
-     * the address to this signal by using the following function, to manage such connection
-     * is recommended to use `boost::signals2::connection` to connect or disconnect it from
-     * your own functions.
+     * Use this function to connect your own function to a signal that is triggered every time
+     * the OpenGL screen is redrawn; every time you see a change in the window's screen this
+     * signal will be triggered. You will obtain a `boost::signals2::connection` to manage the
+     * newly created connection.
      *
      * **Returns**
-     * This returns a **boost signal** that you could use to connect your code.
-     *
-     * **Errors**
-     * This will return error if the window was not created properly.
+     * This returns a **boost connection** that you could use to disconnect your callback function.
      *
      */
-    boost::signals2::signal<void ()> *signal_updated_screen();
-    boost::signals2::signal<void (int, int)> *signal_resized_screen();
-    boost::signals2::signal<void (int, int)> *signal_moved_mouse();
-    boost::signals2::signal<void (int, int, int)> *signal_clicked_mouse();
-    boost::signals2::signal<void (int, int, int)> *signal_released_mouse();
+    boost::signals2::connection connect_sreeen_updates(boost::function<void ()> callback);
 
   protected:
     virtual void initialize();
     virtual void paint();
-    virtual void resize(const int width, const int height);
 
   private:
-    static void callback_resize(GLFWwindow */*window*/, int width, int height);
-    static void callback_mouse_click(GLFWwindow */*window*/, int button, int action, int mods);
-    static void callback_mouse_move(GLFWwindow */*window*/, double xpos, double ypos);
-    static void callback_mouse_scroll(GLFWwindow */*window*/, double /*xoffset*/, double yoffset);
-    static void callback_key_callback(GLFWwindow */*window*/, int key, int scancode, int action, int mods);
-
-    void event_mouse_click(int button, int action, int mods);
-    void event_mouse_move(double xpos, double ypos);
-    void event_mouse_scroll(double yoffset);
-    void event_key_callback(int key, int /*scancode*/, int action, int /*mods*/);
-
     void updated_camera();
     void load_window_icon();
-    GLFWcursor *load_mouse_icon(const std::string path, const int x_offset, const int y_offset);
 
-    int argc_;
-    char **argv_;
-    GLFWwindow *window_;
-    int width_, height_, initial_width_, initial_height_, half_height_;
-    int position_x_, position_y_, initial_position_x_, initial_position_y_;
-    int error_log_, error_;
-    bool is_left_click_, is_right_click_, is_scroll_click_, window_moving_;
-    int old_x_, old_y_;
-    bool is_inversed_, is_maximized_, maximization_, has_changed_, blocked_;
-    bool is_window_paused_;
-    int frame_mover_;
+    SDL_Window *window_;
+    SDL_GLContext context_;
+    std::string title_;
+
+    bool error_;
+    int error_log_;
 
     GLfloat max_filtering_;
-    algebraica::mat4f global_frame_, vehicle_frame_, vehicle_frame_yaw_;
-    algebraica::mat4f navigation_frame_, navigation_plus_frame_;
-    algebraica::mat4f inversed_vehicle_frame_;
-    Camera camera_;
 
-    VehicleManager *vehicle_;
-    ModelManager *modeler_;
-    ScreenConversor screen_conversor_;
+    const algebraica::mat4f identity_matrix_;
 
-    GLFWcursor *cursor_normal_, *cursor_pointer_, *cursor_beam_, *cursor_cross_, *cursor_move_;
+    torero::camera::View *camera_;
+    torero::gui::Controller *controller_;
+    torero::model::Environment *environment_;
+    torero::image::Manager *image_manager_;
+    torero::text::Manager *text_manager_;
+    torero::gui::Manager *gui_manager_;
+    torero::model::Manager *model_manager_;
+    torero::vehicle::Manager *vehicle_manager_;
 
     // signals
-    static boost::signals2::signal<void (int, int)> signal_window_resize;
-    static boost::signals2::signal<void (int, int, int)> signal_mouse_click;
-    static boost::signals2::signal<void (double, double)> signal_mouse_move;
-    static boost::signals2::signal<void (double)> signal_mouse_scroll;
-    static boost::signals2::signal<void (int, int, int, int)> signal_key_callback;
-
     boost::signals2::signal<void ()> signal_updated_camera_, signal_updated_screen_;
-    boost::signals2::signal<void (int, int)> signal_resized_screen_, signal_mouse_moved_;
-    boost::signals2::signal<void (int, int, int)> signal_clicked_mouse_, signal_released_mouse_;
     std::vector<boost::signals2::signal<void ()> > signal_draw_;
   };
 }

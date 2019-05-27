@@ -157,17 +157,17 @@ namespace algebraica {
     const T one = static_cast<T>(1);
     const T two = static_cast<T>(2);
 
-    const T xx = quat.x() * quat.x();
-    const T xy = quat.x() * quat.y();
-    const T xz = quat.x() * quat.z();
-    const T xw = quat.x() * quat.w();
+    const T xx = quat.x * quat.x;
+    const T xy = quat.x * quat.y;
+    const T xz = quat.x * quat.z;
+    const T xw = quat.x * quat.w;
 
-    const T yy = quat.y() * quat.y();
-    const T yz = quat.y() * quat.z();
-    const T yw = quat.y() * quat.w();
+    const T yy = quat.y * quat.y;
+    const T yz = quat.y * quat.z;
+    const T yw = quat.y * quat.w;
 
-    const T zz = quat.z() * quat.z();
-    const T zw = quat.z() * quat.w();
+    const T zz = quat.z * quat.z;
+    const T zw = quat.z * quat.w;
 
     r_m[0][0] = one - two * (yy + zz);
     r_m[0][1] =       two * (xy - zw);
@@ -225,17 +225,17 @@ namespace algebraica {
     const T one = static_cast<T>(1);
     const T two = static_cast<T>(2);
 
-    const T xx = quat.x() * quat.x();
-    const T xy = quat.x() * quat.y();
-    const T xz = quat.x() * quat.z();
-    const T xw = quat.x() * quat.w();
+    const T xx = quat.x * quat.x;
+    const T xy = quat.x * quat.y;
+    const T xz = quat.x * quat.z;
+    const T xw = quat.x * quat.w;
 
-    const T yy = quat.y() * quat.y();
-    const T yz = quat.y() * quat.z();
-    const T yw = quat.y() * quat.w();
+    const T yy = quat.y * quat.y;
+    const T yz = quat.y * quat.z;
+    const T yw = quat.y * quat.w;
 
-    const T zz = quat.z() * quat.z();
-    const T zw = quat.z() * quat.w();
+    const T zz = quat.z * quat.z;
+    const T zw = quat.z * quat.w;
 
     m_[0][0] = one - two * (yy + zz);
     m_[0][1] =       two * (xy - zw);
@@ -292,10 +292,10 @@ namespace algebraica {
 
   ALGTEM mat4<T>& mat4<T>::normalize_and_rotate(const quaternion<T> non_normalized_quaternion){
     mat4<T> r_m;
-    const T sqw = non_normalized_quaternion.w() * non_normalized_quaternion.w();
-    const T sqx = non_normalized_quaternion.x() * non_normalized_quaternion.x();
-    const T sqy = non_normalized_quaternion.y() * non_normalized_quaternion.y();
-    const T sqz = non_normalized_quaternion.z() * non_normalized_quaternion.z();
+    const T sqw = non_normalized_quaternion.w * non_normalized_quaternion.w;
+    const T sqx = non_normalized_quaternion.x * non_normalized_quaternion.x;
+    const T sqy = non_normalized_quaternion.y * non_normalized_quaternion.y;
+    const T sqz = non_normalized_quaternion.z * non_normalized_quaternion.z;
 
     const T two = static_cast<T>(2.0);
 
@@ -305,17 +305,17 @@ namespace algebraica {
     r_m[1][1] = (-sqx + sqy - sqz + sqw) * invs;
     r_m[2][2] = (-sqx - sqy + sqz + sqw) * invs;
 
-    T tmp1 = non_normalized_quaternion.x() * non_normalized_quaternion.y();
-    T tmp2 = non_normalized_quaternion.z() * non_normalized_quaternion.w();
+    T tmp1 = non_normalized_quaternion.x * non_normalized_quaternion.y;
+    T tmp2 = non_normalized_quaternion.z * non_normalized_quaternion.w;
     r_m[1][0] = two * (tmp1 + tmp2) * invs;
     r_m[0][1] = two * (tmp1 - tmp2) * invs;
 
-    tmp1 = non_normalized_quaternion.x() * non_normalized_quaternion.z();
-    tmp2 = non_normalized_quaternion.y() * non_normalized_quaternion.w();
+    tmp1 = non_normalized_quaternion.x * non_normalized_quaternion.z;
+    tmp2 = non_normalized_quaternion.y * non_normalized_quaternion.w;
     r_m[2][0] = two * (tmp1 - tmp2) * invs;
     r_m[0][2] = two * (tmp1 + tmp2) * invs;
-    tmp1 = non_normalized_quaternion.y() * non_normalized_quaternion.z();
-    tmp2 = non_normalized_quaternion.x() * non_normalized_quaternion.w();
+    tmp1 = non_normalized_quaternion.y * non_normalized_quaternion.z;
+    tmp2 = non_normalized_quaternion.x * non_normalized_quaternion.w;
     r_m[2][1] = two * (tmp1 + tmp2) * invs;
     r_m[1][2] = two * (tmp1 - tmp2) * invs;
 
@@ -358,10 +358,10 @@ namespace algebraica {
 
   ALGTEM mat4<T>& mat4<T>::from_non_normalized_quaternion(const quaternion<T>
                                                           non_normalized_quaternion){
-    const T sqw = non_normalized_quaternion.w() * non_normalized_quaternion.w();
-    const T sqx = non_normalized_quaternion.x() * non_normalized_quaternion.x();
-    const T sqy = non_normalized_quaternion.y() * non_normalized_quaternion.y();
-    const T sqz = non_normalized_quaternion.z() * non_normalized_quaternion.z();
+    const T sqw = non_normalized_quaternion.w * non_normalized_quaternion.w;
+    const T sqx = non_normalized_quaternion.x * non_normalized_quaternion.x;
+    const T sqy = non_normalized_quaternion.y * non_normalized_quaternion.y;
+    const T sqz = non_normalized_quaternion.z * non_normalized_quaternion.z;
 
     const T two = static_cast<T>(2.0);
 
@@ -371,17 +371,17 @@ namespace algebraica {
     m_[1][1] = (-sqx + sqy - sqz + sqw) * invs;
     m_[2][2] = (-sqx - sqy + sqz + sqw) * invs;
 
-    T tmp1 = non_normalized_quaternion.x() * non_normalized_quaternion.y();
-    T tmp2 = non_normalized_quaternion.z() * non_normalized_quaternion.w();
+    T tmp1 = non_normalized_quaternion.x * non_normalized_quaternion.y;
+    T tmp2 = non_normalized_quaternion.z * non_normalized_quaternion.w;
     m_[1][0] = two * (tmp1 + tmp2) * invs;
     m_[0][1] = two * (tmp1 - tmp2) * invs;
 
-    tmp1 = non_normalized_quaternion.x() * non_normalized_quaternion.z();
-    tmp2 = non_normalized_quaternion.y() * non_normalized_quaternion.w();
+    tmp1 = non_normalized_quaternion.x * non_normalized_quaternion.z;
+    tmp2 = non_normalized_quaternion.y * non_normalized_quaternion.w;
     m_[2][0] = two * (tmp1 - tmp2) * invs;
     m_[0][2] = two * (tmp1 + tmp2) * invs;
-    tmp1 = non_normalized_quaternion.y() * non_normalized_quaternion.z();
-    tmp2 = non_normalized_quaternion.x() * non_normalized_quaternion.w();
+    tmp1 = non_normalized_quaternion.y * non_normalized_quaternion.z;
+    tmp2 = non_normalized_quaternion.x * non_normalized_quaternion.w;
     m_[2][1] = two * (tmp1 + tmp2) * invs;
     m_[1][2] = two * (tmp1 - tmp2) * invs;
 
@@ -519,17 +519,31 @@ namespace algebraica {
   }
 
   ALGTEM mat4<T>& mat4<T>::perspective(const T fov, const T aspect, const T near, const T far){
-    T const tanHalfFov = std::tan(fov / static_cast<T>(2));
-
+    const T one{static_cast<T>(1)}, two{static_cast<T>(2)};
+    const T tanHalfFov = std::tan(fov / two);
     to_zero();
 
-    m_[0][0] = static_cast<T>(1) / (aspect * tanHalfFov);
-    m_[1][1] = static_cast<T>(1) / (tanHalfFov);
+    m_[0][0] = one / (aspect * tanHalfFov);
+    m_[1][1] = one / (tanHalfFov);
     m_[2][2] = - (far + near) / (far - near);
-    m_[2][3] = - static_cast<T>(1);
-    m_[3][2] = - (static_cast<T>(2) * far * near) / (far - near);
+    m_[2][3] = - one;
+    m_[3][2] = - (two * far * near) / (far - near);
 
     return *this;
+  }
+
+  ALGTEM mat4<T> mat4<T>::Perspective(const T fov, const T aspect, const T near, const T far){
+    const T one{static_cast<T>(1)}, two{static_cast<T>(2)};
+    const T tanHalfFov = std::tan(fov / two);
+    mat4<T> m;
+
+    m[0][0] = one / (aspect * tanHalfFov);
+    m[1][1] = one / (tanHalfFov);
+    m[2][2] = - (far + near) / (far - near);
+    m[2][3] = - one;
+    m[3][2] = - (two * far * near) / (far - near);
+
+    return m;
   }
 
   ALGTEM mat4<T>& mat4<T>::look_at(vec3<T> eye, vec3<T> center, vec3<T> up){

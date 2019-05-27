@@ -169,42 +169,42 @@ namespace algebraica {
    * @param {vec4} v is a 4 dimensional vector
    */
     bool operator==(const vec4<T> &v);
-    const bool operator==(const vec4<T> &v) const;
+    bool operator==(const vec4<T> &v) const;
     /*
    * Verifying if two vectors are different
    *
    * @param {vec4} v is a 4 dimensional vector
    */
     bool operator!=(const vec4<T> &v);
-    const bool operator!=(const vec4<T> &v) const;
+    bool operator!=(const vec4<T> &v) const;
     /*
    * Vectors dimensional comparation (greater than)
    *
    * @param {vec4} v is a 4 dimensional vector
    */
     bool operator>(const vec4<T> &v);
-    const bool operator>(const vec4<T> &v) const;
+    bool operator>(const vec4<T> &v) const;
     /*
    * Vectors dimensional comparation (lesser than)
    *
    * @param {vec4} v is a 4 dimensional vector
    */
     bool operator<(const vec4<T> &v);
-    const bool operator<(const vec4<T> &v) const;
+    bool operator<(const vec4<T> &v) const;
     /*
    * Vectors dimensional comparation (greater or equal than)
    *
    * @param {vec4} v is a 4 dimensional vector
    */
     bool operator>=(const vec4<T> &v);
-    const bool operator>=(const vec4<T> &v) const;
+    bool operator>=(const vec4<T> &v) const;
     /*
    * Vectors dimensional comparation (lesser or equal than)
    *
    * @param {vec4} v is a 4 dimensional vector
    */
     bool operator<=(const vec4<T> &v);
-    const bool operator<=(const vec4<T> &v) const;
+    bool operator<=(const vec4<T> &v) const;
     /*
    * pointer to this vector data
    */
@@ -237,6 +237,10 @@ namespace algebraica {
   typedef vec4<double> vec4d;
   typedef vec4<float> vec4f;
   typedef vec4<int> vec4i;
+
+  extern template class vec4<double>;
+  extern template class vec4<float>;
+  extern template class vec4<int>;
 }
 
 #endif // ALGEBRAICA_VECTOR4_H

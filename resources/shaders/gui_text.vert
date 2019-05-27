@@ -2,9 +2,9 @@
 // GUI Text vertex shader
 
 layout(location = 0) in vec3 i_position;
-layout(location = 1) in vec2 i_size;
-layout(location = 2) in vec4 i_uv;
-layout(location = 6) in vec4 i_color;
+layout(location = 1) in vec4 i_uv;
+layout(location = 2) in vec2 i_size;
+layout(location = 5) in vec4 i_color;
 
 out vec2 g_size;
 out vec4 g_color;

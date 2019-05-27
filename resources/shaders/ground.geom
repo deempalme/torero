@@ -8,12 +8,16 @@ in vec4 g_color[];
 in vec2 g_dimension[];
 in float g_height[];
 
+layout (std140, binding = 1) uniform u_scene {
+  mat4 u_projection;
+  mat4 u_view;
+  mat4 u_pv;
+  mat4 u_psv;
+  vec3 u_camera_position;
+};
 uniform mat4 u_primary_model;
 uniform mat4 u_secondary_model;
 
-uniform mat4 u_projection;
-uniform mat4 u_view;
-uniform mat4 u_pv;
 uniform int u_fog;
 uniform int u_2D;
 uniform int u_free;

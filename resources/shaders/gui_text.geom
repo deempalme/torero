@@ -28,23 +28,7 @@ void main(void)
   const vec3 position = gl_in[0].gl_Position.xyz;
   f_color = g_color[0];
 
-  // First square's point (lower left corner):
-  f_uv = g_texture[0].xw;
-  gl_Position = u_projection * vec4(quat_rot(u_rotation,
-                                             vec3(position.x,
-                                                  position.y - g_size[0].y,
-                                                  position.z)) + u_translation, 1.0);
-  EmitVertex();
-
-  // Upper left corner:
-  f_uv = g_texture[0].xy;
-  gl_Position = u_projection * vec4(quat_rot(u_rotation,
-                                             vec3(position.x,
-                                                  position.y,
-                                                  position.z)) + u_translation, 1.0);
-  EmitVertex();
-
-  // Lower right corner
+  // bottom right corner
   f_uv = g_texture[0].zw;
   gl_Position = u_projection * vec4(quat_rot(u_rotation,
                                              vec3(position.x + g_size[0].x,
@@ -52,10 +36,26 @@ void main(void)
                                                   position.z)) + u_translation, 1.0);
   EmitVertex();
 
-  // Upper right corner
+  // top right corner
   f_uv = g_texture[0].zy;
   gl_Position = u_projection * vec4(quat_rot(u_rotation,
                                              vec3(position.x + g_size[0].x,
+                                                  position.y,
+                                                  position.z)) + u_translation, 1.0);
+  EmitVertex();
+
+  // bottom left corner
+  f_uv = g_texture[0].xw;
+  gl_Position = u_projection * vec4(quat_rot(u_rotation,
+                                             vec3(position.x,
+                                                  position.y - g_size[0].y,
+                                                  position.z)) + u_translation, 1.0);
+  EmitVertex();
+
+  // top left corner:
+  f_uv = g_texture[0].xy;
+  gl_Position = u_projection * vec4(quat_rot(u_rotation,
+                                             vec3(position.x,
                                                   position.y,
                                                   position.z)) + u_translation, 1.0);
   EmitVertex();

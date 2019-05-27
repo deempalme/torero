@@ -15,7 +15,7 @@ uniform vec3 u_point_light_color[4];
 uniform vec3 u_directional_light;
 uniform vec3 u_directional_light_color;
 // camera positions
-uniform vec3 u_camera_position;
+uniform vec3 u_f_camera_position;
 // texture
 uniform sampler2D u_diffuse;
 
@@ -68,7 +68,7 @@ void main()
 {
   vec3 color = vec3(0.0);
   // view direction
-  vec3 viewDir = normalize(u_camera_position - f_position);
+  vec3 viewDir = normalize(u_f_camera_position - f_position);
 
   for(int i = 0; i < 4; i++){
     color += calculate_point_light(u_point_light[i], u_point_light_color[i],

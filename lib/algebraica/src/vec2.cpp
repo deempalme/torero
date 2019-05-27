@@ -18,11 +18,11 @@ namespace algebraica {
     return vec2<T>(values_[0] + v[0], values_[1] + v[1]);
   }
 
-  ALGTEM vec2<T> vec2<T>::operator-(vec2<T> &v){
+  ALGTEM vec2<T> vec2<T>::operator-(const vec2<T> &v){
     return vec2<T>(values_[0] - v[0], values_[1] - v[1]);
   }
 
-  ALGTEM const vec2<T> vec2<T>::operator-(vec2<T> &v) const{
+  ALGTEM const vec2<T> vec2<T>::operator-(const vec2<T> &v) const{
     return vec2<T>(values_[0] - v[0], values_[1] - v[1]);
   }
 
@@ -100,7 +100,7 @@ namespace algebraica {
     return values_[0] == v[0] && values_[1] == v[1];
   }
 
-  ALGTEM const bool vec2<T>::operator==(const vec2<T> &v) const{
+  ALGTEM bool vec2<T>::operator==(const vec2<T> &v) const{
     return values_[0] == v[0] && values_[1] == v[1];
   }
 
@@ -108,7 +108,7 @@ namespace algebraica {
     return !(values_[0] == v[0] && values_[1] == v[1]);
   }
 
-  ALGTEM const bool vec2<T>::operator!=(const vec2<T> &v) const{
+  ALGTEM bool vec2<T>::operator!=(const vec2<T> &v) const{
     return !(values_[0] == v[0] && values_[1] == v[1]);
   }
 
@@ -116,7 +116,7 @@ namespace algebraica {
     return length() > v.length();
   }
 
-  ALGTEM const bool vec2<T>::operator>(const vec2<T> &v) const{
+  ALGTEM bool vec2<T>::operator>(const vec2<T> &v) const{
     return length() > v.length();
   }
 
@@ -124,7 +124,7 @@ namespace algebraica {
     return length() < v.length();
   }
 
-  ALGTEM const bool vec2<T>::operator<(const vec2<T> &v) const{
+  ALGTEM bool vec2<T>::operator<(const vec2<T> &v) const{
     return length() < v.length();
   }
 
@@ -132,7 +132,7 @@ namespace algebraica {
     return length() >= v.length();
   }
 
-  ALGTEM const bool vec2<T>::operator>=(const vec2<T> &v) const{
+  ALGTEM bool vec2<T>::operator>=(const vec2<T> &v) const{
     return length() >= v.length();
   }
 
@@ -140,7 +140,7 @@ namespace algebraica {
     return length() <= v.length();
   }
 
-  ALGTEM const bool vec2<T>::operator<=(const vec2<T> &v) const{
+  ALGTEM bool vec2<T>::operator<=(const vec2<T> &v) const{
     return length() <= v.length();
   }
 

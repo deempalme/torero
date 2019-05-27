@@ -30,8 +30,8 @@ namespace algebraica {
     vec2<T> operator+(const vec2<T> &v);
     const vec2<T> operator+(const vec2<T> &v) const;
     // vector substraction
-    vec2<T> operator-(vec2<T> &v);
-    const vec2<T> operator-(vec2<T> &v) const;
+    vec2<T> operator-(const vec2<T> &v);
+    const vec2<T> operator-(const vec2<T> &v) const;
     // vector multiplication
     vec2<T> operator*(const vec2<T> &v);
     const vec2<T> operator*(const vec2<T> &v) const;
@@ -62,22 +62,22 @@ namespace algebraica {
     }
     // verifying if two vectors are equal
     bool operator==(const vec2<T> &v);
-    const bool operator==(const vec2<T> &v) const;
+    bool operator==(const vec2<T> &v) const;
     // verifying if two vectors are different
     bool operator!=(const vec2<T> &v);
-    const bool operator!=(const vec2<T> &v) const;
+    bool operator!=(const vec2<T> &v) const;
     // vectors dimensional comparation (greater than)
     bool operator>(const vec2<T> &v);
-    const bool operator>(const vec2<T> &v) const;
+    bool operator>(const vec2<T> &v) const;
     // vectors dimensional comparation (lesser than)
     bool operator<(const vec2<T> &v);
-    const bool operator<(const vec2<T> &v) const;
+    bool operator<(const vec2<T> &v) const;
     // vectors dimensional comparation (greater or equal than)
     bool operator>=(const vec2<T> &v);
-    const bool operator>=(const vec2<T> &v) const;
+    bool operator>=(const vec2<T> &v) const;
     // vectors dimensional comparation (lesser or equal than)
     bool operator<=(const vec2<T> &v);
-    const bool operator<=(const vec2<T> &v) const;
+    bool operator<=(const vec2<T> &v) const;
     // pointer to vector data
     T* data();
     // constant pointer to vector data
@@ -101,6 +101,9 @@ namespace algebraica {
   typedef vec2<float> vec2f;
   typedef vec2<int> vec2i;
 
+  extern template class vec2<double>;
+  extern template class vec2<float>;
+  extern template class vec2<int>;
 }
 
 #endif // ALGEBRAICA_VECTOR2_H

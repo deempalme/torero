@@ -3,103 +3,159 @@ cmake_minimum_required(VERSION 3.5)
 
 if(NOT TARGET ${TORERO_LIB})
   #project name
-  set(TORERO_NAME Torero)
+  set(TORERO_NAME torero)
   project(${TORERO_NAME})
 
   # As moc files are generated in the binary dir, tell CMake
   # to always look for includes there:
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  # compatibility with c++14
+  # Compatibility with c++14
   set(CMAKE_CXX_STANDARD 14)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
+  # Compatilibity with c++14 in Qt
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
   # finding dependencies
   find_package(OpenGL REQUIRED)
   find_package(Boost REQUIRED COMPONENTS system chrono filesystem thread)
   find_package(Threads REQUIRED)
-
-  # Loading GLFW
-  find_package(PkgConfig REQUIRED)
-  pkg_search_module(GLFW REQUIRED glfw3)
-  include_directories(${GLFW_INCLUDE_DIRS})
-  # GLFW requires X11 and some of its components:
-  find_package(X11 REQUIRED COMPONETS xrandr xinerama xxf86vm xcursor)
+  # Loading SDL2
+  find_package(SDL2 REQUIRED)
 
   #header files
   set(HPP_FILES
-    include/torero/buffer.h
-    include/torero/camera.h
-    include/torero/camera_element.h
-    include/torero/camera_manager.h
+    # Camera
+    include/torero/camera/camera.h
+    include/torero/camera/manager.h
+    include/torero/camera/view.h
+    # Covariance
+    include/torero/covariance/covariance.h
+    include/torero/covariance/manager.h
+    # General definitions
+    include/torero/definition/constant_expressions.h
+    include/torero/definition/enumerators.h
+    include/torero/definition/types.h
+    # Keyboard, mouse, touch events
+    include/torero/event/handler.h
+    # File utilities
+    include/torero/file/manager.h
+    # OpenGL utilities
+    include/torero/gl/buffer.h
+    include/torero/gl/frame_buffer.h
+    include/torero/gl/render_buffer.h
+    include/torero/gl/render_processor.h
+    include/torero/gl/shader.h
+    include/torero/gl/texture.h
+    include/torero/gl/uniform_buffer.h
+    # Ground
+    include/torero/ground/ground.h
+    include/torero/ground/line_grid.h
+    include/torero/ground/manager.h
+    # GUI
+    include/torero/gui/compass.h
+    include/torero/gui/controller.h
+    include/torero/gui/cursors.h
+    include/torero/gui/loader.h
+    include/torero/gui/manager.h
+    include/torero/gui/menu.h
+#    include/torero/gui/options.h
+    include/torero/gui/screen_conversor.h
+    include/torero/gui/speedometer.h
+    include/torero/gui/title_bar.h
+    # Image file utilities
+    include/torero/image/manager.h
+    # 3D models
+    include/torero/model/environment.h
+    include/torero/model/loader.h
+    include/torero/model/manager.h
+#    include/torero/model/skybox.h
+    # Objects
+    include/torero/object/manager.h
+    include/torero/object/objects.h
+    # Point clouds
+    include/torero/point_cloud/manager.h
+    include/torero/point_cloud/cloud.h
+    # Terminal utilities
+    include/torero/terminal/printer.h
+    # Text
+    include/torero/text/font_loader.h
+    include/torero/text/manager.h
+    include/torero/text/text_object.h
+    # Multithreading
+    include/torero/thread/manager.h
+    # Trajectories
+    include/torero/trajectory/manager.h
+    include/torero/trajectory/trajectories.h
+    # Vehicle
+    include/torero/vehicle/manager.h
+    # Main
     include/torero/core.h
-    include/torero/cubemap.h
-    include/torero/constant_expressions.h
-    include/torero/enumerators.h
-    include/torero/font_loader.h
-    include/torero/frame_buffer.h
-    include/torero/gui_compass.h
-    include/torero/gui_loader.h
-    include/torero/gui_manager.h
-    include/torero/gui_menu.h
-    include/torero/gui_speedometer.h
-    include/torero/gui_title_bar.h
-    include/torero/ground.h
-    include/torero/ground_manager.h
-    include/torero/line_grid.h
-    include/torero/model_manager.h
-    include/torero/multithread_manager.h
-    include/torero/objects.h
-    include/torero/object_manager.h
-    include/torero/point_cloud_manager.h
-    include/torero/point_cloud.h
-    include/torero/render_buffer.h
-    include/torero/screen_conversor.h
-    include/torero/shader.h
-    include/torero/skybox.h
-    include/torero/text_manager.h
-    include/torero/text_object.h
-    include/torero/texture.h
-    include/torero/three_dimensional_model_loader.h
-    include/torero/trajectories.h
-    include/torero/trajectory_manager.h
-    include/torero/type_definitions.h
-#    include/torero/utilities.h
-    include/torero/vehicle_manager.h
   )
 
   #source files
   set(CPP_FILES
-    src/camera.cpp
-    src/camera_element.cpp
-    src/camera_manager.cpp
-    src/core.cpp
-    src/cubemap.cpp
-    src/font_loader.cpp
-    src/gui_compass.cpp
-    src/gui_loader.cpp
-    src/gui_manager.cpp
-    src/gui_menu.cpp
-    src/gui_speedometer.cpp
-    src/gui_title_bar.cpp
-    src/ground.cpp
-    src/ground_manager.cpp
-    src/line_grid.cpp
-    src/model_manager.cpp
-    src/multithread_manager.cpp
-    src/objects.cpp
-    src/object_manager.cpp
-    src/point_cloud_manager.cpp
-    src/point_cloud.cpp
-    src/screen_conversor.cpp
-    src/skybox.cpp
-    src/text_manager.cpp
-    src/text_object.cpp
-    src/three_dimensional_model_loader.cpp
-    src/trajectories.cpp
-    src/trajectory_manager.cpp
-#    src/utilities.cpp
-    src/vehicle_manager.cpp
+    # Camera
+    src/torero/camera/camera.cpp
+    src/torero/camera/manager.cpp
+    src/torero/camera/view.cpp
+    # Covariance
+    src/torero/covariance/covariance.cpp
+    src/torero/covariance/manager.cpp
+    # Keyboard, mouse, touch events
+    src/torero/event/handler.cpp
+    # File utilities
+    src/torero/file/manager.cpp
+    # OpenGL utilities
+    src/torero/gl/buffer.cpp
+    src/torero/gl/frame_buffer.cpp
+    src/torero/gl/render_buffer.cpp
+    src/torero/gl/render_processor.cpp
+    src/torero/gl/texture.cpp
+    # Ground
+    src/torero/ground/ground.cpp
+    src/torero/ground/line_grid.cpp
+    src/torero/ground/manager.cpp
+    # GUI
+    src/torero/gui/compass.cpp
+    src/torero/gui/controller.cpp
+    src/torero/gui/cursors.cpp
+    src/torero/gui/loader.cpp
+    src/torero/gui/manager.cpp
+    src/torero/gui/menu.cpp
+#    src/torero/gui/options.cpp
+    src/torero/gui/screen_conversor.cpp
+    src/torero/gui/speedometer.cpp
+    src/torero/gui/title_bar.cpp
+    # Image file utilities
+    src/torero/image/manager.cpp
+    # 3D models
+    src/torero/model/environment.cpp
+    src/torero/model/loader.cpp
+    src/torero/model/manager.cpp
+#    src/torero/model/skybox.cpp
+    src/torero/vehicle/manager.cpp
+    # Objects
+    src/torero/object/manager.cpp
+    src/torero/object/objects.cpp
+    # Point clouds
+    src/torero/point_cloud/manager.cpp
+    src/torero/point_cloud/cloud.cpp
+    # Terminal utilities
+    src/torero/terminal/printer.cpp
+    # Text
+    src/torero/text/font_loader.cpp
+    src/torero/text/manager.cpp
+    src/torero/text/text_object.cpp
+    # Multithreading
+    src/torero/thread/manager.cpp
+    # Trajectories
+    src/torero/trajectory/manager.cpp
+    src/torero/trajectory/trajectories.cpp
+    # vehicle
+    src/torero/vehicle/manager.cpp
+    # Main
+    src/torero/core.cpp
   )
 
   #resource files
@@ -108,6 +164,8 @@ if(NOT TARGET ${TORERO_LIB})
     resources/shaders/brdf.vert
     resources/shaders/irradiance.frag
     resources/shaders/cubemap.vert
+    resources/shaders/cubemap_generator.frag
+    resources/shaders/cubemap_generator.vert
     resources/shaders/ground.frag
     resources/shaders/ground.geom
     resources/shaders/ground.vert
@@ -126,6 +184,7 @@ if(NOT TARGET ${TORERO_LIB})
     resources/shaders/objects.vert
     resources/shaders/PBR.frag
     resources/shaders/PBR.vert
+    resources/shaders/PBR_complex.vert
     resources/shaders/point_cloud.frag
     resources/shaders/point_cloud.vert
     resources/shaders/prefilter.frag
@@ -138,6 +197,66 @@ if(NOT TARGET ${TORERO_LIB})
     resources/shaders/trajectory.geom
     resources/shaders/trajectory.vert
   )
+
+  # // ------------------------------------------------------------------------------------ //
+  # // --------------------------------------- ROS ---------------------------------------- //
+  # // ------------------------------------------------------------------------------------ //
+  if(DEFINED CATKIN_DEVEL_PREFIX)
+    #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
+    #      adding all the ROS elements inside this IF conditional      #
+    #––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––#
+    ## Find catkin macros and libraries
+    ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+    ## is used, also find other catkin packages
+    find_package(catkin REQUIRED COMPONENTS
+      rosbag
+      roscpp
+      roslib
+    )
+    ###################################
+    ## catkin specific configuration ##
+    ###################################
+    ## The catkin_package macro generates cmake config files for your package
+    ## Declare things to be passed to dependent projects
+    ## INCLUDE_DIRS: uncomment this if you package contains header files
+    ## LIBRARIES: libraries you create in this project that dependent projects also need
+    ## CATKIN_DEPENDS: catkin_packages dependent projects also need
+    ## DEPENDS: system dependencies of this project that dependent projects also need
+    catkin_package(
+      #INCLUDE_DIRS include
+      CATKIN_DEPENDS roscpp rosbag
+      LIBRARIES ${TORERO_NAME}
+    )
+
+    set(ROS_HPP_FILES
+      include/torero/ros/bag_controller.h
+    )
+    set(ROS_CPP_FILES
+      src/torero/ros/bag_controller.cpp
+    )
+
+    #ros directory
+    set(ROS_INC_DIR /opt/ros/kinetic)
+
+    #set include directories
+    set(INC_DIRS
+      ${ROS_INC_DIR}/include
+      ${catkin_INCLUDE_DIRS}
+    )
+
+    #set lib directories
+    set(LIB_DIRS
+      ${ROS_INC_DIR}/lib
+    )
+
+    #include directories
+    include_directories(${INC_DIRS})
+    link_directories(${LIB_DIRS})
+
+  endif(DEFINED CATKIN_DEVEL_PREFIX)
+  # // ------------------------------------------------------------------------------------ //
+  # // ------------------------------------- END ROS -------------------------------------- //
+  # // ------------------------------------------------------------------------------------ //
 
   # ++++++++++++++++++++++++++++++++++++++ GLAD ++++++++++++++++++++++++++++++++++++++
   # adding the root directory of the GLAD source tree to your project
@@ -159,7 +278,7 @@ if(NOT TARGET ${TORERO_LIB})
   add_definitions(-DSTB_IMAGE_STATIC)
   add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
   add_definitions(-DSTB_IMAGE_WRITE_IMPLEMENTATION)
-  add_definitions(-DSTBI_NO_HDR)
+#  add_definitions(-DSTBI_NO_HDR)
   # adding the root directory of the stb library source tree to your project
   set(STB_FILES
     lib/stb/stb_image.h
@@ -171,7 +290,8 @@ if(NOT TARGET ${TORERO_LIB})
     ${ALGEBRAICA_DIRS}
     ${COORDINATE_DIRS}
     lib/stb
-    ${Boost_INCLUDE_DIR}
+    ${SDL2_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
     include
   )
 
@@ -190,13 +310,13 @@ if(NOT TARGET ${TORERO_LIB})
 
   set(TORERO_LIB ${TORERO_NAME} CACHE INTERNAL "")
 
-  file(GLOB_RECURSE RESOURCES
+  file(GLOB RESOURCES
     LIST_DIRECTORIES true
-    ${PROJECT_SOURCE_DIR}/resources/*
+    ${PROJECT_SOURCE_DIR}/resources/[!.]*
   )
   foreach(RESOURCE ${RESOURCES})
     if(IS_DIRECTORY ${RESOURCE})
-      file(COPY ${RESOURCE} DESTINATION ${CMAKE_BINARY_DIR}/resources)
+      file(COPY ${RESOURCE} DESTINATION ${PROJECT_BINARY_DIR}/resources)
     endif(IS_DIRECTORY ${RESOURCE})
   endforeach(RESOURCE)
 
@@ -206,21 +326,19 @@ if(NOT TARGET ${TORERO_LIB})
     ${STB_FILES}
     ${HPP_FILES}
     ${CPP_FILES}
+    ${ROS_HPP_FILES}
+    ${ROS_CPP_FILES}
     ${RESOURCE_FILES}
   )
 
-  # Including X11 directories
-  include_directories(
-    ${X11_INCLUDE_DIR}
-    ${X11_Xcursor_INCLUDE_PATH}
-    ${X11_Xxf86vm_INCLUDE_PATH}
-    ${X11_Xinerama_INCLUDE_PATH}
-    ${X11_Xrandr_INCLUDE_PATH}
+  target_compile_definitions(${TORERO_NAME}
+    PUBLIC
+    TORERO_RESOURCE_DIR="${PROJECT_BINARY_DIR}"
   )
 
   #indicates which libraries to use in the executable
   target_link_libraries(${TORERO_NAME}
-    ${GLFW_LIBRARIES}
+    ${SDL2_LIBRARIES}
     ${ALGEBRAICA_LIB}
     ${COORDINATE_LIB}
     # Multithread management library
@@ -231,16 +349,33 @@ if(NOT TARGET ${TORERO_LIB})
     ${CMAKE_DL_LIBS}
     # OpenGL libraries
     ${OPENGL_LIBRARIES}
-    # X11 libraries
-    ${X11_LIBRARIES}
-    ${X11_Xcursor_LIB}
-    ${X11_Xxf86vm_LIB}
-    ${X11_Xinerama_LIB}
-    ${X11_Xrandr_LIB}
+    # Catkin
+    ${catkin_LIBRARIES}
   )
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-function -pedantic")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunreachable-code -Wno-ignored-qualifiers")
+#  if(DEFINED CATKIN_DEVEL_PREFIX)
+#    add_dependencies(${TORERO_NAME}
+#      ${catkin_EXPORTED_TARGETS}
+#    )
+#  endif(DEFINED CATKIN_DEVEL_PREFIX)
+
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-function -pedantic")
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align")
+  #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wunreachable-code -Wno-ignored-qualifiers")
+
+  # Color sets:
+  if(NOT WIN32)
+    string(ASCII 27 Esc)
+    set(ColourReset "${Esc}[0m")
+    set(BoldGreen   "${Esc}[1;32m")
+  endif()
+  # This will print the folder where the "resources" folder is located
+  # Remember to execute you program inside the folder below, so, torero would be able to
+  # find all 3D models and images
+  message(
+    "\n\n${BoldGreen}" # Coloring text to bold green (ignore both "\n")
+    "THIS IS THE TORERO BUILD FOLDER: ${PROJECT_BINARY_DIR} HERE... HERE..."
+    "\n\n${ColourReset}" # Restarting color back to normal (ignore both "\n")
+  )
 
 endif(NOT TARGET ${TORERO_LIB})
