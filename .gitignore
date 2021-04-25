@@ -31,6 +31,6 @@
 *.out
 *.app
 
-# Excluding compiled files and folders
-/lib/coordinate_conversor
-CMakeLists.txt
+# Qt files
+*.user
+build/*

@@ -3,4 +3,10 @@
 	url = https://github.com/nothings/stb.git
 [submodule "resources/models3D"]
 	path = resources/models3D
-	url = https://github.com/DroidDrive/models3D.git
+	url = https://github.com/deempalme/models_3D.git
+[submodule "lib/GPS_coordinate_converter"]
+	path = lib/GPS_coordinate_converter
+	url = https://github.com/deempalme/GPS_coordinate_converter.git
+[submodule "lib/algebraica"]
+	path = lib/algebraica
+	url = https://github.com/deempalme/algebraica.git
