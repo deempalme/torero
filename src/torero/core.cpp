@@ -161,11 +161,9 @@ namespace torero {
     delete image_manager_;
     delete text_manager_;
 
-    if(window_){
-      SDL_GL_DeleteContext(context_);
-      SDL_DestroyWindow(window_);
-      SDL_Quit();
-    }
+    if(context_) SDL_GL_DeleteContext(context_);
+    if(window_) SDL_DestroyWindow(window_);
+    SDL_Quit();
   }
 
   torero::camera::View &Core::camera(){

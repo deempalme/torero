@@ -32,5 +32,6 @@
 *.app
 
 # Excluding compiled files and folders
-#/lib/coordinate_conversor
 *.user
+build/*
+package.xml

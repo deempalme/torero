@@ -2,7 +2,7 @@
 #define TORERO_ENVIRONMENT_H
 
 #include "glad/glad.h"
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 #include "torero/gl/buffer.h"
 #include "torero/gl/shader.h"

@@ -406,11 +406,9 @@ namespace torero {
      */
     boost::signals2::connection connect_sreeen_updates(boost::function<void ()> callback);
 
-  protected:
-    virtual void initialize();
-    virtual void paint();
-
   private:
+    void initialize();
+    void paint();
     void updated_camera();
     void load_window_icon();
 

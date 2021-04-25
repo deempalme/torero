@@ -1,20 +1,15 @@
 #cmake version
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12...3.15)
 
 if(NOT TARGET ${TORERO_LIB})
   #project name
   set(TORERO_NAME torero)
-  project(${TORERO_NAME})
 
-  # As moc files are generated in the binary dir, tell CMake
-  # to always look for includes there:
-  set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  # Compatibility with c++14
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-  # Compatilibity with c++14 in Qt
-#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+  project(${TORERO_NAME}
+    VERSION 2.0.1
+    DESCRIPTION "Torero visualization"
+    LANGUAGES CXX C
+  )
 
   # finding dependencies
   find_package(OpenGL REQUIRED)
@@ -274,11 +269,6 @@ if(NOT TARGET ${TORERO_LIB})
   # adding the root directory of coordinate_conversor source tree to your project
   add_subdirectory(lib/gps_coordinate_conversor)
 
-  # ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
-  add_definitions(-DSTB_IMAGE_STATIC)
-  add_definitions(-DSTB_IMAGE_IMPLEMENTATION)
-  add_definitions(-DSTB_IMAGE_WRITE_IMPLEMENTATION)
-#  add_definitions(-DSTBI_NO_HDR)
   # adding the root directory of the stb library source tree to your project
   set(STB_FILES
     lib/stb/stb_image.h
@@ -295,8 +285,6 @@ if(NOT TARGET ${TORERO_LIB})
     include
   )
 
-  include_directories(${TORERO_DIRS_LOCAL})
-
   set(TORERO_DIRS
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/include
@@ -310,15 +298,7 @@ if(NOT TARGET ${TORERO_LIB})
 
   set(TORERO_LIB ${TORERO_NAME} CACHE INTERNAL "")
 
-  file(GLOB RESOURCES
-    LIST_DIRECTORIES true
-    ${PROJECT_SOURCE_DIR}/resources/[!.]*
-  )
-  foreach(RESOURCE ${RESOURCES})
-    if(IS_DIRECTORY ${RESOURCE})
-      file(COPY ${RESOURCE} DESTINATION ${PROJECT_BINARY_DIR}/resources)
-    endif(IS_DIRECTORY ${RESOURCE})
-  endforeach(RESOURCE)
+  file(COPY ${PROJECT_SOURCE_DIR}/resources DESTINATION ${PROJECT_BINARY_DIR})
 
   #add every file to the executable
   add_library(${TORERO_NAME}
@@ -331,11 +311,30 @@ if(NOT TARGET ${TORERO_LIB})
     ${RESOURCE_FILES}
   )
 
-  target_compile_definitions(${TORERO_NAME}
-    PUBLIC
-    TORERO_RESOURCE_DIR="${PROJECT_BINARY_DIR}"
+  set_target_properties(${TORERO_NAME} PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED TRUE
+    CXX_EXTENSIONS FALSE
   )
 
+  target_include_directories(${TORERO_NAME}
+    PRIVATE
+    ${TORERO_DIRS_LOCAL}
+  )
+
+  target_compile_definitions(${TORERO_NAME}
+    PRIVATE
+    TORERO_RESOURCE_DIR="${PROJECT_BINARY_DIR}"
+    STB_IMAGE_STATIC=1
+    STB_IMAGE_IMPLEMENTATION=1
+    STB_IMAGE_WRITE_IMPLEMENTATION=1
+    #STBI_NO_HDR=1
+  )
+
+  target_compile_features(${TORERO_NAME}
+    PRIVATE
+    cxx_std_14
+  )
   #indicates which libraries to use in the executable
   target_link_libraries(${TORERO_NAME}
     ${SDL2_LIBRARIES}
@@ -358,6 +357,22 @@ if(NOT TARGET ${TORERO_LIB})
 #      ${catkin_EXPORTED_TARGETS}
 #    )
 #  endif(DEFINED CATKIN_DEVEL_PREFIX)
+
+  target_compile_options(${PROJECT_NAME}
+    PRIVATE
+      -Wall
+      -Wextra
+      -Wundef
+      -pedantic
+      -Wconversion
+      -Wcast-align
+      -Wfloat-equal
+      -Wpointer-arith
+      -Wsign-conversion
+      -Wunreachable-code
+      -Wunused-function
+      -Wignored-qualifiers
+  )
 
   #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-function -pedantic")
   #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align")
