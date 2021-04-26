@@ -37,7 +37,7 @@ namespace Toreo {
     update();
   }
 
-  void Objects::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void Objects::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -113,22 +113,22 @@ namespace Toreo {
         buffer_hollow_.attributte_buffer(i_translation_, _3D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_translation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_.enable(i_rotation_);
         buffer_hollow_.attributte_buffer(i_rotation_, _3D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_.enable(i_color_);
         buffer_hollow_.attributte_buffer(i_color_, _4D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_color_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_hollow_.enable(i_scale_);
         buffer_hollow_.attributte_buffer(i_scale_, _3D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_scale_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_.enable(i_line_width_);
         buffer_hollow_.attributte_buffer(i_line_width_, _1D, offset, hollow_type_size_);
         buffer_hollow_.divisor(i_line_width_, 1);
@@ -138,15 +138,15 @@ namespace Toreo {
         buffer_hollow_data_->enable(i_position_);
         buffer_hollow_data_->attributte_buffer(i_position_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_data_->enable(i_normal_);
         buffer_hollow_data_->attributte_buffer(i_normal_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_hollow_data_->enable(i_uv_);
         buffer_hollow_data_->attributte_buffer(i_uv_, _2D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_hollow_data_->enable(i_scales_);
         buffer_hollow_data_->attributte_buffer(i_scales_, _3D, offset, buffer_size_);
         buffer_hollow_data_->buffer_release();
@@ -166,17 +166,17 @@ namespace Toreo {
         buffer_solid_.attributte_buffer(i_translation_, _3D, offset, solid_type_size_);
         buffer_solid_.divisor(i_translation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_.enable(i_rotation_);
         buffer_solid_.attributte_buffer(i_rotation_, _3D, offset, solid_type_size_);
         buffer_solid_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_.enable(i_color_);
         buffer_solid_.attributte_buffer(i_color_, _4D, offset, solid_type_size_);
         buffer_solid_.divisor(i_color_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_solid_.enable(i_scale_);
         buffer_solid_.attributte_buffer(i_scale_, _3D, offset, solid_type_size_);
         buffer_solid_.divisor(i_scale_, 1);
@@ -186,15 +186,15 @@ namespace Toreo {
         buffer_solid_data_->enable(i_position_);
         buffer_solid_data_->attributte_buffer(i_position_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_data_->enable(i_normal_);
         buffer_solid_data_->attributte_buffer(i_normal_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_solid_data_->enable(i_uv_);
         buffer_solid_data_->attributte_buffer(i_uv_, _2D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_solid_data_->enable(i_scales_);
         buffer_solid_data_->attributte_buffer(i_scales_, _3D, offset, buffer_size_);
         buffer_solid_data_->buffer_release();
@@ -214,17 +214,17 @@ namespace Toreo {
         buffer_arrow_.attributte_buffer(i_translation_, _3D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_translation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_.enable(i_rotation_);
         buffer_arrow_.attributte_buffer(i_rotation_, _3D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_rotation_, 1);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_.enable(i_color_);
         buffer_arrow_.attributte_buffer(i_color_, _4D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_color_, 1);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_arrow_.enable(i_scale_);
         buffer_arrow_.attributte_buffer(i_scale_, _3D, offset, solid_type_size_);
         buffer_arrow_.divisor(i_scale_, 1);
@@ -234,15 +234,15 @@ namespace Toreo {
         buffer_arrow_data_->enable(i_position_);
         buffer_arrow_data_->attributte_buffer(i_position_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_data_->enable(i_normal_);
         buffer_arrow_data_->attributte_buffer(i_normal_, _3D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_arrow_data_->enable(i_uv_);
         buffer_arrow_data_->attributte_buffer(i_uv_, _2D, offset, buffer_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_arrow_data_->enable(i_scales_);
         buffer_arrow_data_->attributte_buffer(i_scales_, _3D, offset, buffer_size_);
         buffer_arrow_data_->buffer_release();

@@ -10,7 +10,7 @@
 #include "include/texture.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -56,7 +56,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::Trajectory>*} trajectories = Address to the trajectory data
      * (see data types for more information).
      * {const std::string} name = Title to display for this trajectory.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const Visualizer::LineType} type = Type of line's appearance (see the description of
      * data types for more information).
@@ -68,7 +68,7 @@ namespace Toreo {
      */
     TMid add(const std::vector<Visualizer::Trajectory> *trajectories,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const Visualizer::LineType type = Visualizer::SOLID,
              const bool visible = true);
     /*
@@ -125,13 +125,13 @@ namespace Toreo {
      *
      * **Arguments**
      * {TMid} id = **id** of the trajectory you want to modify.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
+     * {const algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
      *
      * **Returns**
      * {bool} Returns `false` if the trajectory with **id** was **not** found.
      *
      */
-    bool set_transformation_matrix(TMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(TMid id, const algebraica::mat4f *transformation_matrix);
     /*
      * ### Translating the trajectory
      *

@@ -9,7 +9,7 @@
 #include "include/texture.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 
 #include <vector>
 
@@ -23,7 +23,7 @@ namespace Toreo {
 
     void change_input(const std::vector<Visualizer::Object> *objects);
 
-    void set_transformation_matrix(const Algebraica::mat4f *transformation_matrix);
+    void set_transformation_matrix(const algebraica::mat4f *transformation_matrix);
 
     void translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
     void rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
@@ -47,8 +47,8 @@ namespace Toreo {
     Visualizer::Shape type_;
     GLsizei type_size_hollow_, type_size_solid_, type_size_arrow_;
 
-    const Algebraica::mat4f *primary_model_;
-    Algebraica::mat4f secondary_model_, identity_matrix_;
+    const algebraica::mat4f *primary_model_;
+    algebraica::mat4f secondary_model_, identity_matrix_;
     GLsizei hollow_data_size_, solid_data_size_, arrow_data_size_;
     GLsizei hollow_type_size_, solid_type_size_;
     GLsizei buffer_size_;

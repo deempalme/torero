@@ -8,7 +8,7 @@
 #include "include/shader.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 
 #include <vector>
 
@@ -30,7 +30,7 @@ namespace Toreo {
     void change_input(const std::vector<Visualizer::FreePolarGround2D> *ground);
     void change_input(const std::vector<Visualizer::FreePolarGround3D> *ground);
 
-    void set_transformation_matrix(const Algebraica::mat4f *transformation_matrix);
+    void set_transformation_matrix(const algebraica::mat4f *transformation_matrix);
 
     void set_ground_size(const float width = 100.0f,
                          const float length = 100.0f,
@@ -40,9 +40,9 @@ namespace Toreo {
     void fog_visibility(const bool visible = true);
 
     void translate(const float x = 0.0f, const float y = 0.0f, const float z = 0.0f);
-    void translate(const Algebraica::vec3f translation);
+    void translate(const algebraica::vec3f translation);
     void rotate(const float pitch = 0.0f, const float yaw = 0.0f, const float roll = 0.0f);
-    void rotate(const Algebraica::vec3f rotation);
+    void rotate(const algebraica::vec3f rotation);
     void rotate_in_x(const float angle);
     void rotate_in_y(const float angle);
     void rotate_in_z(const float angle);
@@ -61,7 +61,7 @@ namespace Toreo {
     unsigned int quantity_width_, quantity_length_;
     bool fog_visibility_;
     int is_free_, is_polar_;
-    Algebraica::vec3f ground_position_;
+    algebraica::vec3f ground_position_;
 
     const std::vector<Visualizer::Ground2D> *ground_2D_;
     const std::vector<Visualizer::Ground3D> *ground_3D_;
@@ -70,8 +70,8 @@ namespace Toreo {
     const std::vector<Visualizer::FreePolarGround2D> *polar_ground_2D_;
     const std::vector<Visualizer::FreePolarGround3D> *polar_ground_3D_;
 
-    const Algebraica::mat4f *primary_model_;
-    Algebraica::mat4f secondary_model_, identity_matrix_;
+    const algebraica::mat4f *primary_model_;
+    algebraica::mat4f secondary_model_, identity_matrix_;
 
     GLsizei type_size_, data_size_;
 

@@ -154,10 +154,10 @@ namespace Toreo{
   }
 
   void ThreeDimensionalModelLoader::initialize(){
-    std::vector<Algebraica::vec3f> position, normal;
-    std::vector<Algebraica::vec2f> texture;
-    Algebraica::vec3f tvector;
-    Algebraica::vec2f ttexture;
+    std::vector<algebraica::vec3f> position, normal;
+    std::vector<algebraica::vec2f> texture;
+    algebraica::vec3f tvector;
+    algebraica::vec2f ttexture;
     std::vector<unsigned int> vertex_indices, texture_indices, normal_indices;
     unsigned int vertex_index[3], texture_index[3], normal_index[3];
     std::string line;
@@ -201,8 +201,8 @@ namespace Toreo{
 
       stbi_set_flip_vertically_on_load(true);
 
-      Algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
-      Algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
+      algebraica::vec3f v0, v1, v2, dP1, dP2, tangent, bitangent;
+      algebraica::vec2f uv0, uv1, uv2, dUV1, dUV2;
       int e{0};
 
       protector_.lock();
@@ -215,7 +215,7 @@ namespace Toreo{
         if(texture_indices.at(i) > 0)
           buffer_data_.at(i).texture = texture[texture_indices.at(i) - 1];
         else
-          buffer_data_.at(i).texture = Algebraica::vec2f();
+          buffer_data_.at(i).texture = algebraica::vec2f();
 
         v2 = v1;
         v1 = v0;
@@ -342,19 +342,19 @@ namespace Toreo{
         buffer_->enable(i_position_);
         buffer_->attributte_buffer(i_position_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_normal_);
         buffer_->attributte_buffer(i_normal_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_tangent_);
         buffer_->attributte_buffer(i_tangent_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_bitangent_);
         buffer_->attributte_buffer(i_bitangent_, _3D, offset, stride_size);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_->enable(i_uv_);
         buffer_->attributte_buffer(i_uv_, _2D, offset, stride_size);
 

@@ -1,7 +1,7 @@
 #ifndef TORERO_TYPES_H
 #define TORERO_TYPES_H
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 #include <boost/signals2.hpp>
 
 namespace Toreo {
@@ -18,24 +18,24 @@ namespace Visualizer {
   // ------------------------------------------------------------------------------------ //
   struct ComplexShaderData{
     // vertex position
-    Algebraica::vec3f position;
+    algebraica::vec3f position;
     // vertex normals
-    Algebraica::vec3f normal;
+    algebraica::vec3f normal;
     // vertex tangents
-    Algebraica::vec3f tangent;
+    algebraica::vec3f tangent;
     // vertex tangents
-    Algebraica::vec3f bitangent;
+    algebraica::vec3f bitangent;
     // vertex texture coordinates
-    Algebraica::vec2f texture;
+    algebraica::vec2f texture;
   };
 
   struct SimpleShaderData{
     // vertex position
-    Algebraica::vec3f position;
+    algebraica::vec3f position;
     // vertex normals
-    Algebraica::vec3f normal;
+    algebraica::vec3f normal;
     // vertex texture coordinates
-    Algebraica::vec2f texture;
+    algebraica::vec2f texture;
   };
 
   struct ImageFile{
@@ -48,8 +48,8 @@ namespace Visualizer {
   // ------------------------------- 3D MODEL MANAGEMENT -------------------------------- //
   // ------------------------------------------------------------------------------------ //
   struct Model3DElement{
-    const Algebraica::mat4f *main = nullptr;
-    Algebraica::mat4f secondary;
+    const algebraica::mat4f *main = nullptr;
+    algebraica::mat4f secondary;
     bool visibility = true;
     bool colorize = false;
     float R = 0.0f;
@@ -225,18 +225,18 @@ namespace Visualizer {
   };
 
   struct ObjectShaderHollow{
-    Algebraica::vec3f position;
-    Algebraica::vec3f rotation;
-    Algebraica::vec4f color;
-    Algebraica::vec3f scale;
+    algebraica::vec3f position;
+    algebraica::vec3f rotation;
+    algebraica::vec4f color;
+    algebraica::vec3f scale;
     float line_width;
   };
 
   struct ObjectShaderSolid{
-    Algebraica::vec3f position;
-    Algebraica::vec3f rotation;
-    Algebraica::vec4f color;
-    Algebraica::vec3f scale;
+    algebraica::vec3f position;
+    algebraica::vec3f rotation;
+    algebraica::vec4f color;
+    algebraica::vec3f scale;
   };
 
   struct ObjectBuffer{
@@ -287,8 +287,8 @@ namespace Visualizer {
   };
 
   struct TrajectoryShader{
-    Algebraica::vec3f position;
-    Algebraica::vec4f color;
+    algebraica::vec3f position;
+    algebraica::vec4f color;
     float line_width;
     float distance;
     float angle;
@@ -380,13 +380,13 @@ namespace Visualizer {
 #endif
 
   struct Ground2DShader{
-    Algebraica::vec3f position;
-    Algebraica::vec4f color;
+    algebraica::vec3f position;
+    algebraica::vec4f color;
   };
 
   struct Ground3DShader{
-    Algebraica::vec3f position;
-    Algebraica::vec4f color;
+    algebraica::vec3f position;
+    algebraica::vec4f color;
     float height;
   };
 

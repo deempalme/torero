@@ -11,7 +11,7 @@
 #include "include/texture.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -37,24 +37,24 @@ namespace Toreo {
     // modify properties or values of the created point cloud.
     OMid add_boxes(const std::vector<Visualizer::Object> *objects,
                    const std::string name,
-                   const Algebraica::mat4f *transformation_matrix = nullptr,
+                   const algebraica::mat4f *transformation_matrix = nullptr,
                    const bool visible = true);
     OMid add_circles(const std::vector<Visualizer::Object> *objects,
                      const std::string name,
-                     const Algebraica::mat4f *transformation_matrix = nullptr,
+                     const algebraica::mat4f *transformation_matrix = nullptr,
                      const bool visible = true);
     OMid add_cylinders(const std::vector<Visualizer::Object> *objects,
                        const std::string name,
-                       const Algebraica::mat4f *transformation_matrix = nullptr,
+                       const algebraica::mat4f *transformation_matrix = nullptr,
                        const bool visible = true);
     OMid add_squares(const std::vector<Visualizer::Object> *objects,
                      const std::string name,
-                     const Algebraica::mat4f *transformation_matrix = nullptr,
+                     const algebraica::mat4f *transformation_matrix = nullptr,
                      const bool visible = true);
     // This will change the input data for the Point cloud with ID = id
     bool change_input(OMid id, const std::vector<Visualizer::Object> *objects);
     // Sets the transformation matrix for the Point cloud with ID = id.
-    bool set_transformation_matrix(OMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(OMid id, const algebraica::mat4f *transformation_matrix);
     // Changes the visibility of the point cloud,
     // returns false if point cloud with ID = id was not found.
     bool set_visibility(OMid id, const bool visible = true);

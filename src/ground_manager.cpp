@@ -64,7 +64,7 @@ namespace Toreo {
                           const float length,
                           const unsigned int number_of_elements_through_width,
                           const unsigned int number_of_elements_through_length,
-                          const Algebraica::mat4f *transformation_matrix,
+                          const algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
     Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
@@ -85,7 +85,7 @@ namespace Toreo {
                           const float length,
                           const unsigned int number_of_elements_through_width,
                           const unsigned int number_of_elements_through_length,
-                          const Algebraica::mat4f *transformation_matrix,
+                          const algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
     Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
@@ -102,7 +102,7 @@ namespace Toreo {
 
   GMid GroundManager::add(const std::vector<Visualizer::FreeGround2D> *ground,
                           const std::string name,
-                          const Algebraica::mat4f *transformation_matrix,
+                          const algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
     Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
@@ -117,7 +117,7 @@ namespace Toreo {
 
   GMid GroundManager::add(const std::vector<Visualizer::FreeGround3D> *ground,
                           const std::string name,
-                          const Algebraica::mat4f *transformation_matrix,
+                          const algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
     Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
@@ -132,7 +132,7 @@ namespace Toreo {
 
   GMid GroundManager::add(const std::vector<Visualizer::FreePolarGround2D> *ground,
                           const std::string name,
-                          const Algebraica::mat4f *transformation_matrix,
+                          const algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
     Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
@@ -147,7 +147,7 @@ namespace Toreo {
 
   GMid GroundManager::add(const std::vector<Visualizer::FreePolarGround3D> *ground,
                           const std::string name,
-                          const Algebraica::mat4f *transformation_matrix,
+                          const algebraica::mat4f *transformation_matrix,
                           const bool ground_visible){
     Visualizer::GroundElement groundy = { new Ground(ground_shader_, ground),
                                           name, ground_visible };
@@ -242,7 +242,7 @@ namespace Toreo {
   bool GroundManager::grid_add(const float width, const float length,
                                const unsigned int line_quantity_through_width,
                                const unsigned int line_quantity_through_length,
-                               const Algebraica::mat4f *transformation_matrix){
+                               const algebraica::mat4f *transformation_matrix){
     const bool ok{!grid_};
 
     if(ok){
@@ -292,7 +292,7 @@ namespace Toreo {
     return ok;
   }
 
-  bool GroundManager::grid_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  bool GroundManager::grid_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     const bool ok{grid_};
 
     if(ok) grid_->transformation_matrix(transformation_matrix);
@@ -330,7 +330,7 @@ namespace Toreo {
   }
 
   bool GroundManager::set_transformation_matrix(GMid id,
-                                                const Algebraica::mat4f *transformation_matrix){
+                                                const algebraica::mat4f *transformation_matrix){
     if(grounds_.size() > id)
       if(grounds_.at(id).ground != nullptr){
         grounds_.at(id).ground->set_transformation_matrix(transformation_matrix);
@@ -492,20 +492,20 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f,-10.0f),
+      algebraica::vec3f( 10.0f, 10.0f,-10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(1.0f, 0.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 0.0f, 1.0f)
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 0.0f),
+      algebraica::vec3f(1.0f, 0.0f, 0.0f),
+      algebraica::vec3f(0.0f, 1.0f, 0.0f),
+      algebraica::vec3f(0.0f, 0.0f, 1.0f)
     };
 
-    Algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
+    algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
 
     ground_shader_->set_value(u_directional_light_ground_, sun_direction);
     ground_shader_->set_value(u_directional_light_color_ground_, sun_color);

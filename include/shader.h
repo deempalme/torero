@@ -3,7 +3,7 @@
 
 #include "glad/glad.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 
 #include <string>
 #include <fstream>
@@ -272,25 +272,25 @@ namespace Toreo {
       glUniform1f(uniform_location, value);
     }
     // vector 2D ------------------------------------------------------------------------
-    void set_value(const GLint uniform_location, const Algebraica::vec2f &vector){
+    void set_value(const GLint uniform_location, const algebraica::vec2f &vector){
       glUniform2fv(uniform_location, 1, vector.data());
     }
     void set_value(const GLint uniform_location, const float x, const float y){
       glUniform2f(uniform_location, x, y);
     }
     // vector 3D ------------------------------------------------------------------------
-    void set_value(const GLint uniform_location, const Algebraica::vec3f &vector){
+    void set_value(const GLint uniform_location, const algebraica::vec3f &vector){
       glUniform3fv(uniform_location, 1, vector.data());
     }
     void set_value(const GLint uniform_location, const float x, const float y, const float z){
       glUniform3f(uniform_location, x, y, z);
     }
-    void set_values(const GLint uniform_location, const Algebraica::vec3f *pointer_to_vector_array,
+    void set_values(const GLint uniform_location, const algebraica::vec3f *pointer_to_vector_array,
                     const GLsizei vector_array_size){
       glUniform3fv(uniform_location, vector_array_size, pointer_to_vector_array->data());
     }
     // vector 4D ------------------------------------------------------------------------
-    void set_value(const GLint uniform_location, const Algebraica::vec4f &vector){
+    void set_value(const GLint uniform_location, const algebraica::vec4f &vector){
       glUniform4fv(uniform_location, 1, vector.data());
     }
     void set_value(const GLint uniform_location,
@@ -298,11 +298,11 @@ namespace Toreo {
       glUniform4f(uniform_location, x, y, z, w);
     }
     // matrix 3D ------------------------------------------------------------------------
-    void set_value(const GLint uniform_location, const Algebraica::mat3f &matrix){
+    void set_value(const GLint uniform_location, const algebraica::mat3f &matrix){
       glUniformMatrix3fv(uniform_location, 1, GL_FALSE, matrix.data());
     }
     // matrix 4D ------------------------------------------------------------------------
-    void set_value(const GLint uniform_location, const Algebraica::mat4f &matrix){
+    void set_value(const GLint uniform_location, const algebraica::mat4f &matrix){
       glUniformMatrix4fv(uniform_location, 1, GL_FALSE, matrix.data());
     }
 

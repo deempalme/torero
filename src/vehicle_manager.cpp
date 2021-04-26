@@ -28,19 +28,19 @@ namespace Toreo {
       signal_update_.disconnect();
   }
 
-  void VehicleManager::position(double *latitude, double *longitude, float *altitude){
+  void VehicleManager::position(float *latitude, float *longitude, float *altitude){
     position_x_ = &null_;
     position_y_ = &null_;
 
     if(latitude)
       latitude_ = latitude;
     else
-      latitude_ = &null_d_;
+      latitude_ = &null_;
 
     if(longitude)
       longitude_ = longitude;
     else
-      longitude_ = &null_d_;
+      longitude_ = &null_;
 
     if(altitude)
       altitude_ = altitude;
@@ -48,7 +48,7 @@ namespace Toreo {
       altitude_ = &null_;
   }
 
-  void VehicleManager::position(float *x, float *y, float *z){
+  void VehicleManager::position_xyz(float *x, float *y, float *z){
     latitude_ = nullptr;
     longitude_ = nullptr;
 
@@ -122,7 +122,7 @@ namespace Toreo {
     float position_z;
 
     if(latitude_ && longitude_){
-      Visualizer::pointXY<float> distance = GPS_.GPS_to_origin();
+      ramrod::point_xy<float> distance = GPS_.gps_to_origin();
       position_x = distance.x;
       position_z = -distance.y;
     }else{
@@ -137,11 +137,11 @@ namespace Toreo {
     navigation_frame_ = vehicle_frame_.only_translation();
   }
 
-  const Algebraica::mat4f *VehicleManager::navigation_frame() const{
+  const algebraica::mat4f *VehicleManager::navigation_frame() const{
     return &navigation_frame_;
   }
 
-  const Algebraica::mat4f *VehicleManager::vehicle_frame() const{
+  const algebraica::mat4f *VehicleManager::vehicle_frame() const{
     return &vehicle_frame_;
   }
 }

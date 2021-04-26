@@ -11,7 +11,7 @@
 #include "include/texture.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -63,7 +63,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -77,7 +77,7 @@ namespace Toreo {
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new *uniform* three-dimensional ground
@@ -96,7 +96,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} number_of_elements_through_length = Quantity of elements along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -110,7 +110,7 @@ namespace Toreo {
              const float length = 100.0f,
              const unsigned int number_of_elements_through_width = 100u,
              const unsigned int number_of_elements_through_length = 100u,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new two-dimensional ground
@@ -124,7 +124,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::FreeGround2D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -134,7 +134,7 @@ namespace Toreo {
      */
     GMid add(const std::vector<Visualizer::FreeGround2D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new three-dimensional ground
@@ -148,7 +148,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::FreeGround3D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -158,7 +158,7 @@ namespace Toreo {
      */
     GMid add(const std::vector<Visualizer::FreeGround3D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new two-dimensional ground that uses polar values
@@ -172,7 +172,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::FreePolarGround2D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -182,7 +182,7 @@ namespace Toreo {
      */
     GMid add(const std::vector<Visualizer::FreePolarGround2D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Adding a new three-dimensional ground that uses polar values
@@ -196,7 +196,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::FreePolarGround3D>*} ground = Address to the ground data
      * (see data types for more information).
      * {const std::string} name = Title to display for this ground.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} ground_visible = Visibility of this ground.
      *
@@ -206,7 +206,7 @@ namespace Toreo {
      */
     GMid add(const std::vector<Visualizer::FreePolarGround3D> *ground,
              const std::string name,
-             const Algebraica::mat4f *transformation_matrix = nullptr,
+             const algebraica::mat4f *transformation_matrix = nullptr,
              const bool ground_visible = true);
     /*
      * ### Changing the ground data input: uniform 2D ground
@@ -333,7 +333,7 @@ namespace Toreo {
      * lateral axis.
      * {const unsigned int} line_quantity_through_length = Quantity of lines along the
      * longitudinal axis.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      *
      * **Returns**
@@ -344,7 +344,7 @@ namespace Toreo {
                   const float length = 100.0f,
                   const unsigned int line_quantity_through_width = 100u,
                   const unsigned int line_quantity_through_length = 100u,
-                  const Algebraica::mat4f *transformation_matrix = nullptr);
+                  const algebraica::mat4f *transformation_matrix = nullptr);
     /*
      * ### Changing the lines' color
      *
@@ -437,14 +437,14 @@ namespace Toreo {
      * the transformation matrix, then, it will take the "fixed frame" transformation matrix.
      *
      * **Arguments**
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      *
      * **Returns**
      * {bool} Returns `false` if the line grid **has not been** created.
      *
      */
-    bool grid_transformation_matrix(const Algebraica::mat4f *transformation_matrix = nullptr);
+    bool grid_transformation_matrix(const algebraica::mat4f *transformation_matrix = nullptr);
     /*
      * ### Changing the line grid's visibility
      *
@@ -502,13 +502,13 @@ namespace Toreo {
      *
      * **Arguments**
      * {GMid} id = **id** of the ground you want to modify.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
+     * {const algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
      *
      * **Returns**
      * {bool} Returns `false` if the ground with **id** was **not** found.
      *
      */
-    bool set_transformation_matrix(GMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(GMid id, const algebraica::mat4f *transformation_matrix);
     /*
      * ### Translating the ground
      *

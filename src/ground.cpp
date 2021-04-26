@@ -217,7 +217,7 @@ namespace Toreo {
     is_polar_ = 1;
   }
 
-  void Ground::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void Ground::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -246,8 +246,8 @@ namespace Toreo {
     secondary_model_.rotate(pitch, yaw, roll);
   }
 
-  void Ground::rotate(const Algebraica::vec3f rotation){
-    secondary_model_.rotate(rotation.x(), rotation.y(), rotation.z());
+  void Ground::rotate(const algebraica::vec3f rotation){
+    secondary_model_.rotate(rotation.x, rotation.y, rotation.z);
   }
 
   void Ground::rotate_in_x(const float angle){
@@ -295,7 +295,7 @@ namespace Toreo {
           buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
 
           buffer_.enable(i_color_);
-          buffer_.attributte_buffer(i_color_, _4D, sizeof(Algebraica::vec3f), type_size_);
+          buffer_.attributte_buffer(i_color_, _4D, sizeof(algebraica::vec3f), type_size_);
 
           buffer_.disable(i_dimension_);
           buffer_.disable(i_height_);
@@ -328,13 +328,13 @@ namespace Toreo {
           buffer_.enable(i_position_);
           buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
 
-          offset += sizeof(Algebraica::vec3f);
+          offset += sizeof(algebraica::vec3f);
           buffer_.enable(i_color_);
           buffer_.attributte_buffer(i_color_, _4D, offset, type_size_);
 
           buffer_.disable(i_dimension_);
 
-          offset += sizeof(Algebraica::vec4f);
+          offset += sizeof(algebraica::vec4f);
           buffer_.enable(i_height_);
           buffer_.attributte_buffer(i_height_, _1D, offset, type_size_);
 
@@ -352,11 +352,11 @@ namespace Toreo {
         buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _3D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_.enable(i_color_);
         buffer_.attributte_buffer(i_color_, _4D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_.enable(i_dimension_);
         buffer_.attributte_buffer(i_dimension_, _2D, offset, type_size_);
 
@@ -373,15 +373,15 @@ namespace Toreo {
         buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
 
-        offset += sizeof(Algebraica::vec3f);
+        offset += sizeof(algebraica::vec3f);
         buffer_.enable(i_color_);
         buffer_.attributte_buffer(i_color_, _4D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_.enable(i_dimension_);
         buffer_.attributte_buffer(i_dimension_, _2D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_.enable(i_height_);
         buffer_.attributte_buffer(i_height_, _1D, offset, type_size_);
 
@@ -396,11 +396,11 @@ namespace Toreo {
         buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _2D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_.enable(i_color_);
         buffer_.attributte_buffer(i_color_, _4D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_.enable(i_dimension_);
         buffer_.attributte_buffer(i_dimension_, _2D, offset, type_size_);
 
@@ -417,15 +417,15 @@ namespace Toreo {
         buffer_.enable(i_position_);
         buffer_.attributte_buffer(i_position_, _2D, 0, type_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_.enable(i_color_);
         buffer_.attributte_buffer(i_color_, _4D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec4f);
+        offset += sizeof(algebraica::vec4f);
         buffer_.enable(i_dimension_);
         buffer_.attributte_buffer(i_dimension_, _2D, offset, type_size_);
 
-        offset += sizeof(Algebraica::vec2f);
+        offset += sizeof(algebraica::vec2f);
         buffer_.enable(i_height_);
         buffer_.attributte_buffer(i_height_, _1D, offset, type_size_);
 

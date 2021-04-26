@@ -32,7 +32,7 @@ namespace Toreo {
                             const unsigned int line_quantity_through_width,
                             const unsigned int line_quantity_through_length){
     if(shader_->use()){
-      GLsizei type_size{sizeof(Algebraica::vec3f)};
+      GLsizei type_size{sizeof(algebraica::vec3f)};
       float half_width{width/2.0f};
       float half_length{length/2.0f};
 
@@ -40,7 +40,7 @@ namespace Toreo {
       float length_separation{length/line_quantity_through_length};
 
       data_size_ = (line_quantity_through_width + line_quantity_through_length + 2) * 2;
-      Algebraica::vec3f line_points[data_size_];
+      algebraica::vec3f line_points[data_size_];
 
       int e{-1};
       for(int i = 0; i <= line_quantity_through_width; ++i){
@@ -70,7 +70,7 @@ namespace Toreo {
     secondary_model_.translate(x, y, z);
   }
 
-  void LineGrid::transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void LineGrid::transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 

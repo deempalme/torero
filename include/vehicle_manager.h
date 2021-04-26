@@ -4,8 +4,8 @@
 #include "include/definitions.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
-#include "coordinate_conversor.h"
+#include "algebraica/algebraica.h"
+#include "ramrod/gps/coordinate_conversor.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -21,9 +21,9 @@ namespace Toreo {
     VehicleManager();
     ~VehicleManager();
 
-    void position(double *latitude = nullptr, double *longitude = nullptr,
+    void position(float *latitude = nullptr, float *longitude = nullptr,
                   float *altitude = nullptr);
-    void position(float *x = nullptr, float *y = nullptr, float *z = nullptr);
+    void position_xyz(float *x = nullptr, float *y = nullptr, float *z = nullptr);
     void orietation(float *pitch = nullptr, float *yaw = nullptr, float *roll = nullptr);
 
     void velocity(float *x = nullptr, float *y = nullptr, float *z = nullptr);
@@ -32,22 +32,22 @@ namespace Toreo {
     void connect(boost::signals2::signal<void ()> *signal);
     void update();
 
-    const Algebraica::mat4f *navigation_frame() const;
-    const Algebraica::mat4f *vehicle_frame() const;
+    const algebraica::mat4f *navigation_frame() const;
+    const algebraica::mat4f *vehicle_frame() const;
 
   private:
     float null_;
     double null_d_;
 
-    double *latitude_, *longitude_;
+    float *latitude_, *longitude_;
     float *position_x_, *position_y_, *altitude_;
     float *pitch_, *yaw_, *roll_;
     float *velocity_x_, *velocity_y_, *velocity_z_;
     float *steering_angle_;
     float ratio_;
 
-    Algebraica::mat4f navigation_frame_, vehicle_frame_;
-    CoordinateConversor<float> GPS_;
+    algebraica::mat4f navigation_frame_, vehicle_frame_;
+    ramrod::gps::coordinate_conversor<float> GPS_;
     boost::signals2::connection signal_update_;
   };
 }

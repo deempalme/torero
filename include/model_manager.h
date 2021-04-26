@@ -11,7 +11,7 @@
 #include "include/cubemap.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -47,7 +47,7 @@ namespace Toreo {
     // position of the duplicated model if you specify a *transformation_matrix, translate
     // or rotates the duplicated model.
     // Returns the id of the new duplicated 3D model or -1 if 3D model was not properly created.
-    MMelement add(MMid id, const Algebraica::mat4f *transformation_matrix);
+    MMelement add(MMid id, const algebraica::mat4f *transformation_matrix);
     // Colorizes the 3D model, this will ignore the albedo texture and apply a uniform color
     // through the whole 3D model. Max value is 255.
     // Returns false if Model element with ID = id was not found.
@@ -69,7 +69,7 @@ namespace Toreo {
     // Sets the transformation matrix for the 3D model with ID = id.
     // Returns false if Model element with ID = id was not found.
     bool set_transformation_matrix(MMid model_id, MMelement element_id,
-                                   const Algebraica::mat4f *transformation_matrix);
+                                   const algebraica::mat4f *transformation_matrix);
     // Translates the 3D model using X, Y and Z values
     // Returns false if Model element with ID = id was not found.
     bool translate(MMid model_id, MMelement element_id,
@@ -118,8 +118,8 @@ namespace Toreo {
     // Hides or displays the skybox (scene background)
     bool skybox_visibility(const bool hidden = true);
     // Defines the sun's direction and color
-    void sun_properties(const Algebraica::vec3f direction =
-                            Algebraica::vec3f(-0.866f, 0.70711f, 0.70711f),
+    void sun_properties(const algebraica::vec3f direction =
+                            algebraica::vec3f(-0.866f, 0.70711f, 0.70711f),
                         const int R = 255, const int G = 255, const int B = 255);
 
   private:
@@ -147,7 +147,7 @@ namespace Toreo {
 
     boost::signals2::connection signal_updated_camera_, signal_draw_all_;
 
-    Algebraica::vec3f sun_direction_, sun_color_;
+    algebraica::vec3f sun_direction_, sun_color_;
   };
 }
 

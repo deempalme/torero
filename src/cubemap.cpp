@@ -153,27 +153,27 @@ namespace Toreo {
 
         // pbr: set up projection and view matrices for capturing data onto the 6 cubemap faces
         // ------------------------------------------------------------------------------------
-        Algebraica::mat4f capture_projection;
+        algebraica::mat4f capture_projection;
         capture_projection.perspective(_PI2, 1.0f, 0.1f, 10.0f);
-        Algebraica::mat4f capture_views[] = {
-          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-          Algebraica::vec3f(1.0f,  0.0f,  0.0f),
-          Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-          Algebraica::vec3f(-1.0f,  0.0f,  0.0f),
-          Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-          Algebraica::vec3f(0.0f,  1.0f,  0.0f),
-          Algebraica::vec3f(0.0f,  0.0f,  1.0f)),
-          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f,  0.0f),
-          Algebraica::vec3f(0.0f, -1.0f,  0.0f),
-          Algebraica::vec3f(0.0f,  0.0f, -1.0f)),
-          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-          Algebraica::vec3f(0.0f,  0.0f,  1.0f),
-          Algebraica::vec3f(0.0f, -1.0f,  0.0f)),
-          Algebraica::mat4f::lookAt(Algebraica::vec3f(0.0f, 0.0f, 0.0f),
-          Algebraica::vec3f(0.0f,  0.0f, -1.0f),
-          Algebraica::vec3f(0.0f, -1.0f,  0.0f))
+        algebraica::mat4f capture_views[] = {
+          algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          algebraica::vec3f(1.0f,  0.0f,  0.0f),
+          algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+          algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          algebraica::vec3f(-1.0f,  0.0f,  0.0f),
+          algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+          algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          algebraica::vec3f(0.0f,  1.0f,  0.0f),
+          algebraica::vec3f(0.0f,  0.0f,  1.0f)),
+          algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f,  0.0f),
+          algebraica::vec3f(0.0f, -1.0f,  0.0f),
+          algebraica::vec3f(0.0f,  0.0f, -1.0f)),
+          algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          algebraica::vec3f(0.0f,  0.0f,  1.0f),
+          algebraica::vec3f(0.0f, -1.0f,  0.0f)),
+          algebraica::mat4f::lookAt(algebraica::vec3f(0.0f, 0.0f, 0.0f),
+          algebraica::vec3f(0.0f,  0.0f, -1.0f),
+          algebraica::vec3f(0.0f, -1.0f,  0.0f))
         };
 
         // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.

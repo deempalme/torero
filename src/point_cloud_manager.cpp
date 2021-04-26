@@ -40,12 +40,12 @@ namespace Toreo {
 
   PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZ> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const float color_red, const float color_green,
                                const float color_blue, const bool visible,
                                const float point_size, const float maximum_intensity_value){
     Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
-                                            Algebraica::vec3f(color_red, color_green, color_blue),
+                                            algebraica::vec3f(color_red, color_green, color_blue),
                                             point_size, maximum_intensity_value), name, visible };
     if(transformation_matrix != nullptr)
       cloud.point_cloud->set_transformation_matrix(transformation_matrix);
@@ -56,7 +56,7 @@ namespace Toreo {
 
   PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZI> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const Visualizer::ColorMode color_mode,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
@@ -72,7 +72,7 @@ namespace Toreo {
 
   PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZRGB> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
     Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
@@ -86,7 +86,7 @@ namespace Toreo {
 
   PCMid PointCloudManager::add(const std::vector<Visualizer::pointXYZRGBA> *point_cloud,
                                const std::string name,
-                               const Algebraica::mat4f *transformation_matrix,
+                               const algebraica::mat4f *transformation_matrix,
                                const bool visible, const float point_size,
                                const float maximum_intensity_value){
     Visualizer::PointCloudElement cloud = { new PointCloud(shader_, point_cloud,
@@ -154,7 +154,7 @@ namespace Toreo {
       return false;
   }
 
-  bool PointCloudManager::set_colormap(PCMid id, const Algebraica::vec3f *colors,
+  bool PointCloudManager::set_colormap(PCMid id, const algebraica::vec3f *colors,
                                        const unsigned int quantity){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
@@ -178,7 +178,7 @@ namespace Toreo {
   }
 
   bool PointCloudManager::set_transformation_matrix(PCMid id,
-                                                    const Algebraica::mat4f *transformation_matrix){
+                                                    const algebraica::mat4f *transformation_matrix){
     if(point_clouds_.size() > id)
       if(point_clouds_[id].point_cloud != nullptr){
         point_clouds_[id].point_cloud->set_transformation_matrix(transformation_matrix);

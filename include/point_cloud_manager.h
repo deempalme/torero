@@ -9,7 +9,7 @@
 #include "include/shader.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 // signals and slots
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
@@ -55,7 +55,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::pointXYZ>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const float} color_red = red color to paint the cloud, range: 0.0f -> 255.0f.
      * {const float} color_green = green color to paint the cloud, range: 0.0f -> 255.0f.
@@ -70,7 +70,7 @@ namespace Toreo {
      */
     PCMid add(const std::vector<Visualizer::pointXYZ> *point_cloud,
               const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
+              const algebraica::mat4f *transformation_matrix = nullptr,
               const float color_red = 255.0f,
               const float color_green = 255.0f,
               const float color_blue = 255.0f,
@@ -89,7 +89,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::pointXYZI>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const Visualizer::ColorMode} color_mode = see **color mode** *section*.
      * {const bool} visible = visibility of this point cloud.
@@ -102,7 +102,7 @@ namespace Toreo {
      */
     PCMid add(const std::vector<Visualizer::pointXYZI> *point_cloud,
               const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
+              const algebraica::mat4f *transformation_matrix = nullptr,
               const Visualizer::ColorMode color_mode = Visualizer::VARIABLE,
               const bool visible = true,
               const float point_size = 1.0f,
@@ -118,7 +118,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::pointXYZRGB>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} visible = visibility of this point cloud.
      * {const float} point_size = point size for each point in the cloud.
@@ -130,7 +130,7 @@ namespace Toreo {
      */
     PCMid add(const std::vector<Visualizer::pointXYZRGB> *point_cloud,
               const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
+              const algebraica::mat4f *transformation_matrix = nullptr,
               const bool visible = true,
               const float point_size = 1.0f,
               const float maximum_intensity_value = 1.0f);
@@ -146,7 +146,7 @@ namespace Toreo {
      * {const std::vector<Visualizer::pointXYZRGBA>*} point_cloud = Address to the point cloud data
      * (see data types for more information).
      * {const std::string} name = Title to display for this point cloud.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
+     * {const algebraica::mat4f*} transformation_matrix = Address to the transformation matrix
      * that defines the coordinate system's origin and orientation.
      * {const bool} visible = visibility of this point cloud.
      * {const float} point_size = point size for each point in the cloud.
@@ -158,7 +158,7 @@ namespace Toreo {
      */
     PCMid add(const std::vector<Visualizer::pointXYZRGBA> *point_cloud,
               const std::string name,
-              const Algebraica::mat4f *transformation_matrix = nullptr,
+              const algebraica::mat4f *transformation_matrix = nullptr,
               const bool visible = true,
               const float point_size = 1.0f,
               const float maximum_intensity_value = 1.0f);
@@ -249,7 +249,7 @@ namespace Toreo {
      *
      * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const Algebraica::vec3f*} colors = Address of a color's palette array.
+     * {const algebraica::vec3f*} colors = Address of a color's palette array.
      * {const unsigned int} quantity = quantity of array's elements.
      *
      * **Returns**
@@ -260,7 +260,7 @@ namespace Toreo {
      * in the array `colors`.
      *
      */
-    bool set_colormap(PCMid id, const Algebraica::vec3f *colors, const unsigned int quantity = 1u);
+    bool set_colormap(PCMid id, const algebraica::vec3f *colors, const unsigned int quantity = 1u);
     /*
      * ### Setting the color mode
      *
@@ -288,13 +288,13 @@ namespace Toreo {
      *
      * **Arguments**
      * {PCMid} id = **id** of the point cloud you want to modify.
-     * {const Algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
+     * {const algebraica::mat4f*} transformation_matrix = Address to the new transformation matrix.
      *
      * **Returns**
      * {bool} Returns `false` if the point cloud with **id** was **not** found.
      *
      */
-    bool set_transformation_matrix(PCMid id, const Algebraica::mat4f *transformation_matrix);
+    bool set_transformation_matrix(PCMid id, const algebraica::mat4f *transformation_matrix);
     /*
      * ### Translating the point cloud
      *

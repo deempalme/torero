@@ -10,7 +10,7 @@
 #include "include/types.h"
 
 // linear mathematical functions
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 // standard
 #include <iostream>
 #include <string>
@@ -170,13 +170,13 @@ namespace Toreo {
      * **look at** matrix transformation with the camera as parameter.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
+     * {const algebraica::mat4f} Returns the 4x4 transformation matrix of the camera.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_view();
+    const algebraica::mat4f &camera_matrix_view();
     /*
      * ### Obtaining the perspective transformation matrix
      *
@@ -186,27 +186,27 @@ namespace Toreo {
      * `FAR_PLANE` and field of view with value `FIELD_OF_VIEW`.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
+     * {const algebraica::mat4f} Returns the 4x4 view projection matrix (perspective view).
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_perspective();
+    const algebraica::mat4f &camera_matrix_perspective();
     /*
      * ### Obtaining the multiplied matrix between perspective and view matrices
      *
      * Returns the multiplied matrix between **perspective and view** transformation matrices.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
+     * {const algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
      * camera matrices multiplication.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_perspective_view();
+    const algebraica::mat4f &camera_matrix_perspective_view();
     /*
      * ### Obtaining the non-translated multiplied matrix between perspective and view matrices
      *
@@ -215,27 +215,27 @@ namespace Toreo {
      * pv_matrix and **not translations**.
      *
      * **Returns**
-     * {const Algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
+     * {const algebraica::mat4f} Returns the resulting 4x4 matrix of the projection and
      * camera matrices multiplication WITHOUT translation (only rotation).
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f &camera_matrix_static_perspective_view();
+    const algebraica::mat4f &camera_matrix_static_perspective_view();
     /*
      * ### Obtaining the camera position
      *
      * This function returns a 3D vector with the camera position in X, Y and Z.
      *
      * **Returns**
-     * {const Algebraica::vec3f} 3D vector width camera position.
+     * {const algebraica::vec3f} 3D vector width camera position.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::vec3f &camera_position();
+    const algebraica::vec3f &camera_position();
 
     // ------------------------------------------------------------------------------------ //
     // ----------------------------- SCENE's FRAME MATRICES ------------------------------- //
@@ -248,13 +248,13 @@ namespace Toreo {
      * [[coordinate system|Coordinate-systems#fixed-frame]] for more information).
      *
      * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **fixed frame** transformation matrix.
+     * {const algebraica::mat4f *const} Address to the **fixed frame** transformation matrix.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f *fixed_frame() const;
+    const algebraica::mat4f *fixed_frame() const;
     /*
      * ### Obtaining the "vehicle frame" transformation matrix
      *
@@ -263,13 +263,13 @@ namespace Toreo {
      * [[coordinate system|Coordinate-systems#vehicle-frame]] for more information).
      *
      * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **vehicle frame** transformation matrix.
+     * {const algebraica::mat4f *const} Address to the **vehicle frame** transformation matrix.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f *vehicle_frame() const;
+    const algebraica::mat4f *vehicle_frame() const;
     /*
      * ### Obtaining the "navigation frame" transformation matrix
      *
@@ -278,13 +278,13 @@ namespace Toreo {
      * [[coordinate system|Coordinate-systems#navigation-frame]] for more information).
      *
      * **Returns**
-     * {const Algebraica::mat4f *const} Address to the **navigation frame** transformation matrix.
+     * {const algebraica::mat4f *const} Address to the **navigation frame** transformation matrix.
      *
      * **Errors**
      * This will return error if the window was not created properly.
      *
      */
-    const Algebraica::mat4f *navigation_frame() const;
+    const algebraica::mat4f *navigation_frame() const;
 
     // ------------------------------------------------------------------------------------ //
     // -------------------------------- WINDOW MANAGEMENT --------------------------------- //
@@ -655,8 +655,8 @@ namespace Toreo {
     bool is_inversed_, has_changed_;
 
     GLfloat max_filtering_;
-    Algebraica::mat4f identity_matrix_;
-    Algebraica::mat4f *fixed_frame_, *vehicle_frame_, *navigation_frame_;
+    algebraica::mat4f identity_matrix_;
+    algebraica::mat4f *fixed_frame_, *vehicle_frame_, *navigation_frame_;
     Camera camera_;
 
     // signals

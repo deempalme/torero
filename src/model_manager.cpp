@@ -53,23 +53,23 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f, -10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, -10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f, -10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, -10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-//    Algebraica::vec3f lightColors[4] = {
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f),
-//      Algebraica::vec3f(500.0f, 500.0f, 500.0f)
+//    algebraica::vec3f lightColors[4] = {
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f),
+//      algebraica::vec3f(500.0f, 500.0f, 500.0f)
 //    };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10,
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10,
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10,
-      Algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f,
+      algebraica::vec3f(1.0f, 1.0f, 1.0f) * 10.0f
     };
 
     model_shader_->set_values(m_u_light_, &lightPositions[0], 4);
@@ -121,7 +121,7 @@ namespace Toreo {
     }
   }
 
-  MMelement ModelManager::add(MMid id, const Algebraica::mat4f *transformation_matrix){
+  MMelement ModelManager::add(MMid id, const algebraica::mat4f *transformation_matrix){
     if(models_.size() > id)
       if(models_.at(id).model){
         Visualizer::Model3DElement new_element;
@@ -208,7 +208,7 @@ namespace Toreo {
   }
 
   bool ModelManager::set_transformation_matrix(MMid model_id, MMelement element_id,
-                                               const Algebraica::mat4f *transformation_matrix){
+                                               const algebraica::mat4f *transformation_matrix){
     if(models_.size() > model_id)
       if(models_.at(model_id).model && models_.at(model_id).elements.size() > element_id){
         models_.at(model_id).elements.at(element_id).main = transformation_matrix;
@@ -395,7 +395,7 @@ namespace Toreo {
   }
 
   bool ModelManager::skybox_draw(){
-    bool ok{skybox_};
+    bool ok{skybox_ != nullptr};
 
     if(ok && skybox_visibility_)
       skybox_->draw();
@@ -406,7 +406,7 @@ namespace Toreo {
   }
 
   bool ModelManager::skybox_visibility(const bool hidden){
-    bool ok{skybox_};
+    bool ok{skybox_ != nullptr};
 
     if(ok)
       skybox_visibility_ = !hidden;
@@ -416,10 +416,10 @@ namespace Toreo {
     return ok;
   }
 
-  void ModelManager::sun_properties(const Algebraica::vec3f direction,
+  void ModelManager::sun_properties(const algebraica::vec3f direction,
                                     const int R, const int G, const int B){
-    sun_direction_(-direction.y(), direction.z(), -direction.x());
-    sun_color_ = Algebraica::vec3f(R / 255.0f, G / 255.0f, B / 255.0f);
+    sun_direction_(-direction.y, direction.z, -direction.x);
+    sun_color_ = algebraica::vec3f(R / 255.0f, G / 255.0f, B / 255.0f);
     model_shader_->use();
     model_shader_->set_value(m_u_sun_, sun_direction_);
     model_shader_->set_value(m_u_sun_color_, sun_color_);
@@ -430,7 +430,7 @@ namespace Toreo {
     model_shader_->set_value(m_u_colored_, element->colorize);
     if(element->colorize)
       model_shader_->set_value(m_u_color_,
-                               Algebraica::vec4f(element->R, element->G,
+                               algebraica::vec4f(element->R, element->G,
                                                  element->B, element->A)/255.0f);
 
     model_shader_->set_value(m_u_metallized_, element->metallize);
@@ -483,7 +483,7 @@ namespace Toreo {
     new_model.elements.clear();
 
     // Rear right
-    Algebraica::mat4f tire;
+    algebraica::mat4f tire;
     tire.translate(0.72f, 0.0f, 0.0f);
     element.secondary = tire;
     new_model.elements.push_back(element);
@@ -515,7 +515,7 @@ namespace Toreo {
     element.metallize = true;
     element.metallic = 1.0f;
     element.emitting = true;
-    element.secondary = Algebraica::mat4f();
+    element.secondary = algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
@@ -529,7 +529,7 @@ namespace Toreo {
     element.metallic = 1.0f;
     element.roughen = true;
     element.roughness = 0.3f;
-    element.secondary = Algebraica::mat4f();
+    element.secondary = algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 
@@ -555,7 +555,7 @@ namespace Toreo {
     new_model.elements.clear();
 
     // Rear right
-    Algebraica::mat4f tire;
+    algebraica::mat4f tire;
     tire.translate(0.9f, 0.0f, 0.0f);
     element.secondary = tire;
     new_model.elements.push_back(element);
@@ -593,7 +593,7 @@ namespace Toreo {
 //    element.G = 58.0f;
 //    element.B = 79.0f;
 //    element.A = 242.25f;
-    element.secondary = Algebraica::mat4f();
+    element.secondary = algebraica::mat4f();
     new_model.elements.push_back(element);
     models_.push_back(new_model);
 

@@ -9,7 +9,7 @@
 #include "include/shader.h"
 #include "include/types.h"
 
-#include "Algebraica.h"
+#include "algebraica/algebraica.h"
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/signals2.hpp>

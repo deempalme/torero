@@ -3,7 +3,7 @@
 namespace Toreo {
   PointCloud::PointCloud(Shader *shader_program,
                          const std::vector<Visualizer::pointXYZ> *point_cloud,
-                         const Algebraica::vec3f rgb_color, const float point_size,
+                         const algebraica::vec3f rgb_color, const float point_size,
                          const float maximum_intensity_value) :
     shader_(shader_program),
     buffer_(true),
@@ -21,7 +21,7 @@ namespace Toreo {
     color_size_(1),
     type_size_(sizeof(Visualizer::pointXYZ)),
     data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
+    offset_(sizeof(algebraica::vec3f)),
     offset_x2_(offset_ + offset_)
   {
     initialize();
@@ -42,13 +42,13 @@ namespace Toreo {
     color_mode_(color_mode),
     point_size_(point_size),
     maximum_intensity_value_(maximum_intensity_value),
-    color_palette_{Algebraica::vec3f(0.2, 0.5, 0.7), Algebraica::vec3f(0, 1, 0),
-                   Algebraica::vec3f(1, 1, 0), Algebraica::vec3f(1, 0, 0)},
+    color_palette_{algebraica::vec3f(0.2, 0.5, 0.7), algebraica::vec3f(0, 1, 0),
+                   algebraica::vec3f(1, 1, 0), algebraica::vec3f(1, 0, 0)},
     type_(POINT_XYZI),
     color_size_(4),
     type_size_(sizeof(Visualizer::pointXYZI)),
     data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
+    offset_(sizeof(algebraica::vec3f)),
     offset_x2_(offset_ + offset_)
   {
     initialize();
@@ -73,7 +73,7 @@ namespace Toreo {
     color_size_(0),
     type_size_(sizeof(Visualizer::pointXYZRGB)),
     data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
+    offset_(sizeof(algebraica::vec3f)),
     offset_x2_(offset_ + offset_)
   {
     initialize();
@@ -98,7 +98,7 @@ namespace Toreo {
     color_size_(0),
     type_size_(sizeof(Visualizer::pointXYZRGBA)),
     data_size_(0),
-    offset_(sizeof(Algebraica::vec3f)),
+    offset_(sizeof(algebraica::vec3f)),
     offset_x2_(offset_ + offset_)
   {
     initialize();
@@ -126,10 +126,10 @@ namespace Toreo {
       point_cloud_rgb_ = nullptr;
       point_cloud_rgba_ = nullptr;
       color_mode_ = Visualizer::VARIABLE;
-      color_palette_[0] = Algebraica::vec3f(0.2, 0.5, 0.7); //grayish blue
-      color_palette_[1] = Algebraica::vec3f(0, 1, 0);       //green
-      color_palette_[2] = Algebraica::vec3f(1, 1, 0);       //yellow
-      color_palette_[3] = Algebraica::vec3f(1, 0, 0);       //red
+      color_palette_[0] = algebraica::vec3f(0.2, 0.5, 0.7); //grayish blue
+      color_palette_[1] = algebraica::vec3f(0, 1, 0);       //green
+      color_palette_[2] = algebraica::vec3f(1, 1, 0);       //yellow
+      color_palette_[3] = algebraica::vec3f(1, 0, 0);       //red
       type_ = POINT_XYZI;
       color_size_ = 4;
       type_size_ = sizeof(Visualizer::pointXYZI);
@@ -168,21 +168,21 @@ namespace Toreo {
     restart();
   }
 
-  void PointCloud::set_colormap(const Algebraica::vec3f *colors, const unsigned int quantity){
+  void PointCloud::set_colormap(const algebraica::vec3f *colors, const unsigned int quantity){
     color_size_ = (quantity > 10)? 9 : quantity - 1;
 
     for(uint i = 0; i < 10; i++)
       if(i < quantity)
-        color_palette_[i] = Algebraica::vec3f(*(colors + i)) / 255.0f;
+        color_palette_[i] = algebraica::vec3f(*(colors + i)) / 255.0f;
       else
-        color_palette_[i] = Algebraica::vec3f();
+        color_palette_[i] = algebraica::vec3f();
   }
 
   void PointCloud::set_color_mode(const Visualizer::ColorMode color_mode){
     color_mode_ = color_mode;
   }
 
-  void PointCloud::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void PointCloud::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -198,16 +198,16 @@ namespace Toreo {
     secondary_model_.translate(x, y, z);
   }
 
-  void PointCloud::translate(const Algebraica::vec3f translation){
-    secondary_model_.translate(translation.x(), translation.y(), translation.z());
+  void PointCloud::translate(const algebraica::vec3f translation){
+    secondary_model_.translate(translation.x, translation.y, translation.z);
   }
 
   void PointCloud::rotate(const float pitch, const float yaw, const float roll){
     secondary_model_.rotate(pitch, yaw, roll);
   }
 
-  void PointCloud::rotate(const Algebraica::vec3f rotation){
-    secondary_model_.rotate(rotation.x(), rotation.y(), rotation.z());
+  void PointCloud::rotate(const algebraica::vec3f rotation){
+    secondary_model_.rotate(rotation.x, rotation.y, rotation.z);
   }
 
   void PointCloud::rotate_in_x(const float angle){

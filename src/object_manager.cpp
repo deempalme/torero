@@ -43,20 +43,20 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f,-10.0f),
+      algebraica::vec3f( 10.0f, 10.0f,-10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(1.0f, 0.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 0.0f, 1.0f)
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 0.0f),
+      algebraica::vec3f(1.0f, 0.0f, 0.0f),
+      algebraica::vec3f(0.0f, 1.0f, 0.0f),
+      algebraica::vec3f(0.0f, 0.0f, 1.0f)
     };
 
-    Algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
+    algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
 
     shader_->set_value(u_directional_light_, sun_direction);
     shader_->set_value(u_directional_light_color_, sun_color);
@@ -113,7 +113,7 @@ namespace Toreo {
 
   OMid ObjectManager::add_boxes(const std::vector<Visualizer::Object> *objects,
                                 const std::string name,
-                                const Algebraica::mat4f *transformation_matrix,
+                                const algebraica::mat4f *transformation_matrix,
                                 const bool visible){
     Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_box_,
                                          ao_box_, solid_box_, solid_arrow_, ao_arrow_,
@@ -127,7 +127,7 @@ namespace Toreo {
 
   OMid ObjectManager::add_circles(const std::vector<Visualizer::Object> *objects,
                                   const std::string name,
-                                  const Algebraica::mat4f *transformation_matrix,
+                                  const algebraica::mat4f *transformation_matrix,
                                   const bool visible){
     Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_circle_,
                                          ao_circle_, solid_circle_, solid_arrow_, ao_arrow_,
@@ -141,7 +141,7 @@ namespace Toreo {
 
   OMid ObjectManager::add_cylinders(const std::vector<Visualizer::Object> *objects,
                                     const std::string name,
-                                    const Algebraica::mat4f *transformation_matrix,
+                                    const algebraica::mat4f *transformation_matrix,
                                     const bool visible){
     Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_cylinder_,
                                          ao_cylinder_, solid_cylinder_, solid_arrow_, ao_arrow_,
@@ -155,7 +155,7 @@ namespace Toreo {
 
   OMid ObjectManager::add_squares(const std::vector<Visualizer::Object> *objects,
                                   const std::string name,
-                                  const Algebraica::mat4f *transformation_matrix,
+                                  const algebraica::mat4f *transformation_matrix,
                                   const bool visible){
     Visualizer::ObjectElement object = { new Objects(shader_, objects, hollow_square_,
                                          ao_square_, solid_square_, solid_arrow_, ao_arrow_,
@@ -179,7 +179,7 @@ namespace Toreo {
   }
 
   bool ObjectManager::set_transformation_matrix(OMid id,
-                                                const Algebraica::mat4f *transformation_matrix){
+                                                const algebraica::mat4f *transformation_matrix){
     if(objects_.size() > id)
       if(objects_[id].object != nullptr){
         objects_[id].object->set_transformation_matrix(transformation_matrix);

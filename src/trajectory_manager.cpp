@@ -59,7 +59,7 @@ namespace Toreo {
 
   TMid TrajectoryManager::add(const std::vector<Visualizer::Trajectory> *trajectories,
                               const std::string name,
-                              const Algebraica::mat4f *transformation_matrix,
+                              const algebraica::mat4f *transformation_matrix,
                               const Visualizer::LineType type,
                               const bool visible){
     Visualizer::TrajectoryElement trajectory = { new Trajectory(shader_, trajectories),
@@ -103,7 +103,7 @@ namespace Toreo {
   }
 
   bool TrajectoryManager::set_transformation_matrix(TMid id,
-                                                    const Algebraica::mat4f *transformation_matrix){
+                                                    const algebraica::mat4f *transformation_matrix){
     if(trajectories_.size() > id)
       if(trajectories_.at(id).trajectory != nullptr){
         trajectories_.at(id).trajectory->set_transformation_matrix(transformation_matrix);
@@ -287,20 +287,20 @@ namespace Toreo {
 
     // lights
     // ------
-    Algebraica::vec3f lightPositions[4] = {
-      Algebraica::vec3f(-10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f,-10.0f),
-      Algebraica::vec3f(-10.0f, 10.0f, 10.0f),
-      Algebraica::vec3f( 10.0f, 10.0f, 10.0f),
+    algebraica::vec3f lightPositions[4] = {
+      algebraica::vec3f(-10.0f, 10.0f,-10.0f),
+      algebraica::vec3f( 10.0f, 10.0f,-10.0f),
+      algebraica::vec3f(-10.0f, 10.0f, 10.0f),
+      algebraica::vec3f( 10.0f, 10.0f, 10.0f),
     };
-    Algebraica::vec3f lightColors[4] = {
-      Algebraica::vec3f(1.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(1.0f, 0.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 1.0f, 0.0f),
-      Algebraica::vec3f(0.0f, 0.0f, 1.0f)
+    algebraica::vec3f lightColors[4] = {
+      algebraica::vec3f(1.0f, 1.0f, 0.0f),
+      algebraica::vec3f(1.0f, 0.0f, 0.0f),
+      algebraica::vec3f(0.0f, 1.0f, 0.0f),
+      algebraica::vec3f(0.0f, 0.0f, 1.0f)
     };
 
-    Algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
+    algebraica::vec3f sun_direction(-0.70711f, 0.70711f, 0.4f), sun_color(1.0f, 1.0f, 1.0f);
 
     shader_->set_value(u_directional_light_, sun_direction);
     shader_->set_value(u_directional_light_color_, sun_color);

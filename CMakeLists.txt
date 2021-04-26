@@ -105,7 +105,7 @@ add_subdirectory(lib/algebraica)
 
 # ++++++++++++++++++++++++++++++ COORDINATE CONVERSOR ++++++++++++++++++++++++++++++
 # adding the root directory of coordinate_conversor source tree to your project
-add_subdirectory(lib/coordinate_conversor)
+add_subdirectory(lib/GPS_coordinate_converter)
 
 # ++++++++++++++++++++++++++++++++ stb_image loader ++++++++++++++++++++++++++++++++
 add_definitions(-DSTB_IMAGE_STATIC)
@@ -121,7 +121,7 @@ set(STB_FILES
 set(TORERO_DIRS_LOCAL
   lib/GLAD/include
   ${ALGEBRAICA_DIRS}
-  ${COORDINATE_DIRS}
+  ${COORDINATE_INCLUDE_DIRS}
   lib/stb
   ${Boost_INCLUDE_DIR}
 )
@@ -133,7 +133,7 @@ set(TORERO_DIRS
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_SOURCE_DIR}/lib/GLAD/include
   ${ALGEBRAICA_DIRS}
-  ${COORDINATE_DIRS}
+  ${COORDINATE_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/lib/stb
 
   CACHE INTERNAL ""
@@ -164,7 +164,7 @@ add_library(${TORERO_NAME}
 target_link_libraries(${TORERO_NAME}
   ${GLFW_LIBRARIES}
   ${ALGEBRAICA_LIB}
-  ${COORDINATE_LIB}
+  ${COORDINATE_LIBRARIES}
   ${OPENGL_LIBRARIES}
   ${Boost_LIBRARIES}
   ${CMAKE_DL_LIBS}

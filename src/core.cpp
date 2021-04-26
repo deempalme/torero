@@ -26,8 +26,8 @@ namespace Toreo {
     fixed_frame_(&identity_matrix_),
     vehicle_frame_(&identity_matrix_),
     navigation_frame_(&identity_matrix_),
-    camera_(Algebraica::vec3f(-12.0f, 0.0f, 5.0f), Algebraica::vec3f(),
-            Algebraica::vec3f(0.0f, 0.0f, 1.0f), vehicle_frame_),
+    camera_(algebraica::vec3f(-12.0f, 0.0f, 5.0f), algebraica::vec3f(),
+            algebraica::vec3f(0.0f, 0.0f, 1.0f), vehicle_frame_),
     signal_draw_(9)
   {
     // glfw: initialize and configure
@@ -143,35 +143,35 @@ namespace Toreo {
     camera_.isometric_view();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_view(){
+  const algebraica::mat4f &Core::camera_matrix_view(){
     return camera_.view_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective(){
+  const algebraica::mat4f &Core::camera_matrix_perspective(){
     return camera_.perspective_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_perspective_view(){
+  const algebraica::mat4f &Core::camera_matrix_perspective_view(){
     return camera_.pv_matrix();
   }
 
-  const Algebraica::mat4f &Core::camera_matrix_static_perspective_view(){
+  const algebraica::mat4f &Core::camera_matrix_static_perspective_view(){
     return camera_.static_pv_matrix();
   }
 
-  const Algebraica::vec3f &Core::camera_position(){
+  const algebraica::vec3f &Core::camera_position(){
     return camera_.camera_position();
   }
 
-  const Algebraica::mat4f *Core::fixed_frame() const{
+  const algebraica::mat4f *Core::fixed_frame() const{
     return fixed_frame_;
   }
 
-  const Algebraica::mat4f *Core::vehicle_frame() const{
+  const algebraica::mat4f *Core::vehicle_frame() const{
     return vehicle_frame_;
   }
 
-  const Algebraica::mat4f *Core::navigation_frame() const{
+  const algebraica::mat4f *Core::navigation_frame() const{
     return navigation_frame_;
   }
 

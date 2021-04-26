@@ -19,7 +19,7 @@ namespace Toreo {
     trajectories_ = trajectories;
   }
 
-  void Trajectory::set_transformation_matrix(const Algebraica::mat4f *transformation_matrix){
+  void Trajectory::set_transformation_matrix(const algebraica::mat4f *transformation_matrix){
     primary_model_ = transformation_matrix;
   }
 
@@ -31,8 +31,8 @@ namespace Toreo {
     secondary_model_.rotate(pitch, yaw, roll);
   }
 
-  void Trajectory::rotate(const Algebraica::vec3f rotation){
-    secondary_model_.rotate(rotation.x(), rotation.y(), rotation.z());
+  void Trajectory::rotate(const algebraica::vec3f rotation){
+    secondary_model_.rotate(rotation.x, rotation.y, rotation.z);
   }
 
   void Trajectory::rotate_in_x(const float angle){
@@ -80,10 +80,10 @@ namespace Toreo {
               second.distance = 0;
               sub_trajectory.at(++counter) = second;
             }else if(i == last){
-              second.distance += Algebraica::vec3f::distance(second.position, first.position);
+              second.distance += algebraica::vec3f::distance(second.position, first.position);
               sub_trajectory.at(++counter) = second;
             }else{
-              second.distance += Algebraica::vec3f::distance(second.position, first.position);
+              second.distance += algebraica::vec3f::distance(second.position, first.position);
             }
             sub_trajectory.at(++counter) = second;
             first = second;
@@ -101,11 +101,11 @@ namespace Toreo {
       buffer_.enable(i_position_);
       buffer_.attributte_buffer(i_position_, _3D, 0, type_size_);
 
-      offset += sizeof(Algebraica::vec3f);
+      offset += sizeof(algebraica::vec3f);
       buffer_.enable(i_color_);
       buffer_.attributte_buffer(i_color_, _4D, offset, type_size_);
 
-      offset += sizeof(Algebraica::vec4f);
+      offset += sizeof(algebraica::vec4f);
       buffer_.enable(i_line_width_);
       buffer_.attributte_buffer(i_line_width_, _1D, offset, type_size_);
 

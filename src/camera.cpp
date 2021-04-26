@@ -1,22 +1,22 @@
 #include "include/camera.h"
 
 namespace Toreo {
-  Camera::Camera(const Algebraica::vec3f position, const Algebraica::vec3f target,
-                 const Algebraica::vec3f up, Algebraica::mat4f *vehicle_transformation_matrix) :
+  Camera::Camera(const algebraica::vec3f position, const algebraica::vec3f target,
+                 const algebraica::vec3f up, algebraica::mat4f *vehicle_transformation_matrix) :
     vehicle_transformation_matrix_(vehicle_transformation_matrix),
     view_matrix_(),
     perspective_matrix_(),
     pv_matrix_(),
     spv_matrix_(),
     camera_rotation_matrix_(),
-    camera_position_(-position.y(), position.z(), -position.x()),
-    camera_target_(-target.y(), target.z(), -target.x()),
-    camera_up_(-up.y(), up.z(), -up.x()),
+    camera_position_(-position.y, position.z, -position.x),
+    camera_target_(-target.y, target.z, -target.x),
+    camera_up_(-up.y, up.z, -up.x),
     last_camera_position_(camera_position_),
     last_camera_target_(camera_target_),
     camera_translation_(),
     pitch_(0.0f),
-    initial_min_pitch_(_PI2 - atan2(position.z() - target.z(), -position.x() + target.x())),
+    initial_min_pitch_(_PI2 - atan2(position.z - target.z, -position.x + target.x)),
     initial_max_pitch_(_PI + initial_min_pitch_),
     yaw_(0.0f),
     roll_(0.0f),
@@ -92,7 +92,7 @@ namespace Toreo {
   }
 
   void Camera::translate_camera(const float x, const float y, const float z){
-    camera_translation_ += Algebraica::vec3f(x, y, z);
+    camera_translation_ += algebraica::vec3f(x, y, z);
     update_view();
   }
 
@@ -110,7 +110,7 @@ namespace Toreo {
         camera_up_(0.0f, 1.0f, 0.0f);
     }else{
       camera_translation_ += camera_rotation_matrix_ *
-          Algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
+          algebraica::vec3f(-dx * translational_width_factor_ * zoom_,
                             dy * translational_height_factor_ * zoom_,
                             0);
     }
@@ -142,7 +142,7 @@ namespace Toreo {
     fixed_view_ = fix;
 
     if(fixed_view_)
-      fixed_camera_translation_ = *vehicle_transformation_matrix_ * Algebraica::vec3f();
+      fixed_camera_translation_ = *vehicle_transformation_matrix_ * algebraica::vec3f();
     else
       fixed_camera_translation_();
   }
@@ -174,7 +174,7 @@ namespace Toreo {
 
   void Camera::update_view(){
 
-    Algebraica::vec3f position, target;
+    algebraica::vec3f position, target;
 
     if(fixed_view_){
       position = camera_rotation_matrix_ * camera_position_ + fixed_camera_translation_;
@@ -206,31 +206,31 @@ namespace Toreo {
     callback_function_ = callback_function;
   }
 
-  const Algebraica::mat4f &Camera::view_matrix(){
+  const algebraica::mat4f &Camera::view_matrix(){
     return view_matrix_;
   }
 
-  const Algebraica::mat4f &Camera::perspective_matrix(){
+  const algebraica::mat4f &Camera::perspective_matrix(){
     return perspective_matrix_;
   }
 
-  const Algebraica::mat4f &Camera::pv_matrix(){
+  const algebraica::mat4f &Camera::pv_matrix(){
     return pv_matrix_;
   }
 
-  const Algebraica::mat4f &Camera::static_pv_matrix(){
+  const algebraica::mat4f &Camera::static_pv_matrix(){
     return spv_matrix_;
   }
 
-  const Algebraica::vec3f &Camera::camera_position(){
+  const algebraica::vec3f &Camera::camera_position(){
     return last_camera_position_;
   }
 
-  const Algebraica::vec3f &Camera::camera_target(){
+  const algebraica::vec3f &Camera::camera_target(){
     return last_camera_target_;
   }
 
-  const Algebraica::vec3f &Camera::camera_up(){
+  const algebraica::vec3f &Camera::camera_up(){
     return camera_up_;
   }
 
@@ -260,7 +260,7 @@ namespace Toreo {
       camera_translation_();
 
     if(fixed_view_)
-      fixed_camera_translation_ = *vehicle_transformation_matrix_ * Algebraica::vec3f();
+      fixed_camera_translation_ = *vehicle_transformation_matrix_ * algebraica::vec3f();
     else
       fixed_camera_translation_();
 
@@ -269,8 +269,8 @@ namespace Toreo {
     yaw_ = 0.0f;
     roll_ = 0.0f;
 
-    initial_min_pitch_ = _PI2 - atan2(camera_position_.y() - camera_target_.y(),
-                                      camera_position_.z() - camera_target_.z());
+    initial_min_pitch_ = _PI2 - atan2(camera_position_.y - camera_target_.y,
+                                      camera_position_.z - camera_target_.z);
     initial_max_pitch_ = _PI + initial_min_pitch_;
   }
 }
